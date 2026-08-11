@@ -29,25 +29,23 @@ const {
 
 const rawTitle = title.replace(/<[^>]*>/g, '');
 const displayPrice = formatPrice(priceText) || (typeof priceText === 'string' ? priceText : 'Ver detalles');
-const hasRating = ratingScore !== undefined && ratingScore !== null && ratingScore !== '';
+const finalRating = ratingScore !== undefined && ratingScore !== null && ratingScore !== '' ? ratingScore : 5;
 ---
 <article class="course-card">
   <a href={href} class="course-card-link">
     <div class="course-media">
       <span class="tag">{tag}</span>
-      {hasRating && <span class="rating-badge">★ {ratingScore}</span>}
+      <span class="rating-badge">★ {finalRating}</span>
       <img src={image} alt={imageAlt} />
     </div>
     <div class="course-body">
       <div class="course-meta">{meta}</div>
       <h3>{rawTitle}</h3>
       <p>{description}</p>
-      {hasRating && (
-        <div class="stars-line">
-          <span class="stars">★★★★★</span>
-          <span class="score-val">{ratingScore}</span>
-        </div>
-      )}
+      <div class="stars-line">
+        <span class="stars">★★★★★</span>
+        <span class="score-val">{finalRating}</span>
+      </div>
       <div class="course-footer">
         <div class="price-box">
           <small>Desde</small>
@@ -80,7 +78,7 @@ const hasRating = ratingScore !== undefined && ratingScore !== null && ratingSco
     height: 100%;
   }
   .course-media {
-    height: 220px;
+    height: 200px;
     position: relative;
     overflow: hidden;
   }
@@ -123,36 +121,46 @@ const hasRating = ratingScore !== undefined && ratingScore !== null && ratingSco
     border: 1px solid rgba(255, 255, 255, 0.15);
   }
   .course-body {
-    padding: 24px;
+    padding: 22px 22px 20px;
     display: flex;
     flex-direction: column;
     flex: 1;
   }
   .course-meta {
-    font-size: 0.76rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.09em;
     font-weight: 800;
     color: var(--muted);
   }
   .course-body h3 {
-    font: 800 1.3rem / 1.18 "Manrope", sans-serif;
-    letter-spacing: -0.035em;
-    margin: 10px 0 8px;
+    font: 800 1.25rem / 1.22 "Manrope", sans-serif;
+    letter-spacing: -0.03em;
+    margin: 8px 0 8px;
     color: var(--ink) !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 3.05rem;
   }
   .course-body p {
     color: #555c6e;
     line-height: 1.55;
-    font-size: 0.94rem;
+    font-size: 0.92rem;
     margin: 0 0 14px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 4.2em;
   }
   .stars-line {
     display: flex;
     align-items: center;
     gap: 6px;
-    margin-bottom: 18px;
-    margin-top: 10px;
+    margin-bottom: 16px;
+    margin-top: auto;
   }
   .stars {
     color: #F4A21B;
