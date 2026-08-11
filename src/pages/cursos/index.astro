@@ -11,10 +11,10 @@ import { formatTitle } from '../../lib/utils/formatTitle';
 const searchParams = Astro.url.searchParams;
 const qParam = searchParams.get('q')?.trim() || '';
 const categoryParam = searchParams.get('categoria')?.trim() || 'todos';
-const maxPriceParam = parseInt(searchParams.get('precio') || '100') || 100;
+const maxPriceParam = parseInt(searchParams.get('precio') || '300') || 300;
 const sortParam = searchParams.get('orden') || 'default';
 const currentPage = Math.max(1, parseInt(searchParams.get('pagina') || '1') || 1);
-const pageSize = 6;
+const pageSize = 12;
 
 // Edge Cache: 60s browser, 5min Cloudflare CDN CDN hit for ultra fast navigation
 Astro.response.headers.set(
@@ -55,7 +55,7 @@ if (sortParam === 'price-asc') {
   filtered.sort((a, b) => b.title.localeCompare(a.title));
 }
 
-const activeFilterCount = (categoryParam !== 'todos' ? 1 : 0) + (maxPriceParam < 100 ? 1 : 0) + (sortParam !== 'default' ? 1 : 0) + (qParam ? 1 : 0);
+const activeFilterCount = (categoryParam !== 'todos' ? 1 : 0) + (maxPriceParam < 300 ? 1 : 0) + (sortParam !== 'default' ? 1 : 0) + (qParam ? 1 : 0);
 
 // 3. Paginación Server-Side
 const totalCourses = filtered.length;
@@ -63,7 +63,7 @@ const totalPages = Math.max(1, Math.ceil(totalCourses / pageSize));
 const validPage = Math.min(currentPage, totalPages);
 const startIndex = (validPage - 1) * pageSize;
 const paginatedCourses = filtered.slice(startIndex, startIndex + pageSize);
-const hasFilters = Boolean(qParam) || categoryParam !== 'todos' || maxPriceParam < 100 || sortParam !== 'default';
+const hasFilters = Boolean(qParam) || categoryParam !== 'todos' || maxPriceParam < 300 || sortParam !== 'default';
 const canonical = !hasFilters && validPage > 1 ? `/cursos?pagina=${validPage}` : '/cursos';
 const robots = hasFilters ? 'noindex,follow' : undefined;
 const pageTitle = validPage > 1 && !hasFilters
@@ -138,7 +138,7 @@ const categories = [
         <!-- FORMULARIO DE BÚSQUEDA SSR CON ANCLA #catalogo -->
         <form action="/cursos#catalogo" method="GET" class="search-shell">
           {categoryParam !== 'todos' && <input type="hidden" name="categoria" value={categoryParam} />}
-          {maxPriceParam !== 100 && <input type="hidden" name="precio" value={maxPriceParam} />}
+          {maxPriceParam !== 300 && <input type="hidden" name="precio" value={maxPriceParam} />}
           {sortParam !== 'default' && <input type="hidden" name="orden" value={sortParam} />}
           
           <label class="search">
@@ -303,10 +303,10 @@ const categories = [
               <span class="filter-label">
                 Precio máximo: <strong id="modalPriceValue">${maxPriceParam}</strong>
               </span>
-              <input type="range" name="precio" min="10" max="100" step="5" value={maxPriceParam} class="range-slider" id="modalPriceInput" />
+              <input type="range" name="precio" min="10" max="300" step="5" value={maxPriceParam} class="range-slider" id="modalPriceInput" />
               <div class="range-labels">
                 <span>$10</span>
-                <span>$100</span>
+                <span>$300</span>
               </div>
             </div>
 
@@ -501,7 +501,7 @@ const categories = [
       if (cat && cat !== 'todos') params.set('categoria', cat);
 
       const price = formData.get('precio')?.toString();
-      if (price && price !== '100') params.set('precio', price);
+      if (price && price !== '300') params.set('precio', price);
 
       const sort = formData.get('orden')?.toString();
       if (sort && sort !== 'default') params.set('orden', sort);
