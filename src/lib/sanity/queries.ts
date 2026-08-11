@@ -52,6 +52,8 @@ export interface Course {
   isFeatured?: boolean;
   isMenuRecommended?: boolean;
   affiliateUrl?: string;
+  secondaryCtaText?: string;
+  secondaryCtaUrl?: string;
   ratingScore?: number;
   ratingText?: string;
   facts?: string[];
@@ -184,6 +186,8 @@ export async function getCourses(): Promise<Course[]> {
         isFeatured,
         isMenuRecommended,
         affiliateUrl,
+        secondaryCtaText,
+        secondaryCtaUrl,
         ratingScore,
         ratingText,
         facts,
@@ -232,6 +236,8 @@ export async function getCoursesByCategory(categorySlug: string): Promise<Course
         heroImage,
         isFeatured,
         affiliateUrl,
+        secondaryCtaText,
+        secondaryCtaUrl,
         ratingScore,
         ratingText,
         facts,
@@ -281,6 +287,8 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
         heroImage,
         isFeatured,
         affiliateUrl,
+        secondaryCtaText,
+        secondaryCtaUrl,
         ratingScore,
         ratingText,
         facts,

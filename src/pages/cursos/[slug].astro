@@ -186,6 +186,11 @@ const jsonLd = faqs.length > 0
             <a class="btn btn-acid" href={`/go/${course.slug}`} target="_blank" rel="sponsored nofollow">
               Ver oferta oficial ↗
             </a>
+            {course.secondaryCtaUrl && (
+              <a class="btn btn-secondary-cta" href={course.secondaryCtaUrl} target="_blank" rel="noopener noreferrer">
+                {course.secondaryCtaText || 'Ver clase gratuita ↗'}
+              </a>
+            )}
             <small>Revisa el precio, moneda, garantía y condiciones finales antes de pagar.</small>
             <div class="purchase-list">
               <span>✓ Pago en plataforma externa</span>
@@ -825,6 +830,25 @@ const jsonLd = faqs.length > 0
     align-items: center;
     justify-content: center;
     text-decoration: none;
+  }
+  .purchase .btn-secondary-cta {
+    width: 100%;
+    margin-top: 10px;
+    background: transparent;
+    color: #ffffff;
+    border: 1.5px solid rgba(255, 255, 255, 0.28);
+    padding: 13px 20px;
+    border-radius: 999px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .purchase .btn-secondary-cta:hover {
+    border-color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
   }
   .purchase small {
     display: block;

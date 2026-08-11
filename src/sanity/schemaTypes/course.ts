@@ -102,6 +102,19 @@ export const courseType = defineType({
       description: 'Enlace directo a la página de ventas del creador.',
       validation: (Rule) => Rule.required().uri({ scheme: ['http', 'https'] }).error('El enlace de compra es obligatorio.'),
     }),
+    defineField({
+      name: 'secondaryCtaText',
+      title: 'Texto del botón secundario / Clase gratuita (OPCIONAL)',
+      type: 'string',
+      description: 'Ej: Ver clase gratuita, Probar lección gratis, Ver recursos',
+    }),
+    defineField({
+      name: 'secondaryCtaUrl',
+      title: 'Enlace del botón secundario / Clase gratuita (OPCIONAL)',
+      type: 'url',
+      description: 'Enlace directo a la clase previa, video de YouTube o recurso gratuito.',
+      validation: (Rule) => Rule.uri({ scheme: ['http', 'https'] }),
+    }),
 
     // RATING / VALORACIÓN
     defineField({
