@@ -147,9 +147,23 @@ const subcategories = [
   },
 ];
 
+const defaultCategoryImages: Record<string, string> = {
+  'belleza-y-unas': '/images/hero-manicure.webp',
+  'cocina-y-pasteleria': '/images/hero-pasteleria.webp',
+  'digital-e-ia': '/images/hero-digital-ia.jpg',
+  'reparacion-y-oficios': '/images/hero-reparacion-oficios.jpg',
+  'creatividad-y-manualidades': '/images/categoria-creatividad.webp',
+  'emprendimiento': '/images/hero-emprendimiento.jpg',
+  unas: '/images/hero-manicure.webp',
+  pasteleria: '/images/hero-pasteleria.webp',
+  digital: '/images/hero-digital-ia.jpg',
+  oficios: '/images/hero-reparacion-oficios.jpg',
+  general: '/images/hero-emprendimiento.jpg',
+};
+
 const heroImg = sanityCategory?.image 
   ? urlFor(sanityCategory.image).width(1300).url() 
-  : '/images/hero-manicure.webp';
+  : defaultCategoryImages[categorySlug] || defaultCategoryImages[categoryType] || '/images/hero-emprendimiento.jpg';
 ---
 
 <Layout title={`${categoryTitle} | Cursos y Guías Domina`} description={categoryDesc}>
