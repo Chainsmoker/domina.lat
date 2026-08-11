@@ -1,0 +1,372 @@
+---
+export const prerender = true;
+
+import Layout from '../layouts/Layout.astro';
+import CourseCard from '../components/CourseCard.astro';
+import NewsletterSection from '../components/NewsletterSection.astro';
+import { getCategories, getCourses, type Category, type Course } from '../lib/sanity/queries';
+import { urlFor } from '../lib/sanity/image';
+
+const categories = await getCategories();
+const allCourses = await getCourses();
+
+const catBgColors = ['#ffc2b0', '#d5caff', 'var(--lime)', '#ffe09e', '#bde8db', '#f3c5ff'];
+
+// Agrupar cursos por categoría
+const coursesByCategory = new Map<string, Course[]>();
+allCourses.forEach((course) => {
+  const slug = course.category?.slug || 'otros';
+  if (!coursesByCategory.has(slug)) {
+    coursesByCategory.set(slug, []);
+  }
+  coursesByCategory.get(slug)?.push(course);
+});
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Categorías de Cursos — Domina',
+  description: 'Explora cursos prácticos organizados por áreas de conocimiento en Domina.',
+  itemListElement: categories.map((cat, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: cat.title,
+    url: `https://domina.lat/categoria/${cat.slug}`,
+  })),
+};
+---
+
+<Layout
+  title="Todas las Categorías de Cursos — Domina"
+  description="Explora rutas de aprendizaje organizadas por áreas: belleza, cocina, digital e IA, oficios y manualidades. Aprende habilidades reales para emprender."
+  image="/images/hero-manicure.webp"
+  jsonLd={jsonLd}
+>
+  <main class="page-categorias">
+    <!-- HERO SECTION -->
+    <section class="hero">
+      <div class="container">
+        <nav class="breadcrumbs" aria-label="Navegación">
+          <a href="/">Inicio</a> / <span aria-current="page">Categorías</span>
+        </nav>
+        <div class="hero-content">
+          <span class="eyebrow">Rutas y áreas de estudio</span>
+          <h1 class="display">Todas las <span>categorías.</span></h1>
+          <p class="lead">
+            Explora formaciones seleccionadas por habilidades reales. Elige el área que mejor se ajuste a tu objetivo, tu tiempo y tus ganas de crecer.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- BENTO GRID DE CATEGORÍAS -->
+    <section class="bento-section">
+      <div class="container">
+        <div class="categories-bento">
+          {categories.map((cat, idx) => {
+            const catCourses = coursesByCategory.get(cat.slug) || [];
+            const color = catBgColors[idx % catBgColors.length];
+            const isFeatured = idx === 0;
+
+            return (
+              <a
+                href={`/categoria/${cat.slug}`}
+                class={`bento-card ${isFeatured ? 'bento-featured' : ''}`}
+                style={`--card-bg: ${color};`}
+              >
+                <div class="bento-top">
+                  <span class="badge">{cat.eyebrow || 'Área de estudio'}</span>
+                  <span class="course-count">{catCourses.length} {catCourses.length === 1 ? 'curso' : 'cursos'}</span>
+                </div>
+                <div class="bento-body">
+                  <h2>{cat.title}</h2>
+                  <p>{cat.description || 'Ruta práctica estructurada paso a paso para dominar esta técnica.'}</p>
+                </div>
+                <div class="bento-footer">
+                  <span class="explore-btn">Explorar área ↗</span>
+                </div>
+                <div class="bento-bg-circle"></div>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIONES DE CURSOS DESTACADOS POR CATEGORÍA -->
+    <section class="category-previews">
+      <div class="container">
+        {categories.map((cat) => {
+          const catCourses = (coursesByCategory.get(cat.slug) || []).slice(0, 3);
+          if (catCourses.length === 0) return null;
+
+          return (
+            <div class="cat-preview-block" id={cat.slug}>
+              <div class="block-head">
+                <div>
+                  <span class="cat-pill">{cat.eyebrow || 'Categoría'}</span>
+                  <h2>{cat.title}</h2>
+                  {cat.description && <p>{cat.description}</p>}
+                </div>
+                <a href={`/categoria/${cat.slug}`} class="btn btn-outline">
+                  Ver todos los cursos de {cat.title} ↗
+                </a>
+              </div>
+
+              <div class="cards-grid">
+                {catCourses.map((c) => (
+                  <CourseCard
+                    tag={c.resourceType || c.eyebrow || cat.title}
+                    image={c.ogImage ? urlFor(c.ogImage).width(800).url() : (c.heroImage ? urlFor(c.heroImage).width(800).url() : '/images/hero-manicure.webp')}
+                    imageAlt={c.title.replace(/<[^>]*>/g, '')}
+                    meta={cat.title}
+                    title={c.title}
+                    description={c.dek || ''}
+                    href={`/cursos/${c.slug}`}
+                    priceText={c.price || 'Ver detalles'}
+                    ratingScore={c.ratingScore}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+
+    <!-- NEWSLETTER SECTION -->
+    <NewsletterSection />
+  </main>
+</Layout>
+
+<style>
+  .page-categorias .hero {
+    padding: 72px 0 48px;
+    background: var(--paper);
+  }
+  .breadcrumbs {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+  .breadcrumbs a {
+    color: var(--ink);
+    transition: color 0.15s ease;
+  }
+  .breadcrumbs a:hover {
+    color: var(--orange);
+  }
+  .hero-content {
+    max-width: 720px;
+  }
+  .hero h1 {
+    font-size: clamp(3.2rem, 6.5vw, 6rem);
+    letter-spacing: -0.045em;
+    line-height: 0.96;
+    margin: 12px 0 20px;
+  }
+  .hero h1 span {
+    color: var(--orange);
+  }
+  .lead {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: #4c5264;
+  }
+
+  /* BENTO GRID */
+  .bento-section {
+    padding: 20px 0 80px;
+  }
+  .categories-bento {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .bento-card {
+    position: relative;
+    background: var(--card-bg, var(--cream));
+    border-radius: 32px;
+    padding: 34px 30px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 290px;
+    text-decoration: none;
+    color: var(--ink);
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+    border: 1px solid rgba(11, 16, 32, 0.06);
+    isolation: isolate;
+  }
+  .bento-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 24px 55px rgba(11, 16, 32, 0.12);
+  }
+  .bento-featured {
+    grid-column: span 2;
+    min-height: 320px;
+  }
+  .bento-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .bento-top .badge {
+    background: rgba(11, 16, 32, 0.88);
+    color: #ffffff;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .course-count {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: rgba(11, 16, 32, 0.75);
+    background: rgba(255, 255, 255, 0.65);
+    padding: 5px 12px;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+  }
+  .bento-body h2 {
+    font: 800 clamp(1.8rem, 3vw, 2.5rem) / 1.08 "Manrope", sans-serif;
+    letter-spacing: -0.04em;
+    margin: 0 0 10px;
+    color: var(--ink);
+  }
+  .bento-body p {
+    font-size: 1rem;
+    line-height: 1.55;
+    color: rgba(11, 16, 32, 0.76);
+    max-width: 480px;
+    margin: 0;
+  }
+  .bento-footer {
+    margin-top: 28px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .explore-btn {
+    font-weight: 800;
+    font-size: 0.94rem;
+    color: var(--ink);
+    background: #ffffff;
+    padding: 10px 18px;
+    border-radius: 999px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .bento-card:hover .explore-btn {
+    background: var(--ink);
+    color: #ffffff;
+    transform: translateX(4px);
+  }
+  .bento-bg-circle {
+    position: absolute;
+    right: -30px;
+    bottom: -30px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* PREVIEW BLOCKS */
+  .category-previews {
+    padding: 40px 0 80px;
+    border-top: 1px solid var(--line);
+  }
+  .cat-preview-block {
+    margin-bottom: 72px;
+  }
+  .cat-preview-block:last-child {
+    margin-bottom: 0;
+  }
+  .block-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  .cat-pill {
+    display: inline-block;
+    background: var(--lime);
+    color: var(--ink);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 6px 12px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+  }
+  .block-head h2 {
+    font: 800 clamp(2rem, 4vw, 3.2rem) / 1.05 "Manrope", sans-serif;
+    letter-spacing: -0.04em;
+    margin: 0 0 8px;
+  }
+  .block-head p {
+    color: var(--muted);
+    font-size: 1.02rem;
+    margin: 0;
+    max-width: 540px;
+  }
+  .btn-outline {
+    border: 1px solid var(--line);
+    background: #ffffff;
+    color: var(--ink);
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 0.92rem;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+  .btn-outline:hover {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: #ffffff;
+  }
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  @media (max-width: 1040px) {
+    .categories-bento {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .bento-featured {
+      grid-column: span 2;
+    }
+    .cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .block-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  @media (max-width: 680px) {
+    .categories-bento {
+      grid-template-columns: 1fr;
+    }
+    .bento-featured {
+      grid-column: auto;
+    }
+    .cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
