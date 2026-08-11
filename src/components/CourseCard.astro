@@ -29,23 +29,25 @@ const {
 
 const rawTitle = title.replace(/<[^>]*>/g, '');
 const displayPrice = formatPrice(priceText) || (typeof priceText === 'string' ? priceText : 'Ver detalles');
-const finalRating = ratingScore !== undefined && ratingScore !== null && ratingScore !== '' ? ratingScore : 5;
+const hasRating = ratingScore !== undefined && ratingScore !== null && ratingScore !== '';
 ---
 <article class="course-card">
   <a href={href} class="course-card-link">
     <div class="course-media">
       <span class="tag">{tag}</span>
-      <span class="rating-badge">★ {finalRating}</span>
+      {hasRating && <span class="rating-badge">★ {ratingScore}</span>}
       <img src={image} alt={imageAlt} />
     </div>
     <div class="course-body">
       <div class="course-meta">{meta}</div>
       <h3>{rawTitle}</h3>
       <p>{description}</p>
-      <div class="stars-line">
-        <span class="stars">★★★★★</span>
-        <span class="score-val">{finalRating}</span>
-      </div>
+      {hasRating && (
+        <div class="stars-line">
+          <span class="stars">★★★★★</span>
+          <span class="score-val">{ratingScore}</span>
+        </div>
+      )}
       <div class="course-footer">
         <div class="price-box">
           <small>Desde</small>
