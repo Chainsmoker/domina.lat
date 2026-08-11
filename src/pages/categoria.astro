@@ -247,7 +247,9 @@ const heroImg = sanityCategory?.image
           <div class="course-grid" id="courseGrid">
             {displayCourses.map((c, idx) => {
               const isFeature = idx === 0;
-              const img = c.ogImage ? urlFor(c.ogImage).width(1200).url() : (c.heroImage ? urlFor(c.heroImage).width(1200).url() : '/images/hero-manicure.webp');
+              const img = isFeature
+                ? (c.heroImage ? urlFor(c.heroImage).width(1200).url() : (c.ogImage ? urlFor(c.ogImage).width(1200).url() : '/images/hero-manicure.webp'))
+                : (c.ogImage ? urlFor(c.ogImage).width(1200).url() : (c.heroImage ? urlFor(c.heroImage).width(1200).url() : '/images/hero-manicure.webp'));
               const rawTitle = c.title.replace(/<[^>]*>/g, '');
               const defaultFacts = ['Acceso online', 'Paso a paso', 'Certificado'];
               const courseFacts = c.facts && c.facts.length > 0 ? c.facts : defaultFacts;
@@ -256,7 +258,6 @@ const heroImg = sanityCategory?.image
                 <article class={`card ${isFeature ? 'feature' : ''}`} data-type={courseTypes(c)}>
                   <div class="media">
                     <span class="badge">{c.resourceType || c.eyebrow || (isFeature ? 'Curso destacado' : 'Video curso')}</span>
-                    <button class="save" aria-label="Guardar curso">♡</button>
                     <img src={img} alt={rawTitle} />
                   </div>
                   <div class="body">
@@ -723,26 +724,7 @@ const heroImg = sanityCategory?.image
     color: var(--ink);
     z-index: 2;
   }
-  .save {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 38px;
-    height: 38px;
-    border: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .92);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    z-index: 2;
-    transition: transform .2s;
-  }
-  .save:hover {
-    transform: scale(1.1);
-  }
+
   .body {
     padding: 24px;
     display: flex;
@@ -1077,13 +1059,7 @@ const heroImg = sanityCategory?.image
         });
       });
     });
-    document.querySelectorAll<HTMLButtonElement>('.save').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const saved = btn.textContent === '♥';
-        btn.textContent = saved ? '♡' : '♥';
-        btn.setAttribute('aria-pressed', String(!saved));
-      });
-    });
+
   };
 
   initCategoryInteractions();
