@@ -1,0 +1,964 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getPosts, getCoursesByCategory, getCourses, getCategoryBySlug } from '../lib/sanity/queries';
+import { urlFor } from '../lib/sanity/image';
+import { formatTitle } from '../lib/utils/formatTitle';
+import { formatPrice } from '../lib/utils/formatPrice';
+
+const { category } = Astro.props;
+
+// Edge Cache: 60s browser, 5min Cloudflare CDN hit
+Astro.response.headers.set(
+  'cache-control',
+  'public, max-age=60, s-maxage=300, stale-while-revalidate=86400'
+);
+
+// Obtener información de la categoría y sus cursos desde Sanity
+const categorySlug = category?.slug || 'belleza-y-unas';
+const sanityCategory = (await getCategoryBySlug(categorySlug)) || category;
+
+const categoryTitle = sanityCategory?.title || sanityCategory?.cardTitle || 'Belleza & uñas';
+const categoryEyebrow = sanityCategory?.eyebrow || 'Categoría destacada';
+const categoryDesc = sanityCategory?.description || 'Formaciones seleccionadas para aprender técnicas de manicure, pestañas, maquillaje y servicios de belleza con una mirada práctica: qué aprenderás, qué necesitas y cómo aplicar la habilidad.';
+
+// Cursos de esta categoría desde Sanity
+const displayCourses = await getCoursesByCategory(categorySlug);
+
+// Guías relacionadas desde Sanity
+const allPosts = await getPosts();
+const displayGuides = allPosts.filter(p => 
+  p.category?.slug === categorySlug || 
+  (p as any).categories?.some((c: any) => c.slug === categorySlug)
+);
+
+// Mapeos de tema visual
+const categoryKey = (categorySlug || '').toLowerCase();
+const categoryType =
+  categoryKey.includes('unas') || categoryKey.includes('belleza')
+    ? 'unas'
+    : categoryKey.includes('pastel') || categoryKey.includes('cocina')
+      ? 'pasteleria'
+      : categoryKey.includes('digital') || categoryKey.includes('ia')
+        ? 'digital'
+        : categoryKey.includes('oficio') || categoryKey.includes('repar')
+          ? 'oficios'
+          : 'general';
+
+const cardStyleColorMap: Record<string, string> = {
+  'card-orange': '#FF8A65',
+  'card-lime': 'var(--lime)',
+  'card-violet': 'var(--violet)',
+  'card-mint': 'var(--mint)',
+  'card-pink': 'var(--pink)',
+};
+
+const categoryTypeColorMap: Record<string, string> = {
+  unas: 'var(--pink)',
+  pasteleria: '#FF9EAA',
+  digital: 'var(--violet)',
+  oficios: 'var(--lime)',
+  general: '#FF8A65',
+};
+
+const categoryColor =
+  sanityCategory?.color ||
+  (sanityCategory?.cardStyle && cardStyleColorMap[sanityCategory.cardStyle]) ||
+  categoryTypeColorMap[categoryType] ||
+  'var(--pink)';
+
+const categoryFiltersMap: Record<string, Array<{ id: string; label: string }>> = {
+  unas: [
+    { id: 'todos', label: 'Todos' },
+    { id: 'unas', label: 'Uñas' },
+    { id: 'pestanas', label: 'Pestañas' },
+    { id: 'maquillaje', label: 'Maquillaje' },
+    { id: 'negocio', label: 'Para emprender' },
+  ],
+  pasteleria: [
+    { id: 'todos', label: 'Todos' },
+    { id: 'pasteleria', label: 'Pastelería' },
+    { id: 'postres', label: 'Postres' },
+    { id: 'negocio', label: 'Para emprender' },
+  ],
+  digital: [
+    { id: 'todos', label: 'Todos' },
+    { id: 'digital', label: 'Digital' },
+    { id: 'ia', label: 'IA' },
+    { id: 'negocio', label: 'Para emprender' },
+  ],
+  oficios: [
+    { id: 'todos', label: 'Todos' },
+    { id: 'oficios', label: 'Oficios' },
+    { id: 'reparacion', label: 'Reparación' },
+    { id: 'negocio', label: 'Para emprender' },
+  ],
+};
+
+const categoryFilters = categoryFiltersMap[categoryType] || [
+  { id: 'todos', label: 'Todos' },
+  { id: 'negocio', label: 'Para emprender' },
+];
+
+const filterKeywords: Record<string, string[]> = {
+  unas: ['uñ', 'belleza', 'manicure', 'pestaña', 'ceja', 'maquillaje'],
+  pestanas: ['pestaña', 'ceja'],
+  maquillaje: ['maquillaje'],
+  pasteleria: ['pastel', 'postre', 'receta', 'cocina'],
+  postres: ['postre', 'receta'],
+  digital: ['digital', 'ia', 'chatgpt', 'automatiz'],
+  ia: ['ia', 'chatgpt', 'inteligencia'],
+  oficios: ['oficio', 'celular', 'repar', 'tecnic'],
+  reparacion: ['repar', 'celular', 'mantenim'],
+  negocio: ['emprend', 'negocio', 'vender', 'servicio'],
+};
+
+function courseTypes(course: (typeof displayCourses)[number]) {
+  const text = `${course.title} ${course.dek || ''} ${course.category?.title || ''}`.toLowerCase();
+  return Object.entries(filterKeywords)
+    .filter(([, keywords]) => keywords.some((keyword) => text.includes(keyword)))
+    .map(([type]) => type)
+    .join(' ');
+}
+
+// Mantiene cinco entradas visuales adaptadas a cada categoría.
+const subcategories = [
+  { 
+    svg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>`, 
+    title: categoryType === 'unas' ? 'Uñas profesionales' : `${categoryTitle.split(' ')[0]} inicial`, 
+    text: `${displayCourses.length} cursos seleccionados` 
+  },
+  { 
+    svg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`, 
+    title: categoryType === 'unas' ? 'Pestañas y cejas' : 'Técnicas esenciales', 
+    text: categoryType === 'unas' ? '8 cursos seleccionados' : 'Paso a paso guiado' 
+  },
+  { 
+    svg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/></svg>`, 
+    title: categoryType === 'unas' ? 'Maquillaje' : 'Para emprender', 
+    text: categoryType === 'unas' ? '11 cursos seleccionados' : 'Rutas prácticas' 
+  },
+  { 
+    svg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>`, 
+    title: categoryType === 'unas' ? 'Negocio de belleza' : 'Servicios comerciales', 
+    text: 'Cursos con enfoque en clientes' 
+  },
+  { 
+    svg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`, 
+    title: 'Guías para empezar', 
+    text: `${displayGuides.length} artículos explicativos` 
+  },
+];
+
+const defaultCategoryImages: Record<string, string> = {
+  'belleza-y-unas': '/images/hero-manicure.webp',
+  'cocina-y-pasteleria': '/images/hero-pasteleria.webp',
+  'digital-e-ia': '/images/hero-digital-ia.jpg',
+  'reparacion-y-oficios': '/images/hero-reparacion-oficios.jpg',
+  'creatividad-y-manualidades': '/images/categoria-creatividad.webp',
+  'emprendimiento': '/images/hero-emprendimiento.jpg',
+  unas: '/images/hero-manicure.webp',
+  pasteleria: '/images/hero-pasteleria.webp',
+  digital: '/images/hero-digital-ia.jpg',
+  oficios: '/images/hero-reparacion-oficios.jpg',
+  general: '/images/hero-emprendimiento.jpg',
+};
+
+const heroImg = sanityCategory?.image 
+  ? urlFor(sanityCategory.image).width(1300).url() 
+  : defaultCategoryImages[categorySlug] || defaultCategoryImages[categoryType] || '/images/hero-emprendimiento.jpg';
+---
+
+<Layout title={`${categoryTitle} | Cursos y Guías Domina`} description={categoryDesc}>
+  <main class="page-categoria-exact">
+    <div class="container crumbs">
+      <a href="/">Inicio</a> / <a href="/categorias">Categorías</a> / <span>{categoryTitle}</span>
+    </div>
+
+    <header class="hero">
+      <div class="container">
+        <div class="hero-card" style={`--cat-accent: ${categoryColor};`}>
+          <div class="hero-bg-shapes" aria-hidden="true">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+          </div>
+
+          <div class="hero-content">
+            <div class="hero-copy">
+              <span class="eyebrow">{categoryEyebrow}</span>
+              <h1 class="display" set:html={formatTitle(categoryTitle)} />
+              <p>{categoryDesc}</p>
+              <div class="hero-actions">
+                <a class="btn btn-dark" href="#cursos">Explorar todos los cursos ↗</a>
+                <a class="btn btn-soft" href="#guias">Leer guías ↗</a>
+              </div>
+            </div>
+
+            {heroImg && (
+              <div class="hero-visual">
+                <div class="media-frame">
+                  <img src={heroImg} alt={categoryTitle} />
+                </div>
+                <div class="hero-badge">
+                  <small>Ruta consultada</small>
+                  <strong>Aprende desde cero</strong>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="subcats">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Explora la categoría</span>
+            <h2 class="display">Encuentra tu punto de entrada.</h2>
+          </div>
+          <p>Elige una especialidad según la habilidad que quieres aprender o el servicio que te interesa ofrecer.</p>
+        </div>
+
+        <div class="subgrid">
+          {subcategories.map((sub) => (
+            <a class="subcard" href={sub.title === 'Guías para empezar' ? '#guias' : '#cursos'}>
+              <span class="subicon" set:html={sub.svg} />
+              <div>
+                <strong>{sub.title}</strong>
+                <span>{sub.text}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN DE CURSOS -->
+    <section class="courses" id="cursos">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Cursos recomendados</span>
+            <h2 class="display">Formación paso a paso en {categoryTitle}.</h2>
+          </div>
+          <p>Aprende las técnicas esenciales, herramientas necesarias y metodologías para trabajar con clientes.</p>
+        </div>
+
+        {displayCourses.length > 0 ? (
+          <>
+            <div class="course-toolbar">
+              <div class="chips">
+                {categoryFilters.map((filter) => (
+                  <button class={`filter ${filter.id === 'todos' ? 'active' : ''}`} data-filter={filter.id}>
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+              <span class="count">
+                Mostrando <strong id="visibleCount">{displayCourses.length}</strong> cursos
+              </span>
+            </div>
+
+            <div class="course-grid" id="courseGrid">
+              {displayCourses.map((c, idx) => {
+                const types = courseTypes(c);
+                const hasAuthor = Boolean((c as any).author?.name);
+                const hasRating = Boolean(c.ratingScore);
+
+                // Para el primer producto (destacado grande), usar heroImage vertical preferentemente
+                const imgSrc = idx === 0 && c.heroImage
+                  ? urlFor(c.heroImage).width(800).url()
+                  : c.ogImage 
+                    ? urlFor(c.ogImage).width(800).url() 
+                    : (c.heroImage ? urlFor(c.heroImage).width(800).url() : '/images/hero-manicure.webp');
+
+                return (
+                  <article
+                    class={`card ${idx === 0 ? 'feature' : ''}`}
+                    data-types={types}
+                  >
+                    <div class="media">
+                      <img src={imgSrc} alt={c.title.replace(/<[^>]*>/g, '')} />
+                    </div>
+
+                    <div class="body">
+                      <div>
+                        {idx !== 0 && (
+                          <div class="top-bar">
+                            <span class="meta">{c.resourceType || c.eyebrow || 'CURSO ONLINE'}</span>
+                          </div>
+                        )}
+
+                        <h3 set:html={formatTitle(c.title)} />
+                        {c.dek && <p class="desc">{c.dek}</p>}
+                      </div>
+
+                      {idx === 0 ? (
+                        <div class="facts">
+                          <div class="fact">
+                            <small>Duración sugerida</small>
+                            <b>A tu ritmo</b>
+                          </div>
+                          <div class="fact">
+                            <small>Nivel</small>
+                            <b>Paso a paso</b>
+                          </div>
+                          <div class="fact">
+                            <small>Acceso</small>
+                            <b>De por vida</b>
+                          </div>
+                        </div>
+                      ) : (
+                        (hasAuthor || hasRating) && (
+                          <div class="proof">
+                            {hasAuthor && (
+                              <div class="author-row">
+                                <span class="author-label">Con</span> <strong>{(c as any).author?.name}</strong>
+                              </div>
+                            )}
+                            {hasRating && (
+                              <div class="rating-row">
+                                <span class="stars">★★★★★</span>
+                                <span class="score">{c.ratingScore}</span>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      )}
+
+                      <div class="course-footer">
+                        <div class="price">
+                          <strong>{formatPrice(c.price)}</strong>
+                        </div>
+                        <a class="btn-detail" href={`/cursos/${c.slug}`}>
+                          Ver curso ↗
+                        </a>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          <div class="empty-state">
+            <h3>Próximamente más cursos en {categoryTitle}</h3>
+            <p>Estamos preparando nuevos contenidos para esta categoría. Mientras tanto, puedes explorar nuestras guías.</p>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <!-- SECCIÓN DE GUÍAS RELACIONADAS -->
+    {displayGuides.length > 0 && (
+      <section class="guides-section" id="guias">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">Lecturas recomendadas</span>
+              <h2 class="display">Guías para entender la habilidad.</h2>
+            </div>
+            <p>Artículos explicativos sobre herramientas, inversión inicial y primeros pasos en esta área.</p>
+          </div>
+
+          <div class="guide-grid">
+            {displayGuides.map((g) => (
+              <a class="guide-card" href={`/guias/${g.slug}`}>
+                <div class="guide-media">
+                  <img src={g.ogImage ? urlFor(g.ogImage).width(500).url() : '/images/hero-manicure.webp'} alt={g.title} />
+                </div>
+                <div class="guide-body">
+                  <span class="tag">{g.category?.title || categoryTitle}</span>
+                  <h3>{g.title}</h3>
+                  <span class="read-more">Leer guía ↗</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- CHECKS / VALOR -->
+    <section class="trust">
+      <div class="container">
+        <div class="checks">
+          <div class="check">
+            <b>Selección práctica</b>
+            <p>Cursos organizados para que aprendas técnicas concretas y listas para aplicar.</p>
+          </div>
+          <div class="check">
+            <b>Rutas claras</b>
+            <p>Sin rodeos: aprende desde el primer paso qué herramientas comprar y cómo practicar.</p>
+          </div>
+          <div class="check">
+            <b>Enfoque comercial</b>
+            <p>Aprende no solo la técnica, sino cómo ofrecer tu trabajo a clientes reales.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .page-categoria-exact {
+    background: var(--paper);
+    padding-bottom: 60px;
+  }
+  .crumbs {
+    padding: 22px 0;
+    font-size: .9rem;
+    color: var(--muted);
+  }
+  .crumbs a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .hero {
+    margin-bottom: 60px;
+  }
+  .hero-card {
+    background: #0B1020;
+    color: #ffffff;
+    border-radius: 36px;
+    padding: 60px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(11, 16, 32, 0.22);
+  }
+  .hero-bg-shapes .shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.25;
+    pointer-events: none;
+  }
+  .shape-1 {
+    width: 380px;
+    height: 380px;
+    background: var(--cat-accent, var(--pink));
+    top: -100px;
+    right: -50px;
+  }
+  .shape-2 {
+    width: 300px;
+    height: 300px;
+    background: var(--orange);
+    bottom: -80px;
+    left: 20%;
+  }
+  .shape-3 {
+    width: 250px;
+    height: 250px;
+    background: var(--violet);
+    top: 30%;
+    right: 35%;
+  }
+
+  .hero-content {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 48px;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+  }
+  .hero-copy .eyebrow {
+    color: var(--cat-accent, var(--lime));
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.82rem;
+    display: block;
+    margin-bottom: 12px;
+  }
+  .hero-copy h1 {
+    color: #ffffff;
+    font-size: clamp(2.8rem, 5.5vw, 4.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    margin: 0 0 20px;
+  }
+  .hero-copy p {
+    color: #C3C8D4;
+    font-size: 1.12rem;
+    line-height: 1.65;
+    margin-bottom: 32px;
+    max-width: 580px;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 14px;
+  }
+  .btn-dark {
+    background: var(--cat-accent, var(--lime));
+    color: #0B1020;
+    font-weight: 800;
+    padding: 14px 26px;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-dark:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+  .btn-soft {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-weight: 700;
+    padding: 14px 24px;
+    border-radius: 999px;
+    text-decoration: none;
+    backdrop-filter: blur(10px);
+    transition: background 0.2s;
+  }
+  .btn-soft:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .hero-visual {
+    position: relative;
+  }
+  .media-frame {
+    border-radius: 28px;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .media-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hero-badge {
+    position: absolute;
+    bottom: -18px;
+    left: -18px;
+    background: #ffffff;
+    color: #0B1020;
+    padding: 14px 20px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+    transform: rotate(-3deg);
+  }
+  .hero-badge small {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748B;
+  }
+  .hero-badge strong {
+    font-size: 0.98rem;
+    font-weight: 800;
+  }
+
+  .subcats {
+    margin-bottom: 70px;
+  }
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 32px;
+  }
+  .section-head .eyebrow {
+    color: var(--orange);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .section-head h2 {
+    font-size: clamp(2rem, 3.8vw, 3rem);
+    letter-spacing: -0.04em;
+    margin: 0;
+    line-height: 1.05;
+  }
+  .section-head p {
+    color: var(--muted);
+    max-width: 480px;
+    margin: 0;
+    line-height: 1.55;
+  }
+
+  .subgrid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+  }
+  .subcard {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 22px 18px;
+    text-decoration: none;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 140px;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+  .subcard:hover {
+    transform: translateY(-4px);
+    border-color: var(--ink);
+    box-shadow: 0 12px 30px rgba(11, 16, 32, 0.08);
+  }
+  .subicon {
+    color: var(--orange);
+    display: inline-flex;
+  }
+  .subcard strong {
+    display: block;
+    font-size: 0.98rem;
+    font-weight: 800;
+    margin-top: 12px;
+    line-height: 1.25;
+  }
+  .subcard span {
+    font-size: 0.8rem;
+    color: var(--muted);
+    display: block;
+    margin-top: 4px;
+  }
+
+  .courses {
+    margin-bottom: 80px;
+  }
+  .course-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--orange) transparent;
+  }
+  .chips::-webkit-scrollbar {
+    height: 4px;
+  }
+  .chips::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .chips::-webkit-scrollbar-thumb {
+    background: var(--orange);
+    border-radius: 999px;
+  }
+  .filter {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .filter:hover, .filter.active {
+    background: var(--ink);
+    color: #ffffff;
+    border-color: var(--ink);
+  }
+  .count {
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+
+  .course-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  /* FEATURED CARD */
+  .feature {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #0B1020;
+    color: #ffffff;
+    border-radius: 32px;
+    box-shadow: 0 20px 50px rgba(11, 16, 32, 0.18);
+    border: none;
+  }
+  .feature .media {
+    height: 100%;
+    min-height: 380px;
+  }
+  .feature .body {
+    padding: 38px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .feature .meta {
+    color: var(--lime);
+    font-size: .78rem;
+    letter-spacing: .1em;
+  }
+  .feature h3 {
+    color: #ffffff;
+    font-size: 2.1rem;
+    line-height: 1.12;
+    letter-spacing: -.04em;
+    margin: 12px 0;
+  }
+  .feature .desc {
+    color: #C3C8D4;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  .feature .fact {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 10px 14px;
+  }
+  .feature .fact small {
+    color: #94A3B8;
+  }
+  .feature .fact b {
+    color: #ffffff;
+  }
+
+  .proof {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    margin-top: 8px;
+    border-top: 1px dashed var(--line);
+    font-size: 0.85rem;
+  }
+  .stars {
+    color: #F59E0B;
+    letter-spacing: 2px;
+  }
+
+  .course-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 16px;
+  }
+  .btn-detail {
+    background: var(--ink);
+    color: #ffffff;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 0.88rem;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .btn-detail:hover {
+    background: var(--orange);
+    color: var(--ink);
+  }
+
+  .guides-section {
+    margin-bottom: 80px;
+  }
+  .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  .guide-card {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 20px;
+    text-decoration: none;
+    color: var(--ink);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .guide-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(11, 16, 32, 0.08);
+  }
+  .guide-media {
+    border-radius: 18px;
+    overflow: hidden;
+    aspect-ratio: 1;
+  }
+  .guide-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .guide-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .guide-body .tag {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--orange);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .guide-body h3 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+    margin: 6px 0 0;
+  }
+  .read-more {
+    font-weight: 800;
+    font-size: 0.88rem;
+    color: var(--ink);
+    margin-top: 12px;
+  }
+
+  .trust {
+    margin-bottom: 40px;
+  }
+  .checks {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 36px;
+  }
+  .check b {
+    font: 800 1.15rem "Manrope", sans-serif;
+    display: block;
+    color: var(--ink);
+  }
+  .check p {
+    font-size: 0.92rem;
+    margin: 8px 0 0;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  @media (max-width: 1050px) {
+    .hero-card {
+      padding: 48px 36px;
+    }
+    .hero-content {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+    .hero-visual {
+      display: none;
+    }
+    .subgrid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .course-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .feature {
+      grid-column: span 2;
+    }
+    .guide-grid, .trust-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .hero-card {
+      padding: 36px 24px;
+      border-radius: 28px;
+    }
+    .hero h1 {
+      font-size: clamp(2.2rem, 8.5vw, 3.4rem);
+    }
+    .hero-actions {
+      flex-direction: column;
+    }
+    .btn-dark, .btn-soft {
+      text-align: center;
+      width: 100%;
+    }
+    .section-head, .course-toolbar {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+    .subgrid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .course-grid {
+      grid-template-columns: 1fr;
+    }
+    .feature {
+      grid-column: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .feature .media {
+      min-height: 250px;
+    }
+    .feature h3 {
+      font-size: 1.55rem;
+    }
+    .guide-card {
+      grid-template-columns: 110px 1fr;
+    }
+    .checks {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  const initCategoryInteractions = () => {
+    const buttons = [...document.querySelectorAll<HTMLButtonElement>('.filter')];
+    const cards = [...document.querySelectorAll<HTMLElement>('#courseGrid .card')];
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        buttons.forEach((button) => button.classList.remove('active'));
+        btn.classList.add('active');
+
+        const selectedFilter = btn.getAttribute('data-filter') || 'todos';
+        let visibleCount = 0;
+
+        cards.forEach((card) => {
+          const types = (card.getAttribute('data-types') || '').split(' ');
+
+          if (selectedFilter === 'todos' || types.includes(selectedFilter)) {
+            card.style.display = '';
+            visibleCount += 1;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        const visibleCountEl = document.getElementById('visibleCount');
+        if (visibleCountEl) {
+          visibleCountEl.textContent = visibleCount.toString();
+        }
+      });
+    });
+  };
+
+  initCategoryInteractions();
+  document.addEventListener('astro:page-load', initCategoryInteractions);
+</script>

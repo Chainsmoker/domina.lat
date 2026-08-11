@@ -11,6 +11,11 @@ import Layout from '../layouts/Layout.astro';
         <h1>La plataforma necesita un momento.</h1>
         <p class="copy">Algo falló al procesar esta página. Tus datos no deberían verse afectados. Puedes volver a intentarlo o regresar a una sección estable de Domina.</p>
         
+        <form class="search-500" action="/cursos" method="GET">
+          <input name="q" aria-label="Buscar cursos o guías" placeholder="Buscar uñas, pastelería, IA…" />
+          <button type="submit">Buscar</button>
+        </form>
+
         <div class="actions">
           <button class="btn btn-acid" id="retryBtn">Intentar de nuevo ↻</button>
           <a class="btn btn-outline" href="/">Ir al inicio</a>
@@ -99,11 +104,52 @@ import Layout from '../layouts/Layout.astro';
     max-width: 650px;
   }
 
+  .search-500 {
+    margin-top: 26px;
+    display: flex;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+    padding: 6px;
+    max-width: 570px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+  }
+
+  .search-500 input {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    padding: 0 16px;
+    font: 600 1rem "DM Sans", sans-serif;
+    color: #ffffff;
+    outline: none;
+    min-width: 0;
+  }
+
+  .search-500 input::placeholder {
+    color: #8E98AB;
+  }
+
+  .search-500 button {
+    border: 0;
+    background: var(--lime);
+    color: var(--ink);
+    font-weight: 900;
+    border-radius: 999px;
+    padding: 13px 22px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .search-500 button:hover {
+    transform: scale(1.02);
+  }
+
   .actions {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
-    margin-top: 30px;
+    margin-top: 24px;
   }
 
   .btn-outline {
