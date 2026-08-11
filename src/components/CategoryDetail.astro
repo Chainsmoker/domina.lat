@@ -28,21 +28,19 @@ const displayCourses = await getCoursesByCategory(categorySlug);
 const allPosts = await getPosts();
 const displayGuides = allPosts.filter(p => 
   p.category?.slug === categorySlug || 
-  (p as any).categories?.some((c: any) => c.slug === categorySlug)
+  p.category?.title?.toLowerCase().includes(categoryTitle.toLowerCase())
 );
 
-// Mapeos de tema visual
-const categoryKey = (categorySlug || '').toLowerCase();
-const categoryType =
-  categoryKey.includes('unas') || categoryKey.includes('belleza')
-    ? 'unas'
-    : categoryKey.includes('pastel') || categoryKey.includes('cocina')
-      ? 'pasteleria'
-      : categoryKey.includes('digital') || categoryKey.includes('ia')
-        ? 'digital'
-        : categoryKey.includes('oficio') || categoryKey.includes('repar')
-          ? 'oficios'
-          : 'general';
+const categoryKey = `${categoryTitle} ${categorySlug}`.toLowerCase();
+const categoryType = categoryKey.includes('uñ') || categoryKey.includes('belleza')
+  ? 'unas'
+  : categoryKey.includes('pastel') || categoryKey.includes('cocina')
+    ? 'pasteleria'
+    : categoryKey.includes('digital') || categoryKey.includes('ia')
+      ? 'digital'
+      : categoryKey.includes('oficio') || categoryKey.includes('repar')
+        ? 'oficios'
+        : 'general';
 
 const cardStyleColorMap: Record<string, string> = {
   'card-orange': '#FF8A65',
@@ -120,7 +118,7 @@ function courseTypes(course: (typeof displayCourses)[number]) {
     .join(' ');
 }
 
-// Mantiene cinco entradas visuales adaptadas a cada categoría.
+// Mantiene cinco entradas visuales del template de referencia
 const subcategories = [
   { 
     svg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>`, 
@@ -140,12 +138,12 @@ const subcategories = [
   { 
     svg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>`, 
     title: categoryType === 'unas' ? 'Negocio de belleza' : 'Servicios comerciales', 
-    text: 'Cursos con enfoque en clientes' 
+    text: categoryType === 'unas' ? '7 rutas para emprender' : 'Primeros clientes' 
   },
   { 
-    svg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`, 
+    svg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`, 
     title: 'Guías para empezar', 
-    text: `${displayGuides.length} artículos explicativos` 
+    text: 'Comparativas y recursos' 
   },
 ];
 
@@ -234,144 +232,106 @@ const heroImg = sanityCategory?.image
       </div>
     </section>
 
-    <!-- SECCIÓN DE CURSOS -->
     <section class="courses" id="cursos">
       <div class="container">
         <div class="section-head">
           <div>
-            <span class="eyebrow">Cursos recomendados</span>
-            <h2 class="display">Formación paso a paso en {categoryTitle}.</h2>
+            <span class="eyebrow">Cursos de la categoría</span>
+            <h2 class="display">Aprende con una ruta clara.</h2>
           </div>
-          <p>Aprende las técnicas esenciales, herramientas necesarias y metodologías para trabajar con clientes.</p>
+          <p>Compara nivel, enfoque, formato y recursos antes de elegir. Los precios y condiciones finales se confirman en la plataforma del creador.</p>
+        </div>
+
+        <div class="course-toolbar">
+          <div class="filters">
+            {categoryFilters.map((f, i) => (
+              <button
+                type="button"
+                class={`filter ${i === 0 ? 'active' : ''}`}
+                data-filter={f.id}
+                aria-pressed={i === 0 ? 'true' : 'false'}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {displayCourses.length > 0 ? (
-          <>
-            <div class="course-toolbar">
-              <div class="chips">
-                {categoryFilters.map((filter) => (
-                  <button class={`filter ${filter.id === 'todos' ? 'active' : ''}`} data-filter={filter.id}>
-                    {filter.label}
-                  </button>
-                ))}
-              </div>
-              <span class="count">
-                Mostrando <strong id="visibleCount">{displayCourses.length}</strong> cursos
-              </span>
-            </div>
+          <div class="course-grid" id="courseGrid">
+            {displayCourses.map((c, idx) => {
+              const isFeature = idx === 0;
+              const img = isFeature
+                ? (c.heroImage ? urlFor(c.heroImage).width(1200).url() : (c.ogImage ? urlFor(c.ogImage).width(1200).url() : '/images/hero-manicure.webp'))
+                : (c.ogImage ? urlFor(c.ogImage).width(1200).url() : (c.heroImage ? urlFor(c.heroImage).width(1200).url() : '/images/hero-manicure.webp'));
+              const rawTitle = c.title.replace(/<[^>]*>/g, '');
+              const defaultFacts = ['Acceso online', 'Paso a paso', 'Certificado'];
+              const courseFacts = c.facts && c.facts.length > 0 ? c.facts : defaultFacts;
 
-            <div class="course-grid" id="courseGrid">
-              {displayCourses.map((c, idx) => {
-                const types = courseTypes(c);
-                const hasAuthor = Boolean((c as any).author?.name);
-                const hasRating = Boolean(c.ratingScore);
-
-                // Para el primer producto (destacado grande), usar heroImage vertical preferentemente
-                const imgSrc = idx === 0 && c.heroImage
-                  ? urlFor(c.heroImage).width(800).url()
-                  : c.ogImage 
-                    ? urlFor(c.ogImage).width(800).url() 
-                    : (c.heroImage ? urlFor(c.heroImage).width(800).url() : '/images/hero-manicure.webp');
-
-                return (
-                  <article
-                    class={`card ${idx === 0 ? 'feature' : ''}`}
-                    data-types={types}
-                  >
-                    <div class="media">
-                      <img src={imgSrc} alt={c.title.replace(/<[^>]*>/g, '')} />
+              return (
+                <article class={`card ${isFeature ? 'feature' : ''}`} data-type={courseTypes(c)}>
+                  <div class="media">
+                    <span class="badge">{c.resourceType || c.eyebrow || (isFeature ? 'Curso destacado' : 'Video curso')}</span>
+                    <img src={img} alt={rawTitle} />
+                  </div>
+                  <div class="body">
+                    <div class="meta">{c.category?.title || categoryTitle}</div>
+                    <h3>{rawTitle}</h3>
+                    <p class="desc">{c.dek || 'Formación práctica explicada paso a paso.'}</p>
+                    <div class="facts">
+                      {courseFacts.map((f: string) => (
+                        <span class="fact">{f}</span>
+                      ))}
                     </div>
-
-                    <div class="body">
-                      <div>
-                        {idx !== 0 && (
-                          <div class="top-bar">
-                            <span class="meta">{c.resourceType || c.eyebrow || 'CURSO ONLINE'}</span>
-                          </div>
-                        )}
-
-                        <h3 set:html={formatTitle(c.title)} />
-                        {c.dek && <p class="desc">{c.dek}</p>}
+                    <div class="card-foot">
+                      <div class="price">
+                        <small>Desde</small>
+                        <strong>{formatPrice(c.price) || '$39'}</strong>
                       </div>
-
-                      {idx === 0 ? (
-                        <div class="facts">
-                          <div class="fact">
-                            <small>Duración sugerida</small>
-                            <b>A tu ritmo</b>
-                          </div>
-                          <div class="fact">
-                            <small>Nivel</small>
-                            <b>Paso a paso</b>
-                          </div>
-                          <div class="fact">
-                            <small>Acceso</small>
-                            <b>De por vida</b>
-                          </div>
-                        </div>
-                      ) : (
-                        (hasAuthor || hasRating) && (
-                          <div class="proof">
-                            {hasAuthor && (
-                              <div class="author-row">
-                                <span class="author-label">Con</span> <strong>{(c as any).author?.name}</strong>
-                              </div>
-                            )}
-                            {hasRating && (
-                              <div class="rating-row">
-                                <span class="stars">★★★★★</span>
-                                <span class="score">{c.ratingScore}</span>
-                              </div>
-                            )}
-                          </div>
-                        )
-                      )}
-
-                      <div class="course-footer">
-                        <div class="price">
-                          <strong>{formatPrice(c.price)}</strong>
-                        </div>
-                        <a class="btn-detail" href={`/cursos/${c.slug}`}>
-                          Ver curso ↗
-                        </a>
-                      </div>
+                      <a class="link" href={`/cursos/${c.slug}`}>{isFeature ? 'Ver análisis completo ↗' : 'Ver análisis ↗'}</a>
                     </div>
-                  </article>
-                );
-              })}
-            </div>
-          </>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
         ) : (
-          <div class="empty-state">
-            <h3>Próximamente más cursos en {categoryTitle}</h3>
-            <p>Estamos preparando nuevos contenidos para esta categoría. Mientras tanto, puedes explorar nuestras guías.</p>
+          <div class="empty-state-card">
+            <div class="empty-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            </div>
+            <h3>Próximamente cursos en {categoryTitle}</h3>
+            <p>Estamos evaluando las mejores formaciones de esta categoría para publicarlas pronto.</p>
+            <a href="/cursos" class="btn btn-acid">Explorar otros cursos ↗</a>
           </div>
         )}
+
+        <div class="courses-more-wrap">
+          <a class="btn btn-dark btn-more-courses" href={`/cursos?categoria=${categorySlug}#catalogo`}>
+            Ver más cursos de {categoryTitle} ↗
+          </a>
+        </div>
       </div>
     </section>
 
-    <!-- SECCIÓN DE GUÍAS RELACIONADAS -->
     {displayGuides.length > 0 && (
-      <section class="guides-section" id="guias">
-        <div class="container">
-          <div class="section-head">
-            <div>
-              <span class="eyebrow">Lecturas recomendadas</span>
-              <h2 class="display">Guías para entender la habilidad.</h2>
-            </div>
-            <p>Artículos explicativos sobre herramientas, inversión inicial y primeros pasos en esta área.</p>
+      <section class="guide" id="guias">
+        <div class="container guide-grid">
+          <div>
+            <span class="eyebrow">Aprende antes de comprar</span>
+            <h2>Guías prácticas de {categoryTitle}.</h2>
+            <p>Comprende qué necesitas para empezar, los errores comunes y las recomendaciones clave para aprovechar cada curso.</p>
           </div>
-
-          <div class="guide-grid">
+          <div class="guide-list">
             {displayGuides.map((g) => (
-              <a class="guide-card" href={`/guias/${g.slug}`}>
-                <div class="guide-media">
+              <a href={`/guias/${g.slug}`} class="guide-card">
+                <div class="thumb">
                   <img src={g.ogImage ? urlFor(g.ogImage).width(500).url() : '/images/hero-manicure.webp'} alt={g.title} />
                 </div>
-                <div class="guide-body">
-                  <span class="tag">{g.category?.title || categoryTitle}</span>
+                <div class="copy">
+                  <small>Guía recomendada</small>
                   <h3>{g.title}</h3>
-                  <span class="read-more">Leer guía ↗</span>
+                  {g.dek && <p>{g.dek}</p>}
                 </div>
               </a>
             ))}
@@ -380,21 +340,28 @@ const heroImg = sanityCategory?.image
       </section>
     )}
 
-    <!-- CHECKS / VALOR -->
     <section class="trust">
-      <div class="container">
+      <div class="container trust-grid">
+        <div>
+          <h2>Formación con respaldo real.</h2>
+          <p>Seleccionamos únicamente formaciones de creadores verificados con metodologías enfocadas en resultados de negocio o dominio técnico.</p>
+        </div>
         <div class="checks">
           <div class="check">
-            <b>Selección práctica</b>
-            <p>Cursos organizados para que aprendas técnicas concretas y listas para aplicar.</p>
+            <b>Metodología paso a paso</b>
+            <p>Lecciones organizadas desde lo básico hasta la ejecución práctica.</p>
           </div>
           <div class="check">
-            <b>Rutas claras</b>
-            <p>Sin rodeos: aprende desde el primer paso qué herramientas comprar y cómo practicar.</p>
+            <b>Sin suscripciones ocultas</b>
+            <p>Pago único o transparente en la plataforma de destino.</p>
           </div>
           <div class="check">
-            <b>Enfoque comercial</b>
-            <p>Aprende no solo la técnica, sino cómo ofrecer tu trabajo a clientes reales.</p>
+            <b>Enfoque profesional</b>
+            <p>Diseñado para personas que quieren aprender un oficio o mejorar su servicio.</p>
+          </div>
+          <div class="check">
+            <b>Transparencia</b>
+            <p>Mostramos límites, creador, formato y posibles enlaces afiliados.</p>
           </div>
         </div>
       </div>
@@ -403,132 +370,176 @@ const heroImg = sanityCategory?.image
 </Layout>
 
 <style>
-  .page-categoria-exact {
-    background: var(--paper);
-    padding-bottom: 60px;
+  .container {
+    width: min(1280px, calc(100% - 36px));
   }
+
   .crumbs {
-    padding: 22px 0;
-    font-size: .9rem;
+    padding-top: 24px;
     color: var(--muted);
+    font-size: .88rem;
   }
   .crumbs a {
-    color: var(--ink);
+    color: var(--muted);
     text-decoration: none;
+  }
+  .crumbs a:hover {
+    color: var(--ink);
+  }
+  .crumbs span {
+    color: var(--ink);
+    font-weight: 700;
   }
 
   .hero {
-    margin-bottom: 60px;
+    padding: 24px 0 60px;
   }
   .hero-card {
-    background: #0B1020;
-    color: #ffffff;
-    border-radius: 36px;
-    padding: 60px;
     position: relative;
+    background: var(--cat-accent, var(--pink));
+    color: var(--ink);
+    border-radius: 36px;
+    padding: 64px 68px;
     overflow: hidden;
-    box-shadow: 0 30px 80px rgba(11, 16, 32, 0.22);
+    box-shadow: 0 24px 60px rgba(11, 16, 32, 0.08);
   }
-  .hero-bg-shapes .shape {
+
+  .hero-bg-shapes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .shape {
     position: absolute;
     border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.25;
-    pointer-events: none;
+    border: 2px solid rgba(11, 16, 32, 0.06);
+    background: rgba(255, 255, 255, 0.14);
   }
   .shape-1 {
-    width: 380px;
-    height: 380px;
-    background: var(--cat-accent, var(--pink));
-    top: -100px;
-    right: -50px;
+    width: 640px;
+    height: 640px;
+    right: -160px;
+    top: -210px;
   }
   .shape-2 {
-    width: 300px;
-    height: 300px;
-    background: var(--orange);
-    bottom: -80px;
-    left: 20%;
+    width: 440px;
+    height: 440px;
+    right: -60px;
+    top: -110px;
+    background: rgba(255, 255, 255, 0.22);
   }
   .shape-3 {
-    width: 250px;
-    height: 250px;
-    background: var(--violet);
-    top: 30%;
-    right: 35%;
+    width: 260px;
+    height: 260px;
+    right: 30px;
+    top: -20px;
+    border-color: rgba(11, 16, 32, 0.1);
   }
 
   .hero-content {
-    display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 48px;
-    align-items: center;
     position: relative;
     z-index: 2;
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: 48px;
+    align-items: center;
   }
-  .hero-copy .eyebrow {
-    color: var(--cat-accent, var(--lime));
+  .hero-copy {
+    max-width: 720px;
+  }
+  .hero .eyebrow {
+    color: var(--ink);
+    opacity: 0.75;
     font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-size: 0.82rem;
-    display: block;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }
-  .hero-copy h1 {
-    color: #ffffff;
-    font-size: clamp(2.8rem, 5.5vw, 4.5rem);
+  .hero .eyebrow::before {
+    background: var(--ink);
+    opacity: 0.7;
+  }
+  .hero h1 {
+    color: var(--ink);
+    font-size: clamp(2.2rem, 4vw, 3.6rem);
+    font-family: "Manrope", sans-serif;
+    font-weight: 800;
+    letter-spacing: -.045em;
     line-height: 1.02;
-    letter-spacing: -0.045em;
     margin: 0 0 20px;
+    word-break: keep-all;
+    hyphens: none;
   }
-  .hero-copy p {
-    color: #C3C8D4;
-    font-size: 1.12rem;
+  .hero h1 :global(span) {
+    color: var(--ink);
+    opacity: 0.85;
+    text-decoration: underline;
+    text-decoration-color: rgba(11, 16, 32, 0.25);
+    text-underline-offset: 6px;
+  }
+  .hero p {
+    font-size: 1.15rem;
     line-height: 1.65;
-    margin-bottom: 32px;
-    max-width: 580px;
+    color: #1A2135;
+    opacity: 0.9;
+    max-width: 620px;
+    margin: 0 0 32px;
   }
   .hero-actions {
     display: flex;
     gap: 14px;
+    flex-wrap: wrap;
   }
   .btn-dark {
-    background: var(--cat-accent, var(--lime));
-    color: #0B1020;
-    font-weight: 800;
-    padding: 14px 26px;
+    background: var(--ink);
+    color: #ffffff;
+    padding: 16px 32px;
     border-radius: 999px;
+    font-weight: 800;
+    font-size: 1rem;
+    transition: transform .2s, box-shadow .2s;
     text-decoration: none;
-    transition: transform 0.2s, box-shadow 0.2s;
   }
   .btn-dark:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 24px rgba(11, 16, 32, 0.2);
+    color: #ffffff;
   }
   .btn-soft {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-    font-weight: 700;
-    padding: 14px 24px;
+    background: rgba(11, 16, 32, 0.08);
+    color: var(--ink);
+    padding: 16px 32px;
     border-radius: 999px;
+    font-weight: 800;
+    font-size: 1rem;
+    border: 1px solid rgba(11, 16, 32, 0.12);
+    transition: background .2s, transform .2s;
     text-decoration: none;
-    backdrop-filter: blur(10px);
-    transition: background 0.2s;
   }
   .btn-soft:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(11, 16, 32, 0.14);
+    transform: translateY(-2px);
+    color: var(--ink);
   }
 
   .hero-visual {
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   .media-frame {
-    border-radius: 28px;
-    overflow: hidden;
+    width: 100%;
+    max-width: 380px;
     aspect-ratio: 4/3;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 26px;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(11, 16, 32, 0.15);
+    border: 4px solid rgba(255, 255, 255, 0.5);
+    transform: rotate(2deg);
+    transition: transform .3s;
+  }
+  .media-frame:hover {
+    transform: rotate(0deg) scale(1.02);
   }
   .media-frame img {
     width: 100%;
@@ -537,155 +548,257 @@ const heroImg = sanityCategory?.image
   }
   .hero-badge {
     position: absolute;
-    bottom: -18px;
-    left: -18px;
+    bottom: -16px;
+    left: 20px;
     background: #ffffff;
-    color: #0B1020;
+    color: var(--ink);
     padding: 14px 20px;
     border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-    transform: rotate(-3deg);
+    box-shadow: 0 12px 30px rgba(11, 16, 32, 0.12);
+    border: 1px solid rgba(11, 16, 32, 0.06);
   }
   .hero-badge small {
     display: block;
-    font-size: 0.72rem;
-    font-weight: 800;
+    font-size: .75rem;
+    color: var(--muted);
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #64748B;
+    letter-spacing: .05em;
   }
   .hero-badge strong {
-    font-size: 0.98rem;
-    font-weight: 800;
+    font: 800 1.05rem "Manrope", sans-serif;
   }
 
   .subcats {
-    margin-bottom: 70px;
+    padding: 0 0 80px;
   }
   .section-head {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    margin-bottom: 32px;
-  }
-  .section-head .eyebrow {
-    color: var(--orange);
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: 0.78rem;
-    display: block;
-    margin-bottom: 6px;
+    gap: 24px;
+    margin-bottom: 26px;
   }
   .section-head h2 {
-    font-size: clamp(2rem, 3.8vw, 3rem);
-    letter-spacing: -0.04em;
+    font-size: clamp(2.8rem, 5vw, 5.4rem);
+    font-family: "Manrope", sans-serif;
+    font-weight: 800;
+    letter-spacing: -.055em;
+    line-height: .94;
     margin: 0;
-    line-height: 1.05;
   }
   .section-head p {
+    max-width: 520px;
     color: var(--muted);
-    max-width: 480px;
+    line-height: 1.65;
     margin: 0;
-    line-height: 1.55;
   }
-
   .subgrid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 16px;
+    gap: 14px;
   }
   .subcard {
-    background: #ffffff;
+    min-height: 190px;
     border: 1px solid var(--line);
-    border-radius: 22px;
-    padding: 22px 18px;
-    text-decoration: none;
-    color: var(--ink);
+    border-radius: 24px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 140px;
-    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    transition: .25s;
+    background: #fff;
+    text-decoration: none;
+    color: var(--ink);
   }
   .subcard:hover {
-    transform: translateY(-4px);
-    border-color: var(--ink);
-    box-shadow: 0 12px 30px rgba(11, 16, 32, 0.08);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
   }
+  .subcard:nth-child(1) { background: var(--pink); }
+  .subcard:nth-child(2) { background: var(--mint); }
+  .subcard:nth-child(3) { background: var(--violet); }
+  .subcard:nth-child(4) { background: var(--cream); }
+  .subcard:nth-child(5) { background: var(--lime); }
+
   .subicon {
-    color: var(--orange);
-    display: inline-flex;
+    width: 46px;
+    height: 46px;
+    background: #ffffff;
+    border: 1px solid rgba(11, 16, 32, 0.14);
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    color: var(--ink);
+    box-shadow: 0 4px 12px rgba(11, 16, 32, 0.06);
+    flex: none;
   }
   .subcard strong {
+    font: 800 1.25rem / 1.1 "Manrope", sans-serif;
     display: block;
-    font-size: 0.98rem;
-    font-weight: 800;
-    margin-top: 12px;
-    line-height: 1.25;
+    margin-bottom: 4px;
   }
   .subcard span {
-    font-size: 0.8rem;
-    color: var(--muted);
-    display: block;
-    margin-top: 4px;
+    font-size: .85rem;
+    color: #555C6C;
   }
 
   .courses {
-    margin-bottom: 80px;
+    padding: 90px 0;
+    background: var(--cream);
+  }
+  .courses .section-head h2,
+  .courses .section-head .eyebrow {
+    color: var(--ink);
   }
   .course-toolbar {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 18px;
     align-items: center;
-    margin-bottom: 32px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--line);
-  }
-  .chips {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--orange) transparent;
-  }
-  .chips::-webkit-scrollbar {
-    height: 4px;
-  }
-  .chips::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .chips::-webkit-scrollbar-thumb {
-    background: var(--orange);
-    border-radius: 999px;
-  }
-  .filter {
-    background: #ffffff;
-    border: 1px solid var(--line);
-    color: var(--ink);
-    padding: 8px 18px;
-    border-radius: 999px;
-    font-weight: 700;
-    font-size: 0.88rem;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s;
-  }
-  .filter:hover, .filter.active {
-    background: var(--ink);
-    color: #ffffff;
-    border-color: var(--ink);
-  }
-  .count {
-    font-size: 0.88rem;
-    color: var(--muted);
+    margin-bottom: 26px;
   }
 
+  .courses-more-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 42px;
+  }
+  .btn-more-courses {
+    padding: 16px 36px;
+    font-size: 1rem;
+    font-weight: 800;
+    border-radius: 999px;
+    box-shadow: 0 12px 30px rgba(11, 16, 32, 0.18);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .btn-more-courses:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 36px rgba(11, 16, 32, 0.24);
+  }
+  .filters {
+    display: flex;
+    gap: 9px;
+    overflow: auto;
+  }
+  .filter {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 999px;
+    padding: 10px 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .filter.active {
+    background: var(--ink);
+    color: #fff;
+  }
   .course-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+    gap: 18px;
+  }
+  .card {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform .28s, box-shadow .28s;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(11, 16, 32, 0.1);
+  }
+  .media {
+    height: 240px;
+    position: relative;
+  }
+  .badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: var(--lime);
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--ink);
+    z-index: 2;
+  }
+  .media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .meta {
+    font-size: .75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--muted);
+  }
+  .card h3 {
+    font: 800 1.35rem / 1.18 "Manrope", sans-serif;
+    letter-spacing: -.035em;
+    margin: 10px 0;
+    color: var(--ink);
+  }
+  .desc {
+    color: #4E5465;
+    line-height: 1.58;
+    margin: 0 0 16px;
+    font-size: .95rem;
+  }
+  .facts {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .fact {
+    background: #EFECE6;
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 600;
+    color: #424756;
+  }
+  .card-foot {
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+  }
+  .price small {
+    display: block;
+    color: var(--muted);
+    font-size: .72rem;
+    font-weight: 600;
+  }
+  .price strong {
+    font: 800 1.3rem "Manrope", sans-serif;
+    color: var(--ink);
+  }
+  .link {
+    font-weight: 800;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: .95rem;
   }
 
   /* FEATURED CARD */
@@ -728,134 +841,150 @@ const heroImg = sanityCategory?.image
     margin-bottom: 24px;
   }
   .feature .fact {
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    padding: 10px 14px;
-  }
-  .feature .fact small {
-    color: #94A3B8;
-  }
-  .feature .fact b {
+    background: rgba(255, 255, 255, 0.12);
     color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 8px 14px;
+    font-size: .82rem;
   }
-
-  .proof {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px 0;
-    margin-top: 8px;
-    border-top: 1px dashed var(--line);
-    font-size: 0.85rem;
+  .feature .card-foot {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding-top: 20px;
   }
-  .stars {
-    color: #F59E0B;
-    letter-spacing: 2px;
+  .feature .price small {
+    color: #9CA3B4;
   }
-
-  .course-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: auto;
-    padding-top: 16px;
-  }
-  .btn-detail {
-    background: var(--ink);
+  .feature .price strong {
     color: #ffffff;
-    padding: 10px 18px;
+    font-size: 1.4rem;
+  }
+  .feature .link {
+    background: var(--lime);
+    color: var(--ink);
+    padding: 12px 24px;
     border-radius: 999px;
     font-weight: 800;
-    font-size: 0.88rem;
-    text-decoration: none;
-    transition: background 0.2s;
+    transition: transform .2s;
   }
-  .btn-detail:hover {
-    background: var(--orange);
-    color: var(--ink);
+  .feature .link:hover {
+    transform: translateY(-2px);
   }
 
-  .guides-section {
-    margin-bottom: 80px;
+  .guide {
+    padding: 95px 0;
   }
   .guide-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    grid-template-columns: .9fr 1.1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  .guide h2 {
+    font-size: clamp(3.5rem, 6vw, 6.5rem);
+    font-family: "Manrope", sans-serif;
+    font-weight: 800;
+    letter-spacing: -.055em;
+    line-height: .94;
+    margin: 0;
+  }
+  .guide p {
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 560px;
+    margin: 0 0 24px;
+  }
+  .guide-list {
+    display: grid;
+    gap: 14px;
   }
   .guide-card {
-    background: #ffffff;
-    border: 1px solid var(--line);
-    border-radius: 28px;
-    padding: 20px;
     display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: 20px;
+    grid-template-columns: 155px 1fr;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    overflow: hidden;
+    transition: .25s;
     text-decoration: none;
     color: var(--ink);
-    transition: transform 0.2s, box-shadow 0.2s;
   }
   .guide-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 40px rgba(11, 16, 32, 0.08);
+    transform: translateX(5px);
+    box-shadow: var(--shadow);
   }
-  .guide-media {
-    border-radius: 18px;
-    overflow: hidden;
-    aspect-ratio: 1;
+  .guide-card .thumb {
+    min-height: 135px;
   }
-  .guide-media img {
+  .guide-card .thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  .guide-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  .guide-card .copy {
+    padding: 20px;
   }
-  .guide-body .tag {
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: var(--orange);
+  .guide-card small {
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  .guide-body h3 {
-    font-size: 1.25rem;
-    line-height: 1.25;
-    margin: 6px 0 0;
-  }
-  .read-more {
+    letter-spacing: .09em;
+    color: var(--orange);
     font-weight: 800;
-    font-size: 0.88rem;
+  }
+  .guide-card h3 {
+    font: 800 1.25rem / 1.18 "Manrope", sans-serif;
+    margin: 8px 0;
     color: var(--ink);
-    margin-top: 12px;
+  }
+  .guide-card p {
+    font-size: .9rem;
+    line-height: 1.5;
+    margin: 0;
+    color: #555C6C;
   }
 
   .trust {
-    margin-bottom: 40px;
+    padding: 90px 0;
+    background: var(--ink);
+    color: #fff;
+  }
+  .trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+  .trust h2 {
+    font-size: clamp(3.5rem, 6vw, 6.4rem);
+    font-family: "Manrope", sans-serif;
+    font-weight: 800;
+    letter-spacing: -.055em;
+    line-height: .94;
+    margin: 0 0 16px;
+    color: #fff;
+  }
+  .trust p {
+    color: #BAC0CC;
+    line-height: 1.7;
   }
   .checks {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    background: #ffffff;
-    border: 1px solid var(--line);
-    border-radius: 28px;
-    padding: 36px;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .check {
+    background: #171E32;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 21px;
+    padding: 21px;
   }
   .check b {
-    font: 800 1.15rem "Manrope", sans-serif;
+    font: 800 1.05rem "Manrope", sans-serif;
     display: block;
-    color: var(--ink);
+    color: #fff;
   }
   .check p {
-    font-size: 0.92rem;
+    font-size: .88rem;
     margin: 8px 0 0;
-    color: var(--muted);
-    line-height: 1.55;
+    color: #BAC0CC;
   }
 
   @media (max-width: 1050px) {
@@ -934,31 +1063,19 @@ const heroImg = sanityCategory?.image
     const cards = [...document.querySelectorAll<HTMLElement>('#courseGrid .card')];
     buttons.forEach((btn) => {
       btn.addEventListener('click', () => {
-        buttons.forEach((button) => button.classList.remove('active'));
-        btn.classList.add('active');
-
-        const selectedFilter = btn.getAttribute('data-filter') || 'todos';
-        let visibleCount = 0;
-
-        cards.forEach((card) => {
-          const types = (card.getAttribute('data-types') || '').split(' ');
-
-          if (selectedFilter === 'todos' || types.includes(selectedFilter)) {
-            card.style.display = '';
-            visibleCount += 1;
-          } else {
-            card.style.display = 'none';
-          }
+        buttons.forEach((button) => {
+          const active = button === btn;
+          button.classList.toggle('active', active);
+          button.setAttribute('aria-pressed', String(active));
         });
-
-        const visibleCountEl = document.getElementById('visibleCount');
-        if (visibleCountEl) {
-          visibleCountEl.textContent = visibleCount.toString();
-        }
+        const type = btn.dataset.filter || 'todos';
+        cards.forEach((card) => {
+          const cardTypes = card.dataset.type || '';
+          card.hidden = type !== 'todos' && !cardTypes.split(' ').includes(type);
+        });
       });
     });
   };
 
   initCategoryInteractions();
-  document.addEventListener('astro:page-load', initCategoryInteractions);
 </script>
