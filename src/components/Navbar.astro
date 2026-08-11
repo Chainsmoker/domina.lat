@@ -325,19 +325,16 @@ const exploreCourses = courses
     }
 
     if (menuToggle) {
-      menuToggle.removeEventListener('click', openMenu);
-      menuToggle.addEventListener('click', openMenu);
+      menuToggle.onclick = openMenu;
     }
     if (menuClose) {
-      menuClose.removeEventListener('click', closeMenu);
-      menuClose.addEventListener('click', closeMenu);
+      menuClose.onclick = closeMenu;
     }
 
     if (mobileDrawer) {
       const mobileLinks = mobileDrawer.querySelectorAll('a');
       mobileLinks.forEach((link) => {
-        link.removeEventListener('click', closeMenu);
-        link.addEventListener('click', closeMenu);
+        link.onclick = closeMenu;
       });
     }
 

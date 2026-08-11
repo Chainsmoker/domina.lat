@@ -651,94 +651,111 @@ const jsonLd = faqs.length > 0
 </Layout>
 
 <script>
-  // Accordion interactivo con animación suave y controles avanzados para el temario
-  const moduleItems = document.querySelectorAll('.module-item');
-  const toggleAllBtn = document.getElementById('toggleAllModules');
-  const showMoreBtn = document.getElementById('showMoreModulesBtn');
+  function initCoursePage() {
+    // Accordion interactivo con animación suave y controles avanzados para el temario
+    const moduleItems = document.querySelectorAll('.module-item');
+    const toggleAllBtn = document.getElementById('toggleAllModules');
+    const showMoreBtn = document.getElementById('showMoreModulesBtn');
 
-  moduleItems.forEach((item) => {
-    const trigger = item.querySelector('.module-trigger');
-    const content = item.querySelector('.module-content') as HTMLElement;
+    moduleItems.forEach((item) => {
+      const trigger = item.querySelector('.module-trigger');
+      const content = item.querySelector('.module-content') as HTMLElement;
 
-    // Ajustar altura inicial si viene activo por defecto
-    if (item.classList.contains('active') && content) {
-      content.style.maxHeight = `${content.scrollHeight}px`;
-    } else if (content) {
-      content.style.maxHeight = '0px';
+      // Ajustar altura inicial si viene activo por defecto
+      if (item.classList.contains('active') && content) {
+        content.style.maxHeight = `${content.scrollHeight}px`;
+      } else if (content) {
+        content.style.maxHeight = '0px';
+      }
+
+      if (trigger) {
+        (trigger as HTMLElement).onclick = (e: MouseEvent) => {
+          e.preventDefault();
+          const isExpanded = item.classList.contains('active');
+
+          if (isExpanded) {
+            item.classList.remove('active');
+            trigger.setAttribute('aria-expanded', 'false');
+            if (content) content.style.maxHeight = '0px';
+          } else {
+            item.classList.add('active');
+            trigger.setAttribute('aria-expanded', 'true');
+            if (content) content.style.maxHeight = `${content.scrollHeight}px`;
+          }
+        };
+      }
+    });
+
+    if (toggleAllBtn) {
+      let allExpanded = false;
+      toggleAllBtn.onclick = (e: MouseEvent) => {
+        e.preventDefault();
+        allExpanded = !allExpanded;
+        moduleItems.forEach((item) => {
+          const trigger = item.querySelector('.module-trigger');
+          const content = item.querySelector('.module-content') as HTMLElement;
+          item.classList.remove('module-hidden');
+          if (allExpanded) {
+            item.classList.add('active');
+            trigger?.setAttribute('aria-expanded', 'true');
+            if (content) content.style.maxHeight = `${content.scrollHeight}px`;
+          } else {
+            item.classList.remove('active');
+            trigger?.setAttribute('aria-expanded', 'false');
+            if (content) content.style.maxHeight = '0px';
+          }
+        });
+        const btnSpan = toggleAllBtn.querySelector('span');
+        if (btnSpan) btnSpan.textContent = allExpanded ? 'Contraer todos los módulos' : 'Expandir todos los módulos';
+        if (showMoreBtn) showMoreBtn.style.display = 'none';
+      };
     }
 
-    trigger?.addEventListener('click', () => {
-      const isExpanded = item.classList.contains('active');
+    if (showMoreBtn) {
+      showMoreBtn.onclick = (e: MouseEvent) => {
+        e.preventDefault();
+        const hiddenItems = document.querySelectorAll('.module-hidden');
+        hiddenItems.forEach((item) => {
+          item.classList.remove('module-hidden');
+        });
+        showMoreBtn.style.display = 'none';
+      };
+    }
 
-      if (isExpanded) {
-        item.classList.remove('active');
-        trigger.setAttribute('aria-expanded', 'false');
-        if (content) content.style.maxHeight = '0px';
-      } else {
-        item.classList.add('active');
-        trigger.setAttribute('aria-expanded', 'true');
-        if (content) content.style.maxHeight = `${content.scrollHeight}px`;
-      }
-    });
-  });
-
-  if (toggleAllBtn) {
-    let allExpanded = false;
-    toggleAllBtn.addEventListener('click', () => {
-      allExpanded = !allExpanded;
-      moduleItems.forEach((item) => {
-        const trigger = item.querySelector('.module-trigger');
-        const content = item.querySelector('.module-content') as HTMLElement;
-        item.classList.remove('module-hidden');
-        if (allExpanded) {
-          item.classList.add('active');
-          trigger?.setAttribute('aria-expanded', 'true');
-          if (content) content.style.maxHeight = `${content.scrollHeight}px`;
+    // Sticky CTA
+    const sticky = document.getElementById('stickyCta');
+    if (sticky) {
+      const handleScroll = () => {
+        if (window.scrollY > 720) {
+          sticky.classList.add('show');
         } else {
-          item.classList.remove('active');
-          trigger?.setAttribute('aria-expanded', 'false');
-          if (content) content.style.maxHeight = '0px';
+          sticky.classList.remove('show');
         }
-      });
-      const btnSpan = toggleAllBtn.querySelector('span');
-      if (btnSpan) btnSpan.textContent = allExpanded ? 'Contraer todos los módulos' : 'Expandir todos los módulos';
-      if (showMoreBtn) showMoreBtn.style.display = 'none';
-    });
-  }
+      };
+      window.removeEventListener('scroll', handleScroll);
+      window.addEventListener('scroll', handleScroll);
+      handleScroll();
 
-  if (showMoreBtn) {
-    showMoreBtn.addEventListener('click', () => {
-      const hiddenItems = document.querySelectorAll('.module-hidden');
-      hiddenItems.forEach((item) => {
-        item.classList.remove('module-hidden');
-      });
-      showMoreBtn.style.display = 'none';
-    });
-  }
-
-  // Sticky CTA
-  const sticky = document.getElementById('stickyCta');
-  if (sticky) {
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 720) {
-        sticky.classList.add('show');
-      } else {
-        sticky.classList.remove('show');
+      const closeBtn = sticky.querySelector('.close');
+      if (closeBtn) {
+        (closeBtn as HTMLElement).onclick = () => sticky.remove();
       }
-    });
 
-  const closeBtn = sticky.querySelector('.close');
-  if (closeBtn) {
-    closeBtn.addEventListener('click', () => sticky.remove());
+      const reviewModules = document.querySelector('.review-modules');
+      if (reviewModules) {
+        new IntersectionObserver(([entry]) => {
+          sticky.classList.toggle('review-hidden', entry.isIntersecting);
+        }, { threshold: 0.08 }).observe(reviewModules);
+      }
+    }
   }
 
-  const reviewModules = document.querySelector('.review-modules');
-  if (reviewModules) {
-    new IntersectionObserver(([entry]) => {
-      sticky.classList.toggle('review-hidden', entry.isIntersecting);
-    }, { threshold: 0.08 }).observe(reviewModules);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCoursePage);
+  } else {
+    initCoursePage();
   }
-}
+  document.addEventListener('astro:page-load', initCoursePage);
 </script>
 
 <style>
@@ -1544,10 +1561,12 @@ const jsonLd = faqs.length > 0
   .theme-lime .review-feature-copy .review-label { color: var(--orange); }
   .theme-lime .review-index { color: rgba(11,16,32,.18); }
   .theme-lime .review-feature p { color: rgba(11,16,32,.74); }
+  .theme-lime h3, .theme-lime .review-feature h3 { color: var(--ink) !important; }
   .theme-cream { background: var(--cream); color: var(--ink); }
   .theme-cream .review-feature-copy .review-label { color: var(--orange); }
   .theme-cream .review-index { color: rgba(11,16,32,.16); }
   .theme-cream .review-feature p { color: rgba(11,16,32,.72); }
+  .theme-cream h3, .theme-cream .review-feature h3 { color: var(--ink) !important; }
   .review-metrics { display: grid; grid-template-columns: .72fr 1.28fr; gap: 50px; align-items: center; padding: clamp(36px, 6vw, 78px); border-radius: 32px; }
   .review-metrics.theme-violet { background: linear-gradient(135deg, #8d7cff, #b0a5ff); }
   .review-metrics.theme-cream { background: #eeece5; color: var(--ink); }
@@ -1985,13 +2004,22 @@ const jsonLd = faqs.length > 0
     align-items: center;
     gap: 18px;
     box-shadow: 0 20px 50px rgba(11, 16, 32, 0.28);
-    transition: 0.3s;
+    transition: all 0.3s ease;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
   .sticky-cta.show {
     transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
   }
   .sticky-cta.review-hidden {
     transform: translateX(-50%) translateY(140px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
   .sticky-cta strong {
     white-space: nowrap;
