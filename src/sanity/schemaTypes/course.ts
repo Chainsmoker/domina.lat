@@ -35,6 +35,18 @@ export const courseType = defineType({
       description: 'Ej: Ruta recomendada, Servicio práctico, Nivel inicial',
     }),
     defineField({
+      name: 'visualTitle',
+      title: 'Título del banner de la portada (Visual Copy - Línea 1)',
+      type: 'string',
+      description: 'Línea destacada en negrita en la portada. Ej: De cero a tu primer servicio.',
+    }),
+    defineField({
+      name: 'visualSubtitle',
+      title: 'Subtítulo del banner de la portada (Visual Copy - Línea 2)',
+      type: 'string',
+      description: 'Línea secundaria en la portada. Ej: Una ruta visual, práctica y pensada para comenzar.',
+    }),
+    defineField({
       name: 'resourceType',
       title: 'Tipo de recurso / Formato del contenido',
       type: 'string',

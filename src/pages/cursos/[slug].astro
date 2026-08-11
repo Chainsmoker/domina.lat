@@ -139,8 +139,8 @@ const jsonLd = faqs.length > 0
           <span class="stamp">{course.resourceType || course.eyebrow || 'Video curso'}</span>
           <img src={courseImage} alt={rawTitle} />
           <div class="visual-copy">
-            <strong>De cero a tu primer servicio.</strong>
-            <span>Una ruta visual, práctica y pensada para comenzar.</span>
+            <strong>{course.visualTitle || 'De cero a tu primer servicio.'}</strong>
+            <span>{course.visualSubtitle || 'Una ruta visual, práctica y pensada para comenzar.'}</span>
           </div>
         </div>
 

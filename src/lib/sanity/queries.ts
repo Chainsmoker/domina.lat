@@ -47,6 +47,8 @@ export interface Course {
   title: string;
   slug: string;
   eyebrow?: string;
+  visualTitle?: string;
+  visualSubtitle?: string;
   resourceType?: string;
   dek?: string;
   category?: {
@@ -189,6 +191,8 @@ export async function getCourses(): Promise<Course[]> {
         title,
         "slug": slug.current,
         eyebrow,
+        visualTitle,
+        visualSubtitle,
         resourceType,
         dek,
         category->{ _id, title, "slug": slug.current, eyebrow },
@@ -243,6 +247,8 @@ export async function getCoursesByCategory(categorySlug: string): Promise<Course
         title,
         "slug": slug.current,
         eyebrow,
+        visualTitle,
+        visualSubtitle,
         resourceType,
         dek,
         category->{ _id, title, "slug": slug.current, eyebrow },
@@ -297,6 +303,8 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
         title,
         "slug": slug.current,
         eyebrow,
+        visualTitle,
+        visualSubtitle,
         resourceType,
         dek,
         category->{ _id, title, "slug": slug.current, eyebrow },
