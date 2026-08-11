@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = ({ site }) => {
   const baseUrl = site ?? new URL('https://domina.lat');
-  const sitemapUrl = new URL('sitemap-index.xml', baseUrl).href;
+  const sitemapUrl = new URL('sitemap.xml', baseUrl).href;
 
   return new Response(`User-agent: *\nAllow: /\n\nSitemap: ${sitemapUrl}\n`, {
     headers: {
