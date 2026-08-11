@@ -303,12 +303,14 @@ nav {
 }
 
 .mega-col a {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
+  display: block;
   padding: 10px 0;
   color: #eef0f5;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
 }
 
 .mega-col a span {

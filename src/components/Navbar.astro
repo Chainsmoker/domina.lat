@@ -4,7 +4,6 @@ import { urlFor } from '../lib/sanity/image';
 
 const categories = (await getCourseCategories()).slice(0, 5);
 const courses = await getCourses();
-const latestCourses = courses.slice(0, 5);
 
 // Obtener curso recomendado configurado en Sanity
 const categoryFeatured = categories.find((cat) => cat.featuredCourse)?.featuredCourse;
@@ -12,6 +11,11 @@ const recommendedCourse = categoryFeatured || courses.find((c) => c.isMenuRecomm
 const recTitle = recommendedCourse ? recommendedCourse.title.replace(/<[^>]*>/g, '') : 'Pastelería para emprender';
 const recLink = recommendedCourse ? `/cursos/${recommendedCourse.slug}` : '/cursos';
 const recImg = recommendedCourse?.ogImage ? urlFor(recommendedCourse.ogImage).width(700).url() : (recommendedCourse?.heroImage ? urlFor(recommendedCourse.heroImage).width(700).url() : null);
+
+// Excluir el curso recomendado de la lista Explora
+const exploreCourses = courses
+  .filter((c) => c.slug !== recommendedCourse?.slug)
+  .slice(0, 5);
 ---
 <div class="nav-wrap">
   <div class="container">
@@ -42,13 +46,13 @@ const recImg = recommendedCourse?.ogImage ? urlFor(recommendedCourse.ogImage).wi
               <div class="mega-col">
                 <h4>Categorías</h4>
                 {categories.map((cat) => (
-                  <a href={`/categoria/${cat.slug}`}>{cat.title}</a>
+                  <a href={`/categoria/${cat.slug}`} title={cat.title}>{cat.title}</a>
                 ))}
               </div>
               <div class="mega-col">
                 <h4>Explora</h4>
-                {latestCourses.map((course) => (
-                  <a href={`/cursos/${course.slug}`}>{course.title}</a>
+                {exploreCourses.map((course) => (
+                  <a href={`/cursos/${course.slug}`} title={course.title.replace(/<[^>]*>/g, '')}>{course.title.replace(/<[^>]*>/g, '')}</a>
                 ))}
               </div>
               {recommendedCourse && recImg && (
