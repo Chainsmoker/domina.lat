@@ -23,6 +23,12 @@ export const courseType = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'publishedAt',
+      title: 'Fecha de publicación (OPCIONAL)',
+      type: 'datetime',
+      description: 'Permite controlar la fecha de publicación. Si está vacío, se usará la fecha de creación en Sanity.',
+    }),
+    defineField({
       name: 'eyebrow',
       title: 'Badge / Etiqueta destacada',
       type: 'string',

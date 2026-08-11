@@ -42,6 +42,8 @@ export interface ExtraButton {
 
 export interface Course {
   _id: string;
+  _createdAt?: string;
+  publishedAt?: string;
   title: string;
   slug: string;
   eyebrow?: string;
@@ -180,8 +182,10 @@ export const getGuideCategoryBySlug = getCategoryBySlug;
 export async function getCourses(): Promise<Course[]> {
   return cachedFetch('sanity:courses:all', async () => {
     const courses = await sanityFetch<Course[]>({
-      query: `*[_type == "course"] | order(title asc) {
+      query: `*[_type == "course"] | order(select(defined(publishedAt) => publishedAt, _createdAt) desc) {
         _id,
+        _createdAt,
+        publishedAt,
         title,
         "slug": slug.current,
         eyebrow,
@@ -232,8 +236,10 @@ export async function getCourses(): Promise<Course[]> {
 export async function getCoursesByCategory(categorySlug: string): Promise<Course[]> {
   return cachedFetch(`sanity:courses:category:${categorySlug}`, async () => {
     const courses = await sanityFetch<Course[]>({
-      query: `*[_type == "course" && category->slug.current == $categorySlug] | order(title asc) {
+      query: `*[_type == "course" && category->slug.current == $categorySlug] | order(select(defined(publishedAt) => publishedAt, _createdAt) desc) {
         _id,
+        _createdAt,
+        publishedAt,
         title,
         "slug": slug.current,
         eyebrow,
@@ -286,6 +292,8 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
     const course = await sanityFetch<Course | null>({
       query: `*[_type == "course" && slug.current == $slug][0] {
         _id,
+        _createdAt,
+        publishedAt,
         title,
         "slug": slug.current,
         eyebrow,
@@ -336,8 +344,9 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
 export async function getPosts(): Promise<Post[]> {
   return cachedFetch('sanity:posts:all', async () => {
     const posts = await sanityFetch<Post[]>({
-      query: `*[_type == "post"] | order(publishedAt desc) {
+      query: `*[_type == "post"] | order(select(defined(publishedAt) => publishedAt, _createdAt) desc) {
         _id,
+        _createdAt,
         title,
         "slug": slug.current,
         eyebrow,
