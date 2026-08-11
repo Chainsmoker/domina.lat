@@ -491,20 +491,27 @@
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
     scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    scrollbar-color: var(--orange, #f36438) transparent;
   }
   .chips::-webkit-scrollbar {
-    height: 4px;
+    height: 5px;
+  }
+  .chips::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
   }
   .chips::-webkit-scrollbar-track {
     background: transparent;
+    border: none;
   }
   .chips::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.15);
-    border-radius: 4px;
+    background: var(--orange, #f36438);
+    border-radius: 999px;
+    border: none;
   }
   .chips::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
+    background: #e54d26;
   }
   .chip {
     white-space: nowrap;
