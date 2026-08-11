@@ -526,6 +526,63 @@ const categories = [
   window.addEventListener('popstate', () => {
     loadCatalog(window.location.href, false);
   });
+
+  // Habilitar arrastre con ratón (drag-to-scroll) y rueda horizontal en chips de categorías
+  const chipsContainers = document.querySelectorAll('.chips');
+  chipsContainers.forEach((container) => {
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
+    let isDragging = false;
+
+    container.addEventListener('mousedown', (e) => {
+      isDown = true;
+      isDragging = false;
+      startX = (e as MouseEvent).pageX - (container as HTMLElement).offsetLeft;
+      scrollLeft = container.scrollLeft;
+    });
+
+    container.addEventListener('mouseleave', () => {
+      isDown = false;
+      (container as HTMLElement).classList.remove('dragging');
+    });
+
+    container.addEventListener('mouseup', () => {
+      isDown = false;
+      setTimeout(() => {
+        (container as HTMLElement).classList.remove('dragging');
+      }, 50);
+    });
+
+    container.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      const x = (e as MouseEvent).pageX - (container as HTMLElement).offsetLeft;
+      const walk = (x - startX) * 1.8;
+      if (Math.abs(x - startX) > 5) {
+        isDragging = true;
+        (container as HTMLElement).classList.add('dragging');
+      }
+      if (isDragging) {
+        e.preventDefault();
+        container.scrollLeft = scrollLeft - walk;
+      }
+    });
+
+    container.addEventListener('click', (e) => {
+      if (isDragging) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true);
+
+    container.addEventListener('wheel', (e) => {
+      const wheelEvent = e as WheelEvent;
+      if (wheelEvent.deltaY !== 0) {
+        e.preventDefault();
+        container.scrollLeft += wheelEvent.deltaY;
+      }
+    }, { passive: false });
+  });
 </script>
 
 <style>
@@ -685,8 +742,34 @@ const categories = [
     display: flex;
     gap: 10px;
     overflow-x: auto;
-    padding-bottom: 6px;
-    scrollbar-width: none;
+    white-space: nowrap;
+    padding-bottom: 8px;
+    cursor: grab;
+    user-select: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  }
+  .chips::-webkit-scrollbar {
+    height: 4px;
+  }
+  .chips::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .chips::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+  }
+  .chips::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+  .chips.dragging {
+    cursor: grabbing;
+    scroll-behavior: auto;
+  }
+  .chips.dragging a.chip {
+    pointer-events: none;
   }
   .chip {
     white-space: nowrap;

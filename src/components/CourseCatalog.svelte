@@ -483,9 +483,28 @@
   .chips {
     display: flex;
     gap: 10px;
-    overflow: auto;
-    padding-bottom: 5px;
-    scrollbar-width: none;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 8px;
+    cursor: grab;
+    user-select: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  }
+  .chips::-webkit-scrollbar {
+    height: 4px;
+  }
+  .chips::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .chips::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+  }
+  .chips::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
   }
   .chip {
     white-space: nowrap;
