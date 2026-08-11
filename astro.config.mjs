@@ -23,6 +23,11 @@ export default defineConfig({
   adapter: cloudflare({
     imageService: 'compile',
   }),
+  vite: {
+    optimizeDeps: {
+      exclude: ['@astrojs/cloudflare'],
+    },
+  },
   integrations: [
     sitemap({
       filter: (page) => !sitemapExcludedPaths.has(new URL(page).pathname),
