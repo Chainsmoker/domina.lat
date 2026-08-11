@@ -68,6 +68,15 @@ const imageUrl = image.startsWith('http') ? image : new URL(image, siteUrl).href
   {jsonLd && (
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   )}
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q8RTZTXZL2"></script>
+  <script is:inline>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-Q8RTZTXZL2');
+  </script>
   <ClientRouter />
 </head>
 <body>
