@@ -1,5 +1,5 @@
 ---
-export const prerender = true;
+export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro';
 import CourseCard from '../../components/CourseCard.astro';
@@ -8,15 +8,17 @@ import { urlFor } from '../../lib/sanity/image';
 import { formatTitle } from '../../lib/utils/formatTitle';
 import { formatPrice } from '../../lib/utils/formatPrice';
 
-export async function getStaticPaths() {
-  const courses = await getCourses();
-  return courses.map((course) => ({
-    params: { slug: course.slug },
-    props: { slug: course.slug }
-  }));
+// Edge Cache: 60s browser, 5min Cloudflare CDN
+Astro.response.headers.set(
+  'cache-control',
+  'public, max-age=60, s-maxage=300, stale-while-revalidate=86400'
+);
+
+const { slug } = Astro.params;
+if (!slug) {
+  return Astro.redirect('/404');
 }
 
-const { slug } = Astro.props;
 const course = await getCourseBySlug(slug);
 
 if (!course) {

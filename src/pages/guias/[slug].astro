@@ -1,18 +1,20 @@
 ---
-export const prerender = true;
+export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
 import { getPosts, getPostBySlug } from '../../lib/sanity/queries';
 import { urlFor } from '../../lib/sanity/image';
 
-export async function getStaticPaths() {
-  const posts = await getPosts();
-  return posts.map((post) => ({
-    params: { slug: post.slug },
-    props: { slug: post.slug }
-  }));
+// Edge Cache: 60s browser, 5min Cloudflare CDN
+Astro.response.headers.set(
+  'cache-control',
+  'public, max-age=60, s-maxage=300, stale-while-revalidate=86400'
+);
+
+const { slug } = Astro.params;
+if (!slug) {
+  return Astro.redirect('/404');
 }
 
-const { slug } = Astro.props;
 const post = await getPostBySlug(slug);
 
 if (!post) {

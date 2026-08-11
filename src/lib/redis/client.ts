@@ -42,7 +42,7 @@ export function getRedisClient(): Redis | null {
 export async function cachedFetch<T>(
   key: string,
   fetcher: () => Promise<T>,
-  ttlSeconds?: number
+  ttlSeconds = 60
 ): Promise<T> {
   const redis = getRedisClient();
 
@@ -64,8 +64,7 @@ export async function cachedFetch<T>(
       if (ttlSeconds && ttlSeconds > 0) {
         await redis.set(key, freshData, { ex: ttlSeconds });
       } else {
-        // Sin TTL: persistente e indefinido en Upstash Redis
-        await redis.set(key, freshData);
+        await redis.set(key, freshData, { ex: 60 });
       }
     } catch (err) {
       console.warn(`[Upstash Redis] Error guardando clave "${key}":`, err);
