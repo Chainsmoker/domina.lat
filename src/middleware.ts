@@ -1,18 +1,14 @@
-import type { MiddlewareHandler } from 'astro';
+import { defineMiddleware } from 'astro:middleware';
 
-const legacyPaths: Record<string, string> = {
-  '/sobre-domina': '/sobre',
-  '/contact': '/contacto',
-  '/afiliados': '/aviso-afiliados',
-  '/categoria': '/categoria/belleza-y-unas',
-};
+export const onRequest = defineMiddleware(async (context, next) => {
+  const url = new URL(context.request.url);
 
-export const onRequest: MiddlewareHandler = ({ url }, next) => {
-  const destination = legacyPaths[url.pathname];
+  // Redireccionar www.domina.lat a domina.lat (301 Permanent)
+  if (url.hostname === 'www.domina.lat') {
+    url.hostname = 'domina.lat';
+    url.protocol = 'https:';
+    return context.redirect(url.toString(), 301);
+  }
 
-  if (!destination) return next();
-
-  const redirectUrl = new URL(destination, url);
-  redirectUrl.search = url.search;
-  return Response.redirect(redirectUrl, 301);
-};
+  return next();
+});

@@ -149,10 +149,12 @@ const jsonLd = faqs.length > 0
         <div class="visual">
           <span class="stamp">{course.resourceType || course.eyebrow || 'Video curso'}</span>
           <img src={courseImage} alt={rawTitle} />
-          <div class="visual-copy">
-            <strong>{course.visualTitle || 'De cero a tu primer servicio.'}</strong>
-            <span>{course.visualSubtitle || 'Una ruta visual, práctica y pensada para comenzar.'}</span>
-          </div>
+          {(course.visualTitle || course.visualSubtitle) && (
+            <div class="visual-copy">
+              {course.visualTitle && <strong>{course.visualTitle}</strong>}
+              {course.visualSubtitle && <span>{course.visualSubtitle}</span>}
+            </div>
+          )}
         </div>
 
         <!-- DETALLES DERECHA -->

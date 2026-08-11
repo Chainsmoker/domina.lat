@@ -10,6 +10,10 @@
 		"directory": "./dist",
 		"binding": "ASSETS"
 	},
+	"routes": [
+		{ "pattern": "domina.lat", "custom_domain": true },
+		{ "pattern": "www.domina.lat", "custom_domain": true }
+	],
 	"observability": {
 		"enabled": true
 	}
