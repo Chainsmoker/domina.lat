@@ -11,7 +11,7 @@ const categoryFeatured = categories.find((cat) => cat.featuredCourse)?.featuredC
 const recommendedCourse = categoryFeatured || courses.find((c) => c.isMenuRecommended) || courses.find((c) => c.isFeatured) || courses[0];
 const recTitle = recommendedCourse ? recommendedCourse.title.replace(/<[^>]*>/g, '') : 'Pastelería para emprender';
 const recLink = recommendedCourse ? `/cursos/${recommendedCourse.slug}` : '/cursos';
-const recImg = recommendedCourse?.heroImage ? urlFor(recommendedCourse.heroImage).width(700).url() : null;
+const recImg = recommendedCourse?.ogImage ? urlFor(recommendedCourse.ogImage).width(700).url() : (recommendedCourse?.heroImage ? urlFor(recommendedCourse.heroImage).width(700).url() : null);
 ---
 <div class="nav-wrap">
   <div class="container">

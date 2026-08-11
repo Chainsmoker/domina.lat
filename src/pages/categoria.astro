@@ -247,7 +247,7 @@ const heroImg = sanityCategory?.image
           <div class="course-grid" id="courseGrid">
             {displayCourses.map((c, idx) => {
               const isFeature = idx === 0;
-              const img = c.heroImage ? urlFor(c.heroImage).width(1200).url() : '/images/hero-manicure.webp';
+              const img = c.ogImage ? urlFor(c.ogImage).width(1200).url() : (c.heroImage ? urlFor(c.heroImage).width(1200).url() : '/images/hero-manicure.webp');
               const rawTitle = c.title.replace(/<[^>]*>/g, '');
               const defaultFacts = ['Acceso online', 'Paso a paso', 'Certificado'];
               const courseFacts = c.facts && c.facts.length > 0 ? c.facts : defaultFacts;

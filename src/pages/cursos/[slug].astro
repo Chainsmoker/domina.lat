@@ -570,7 +570,7 @@ const jsonLd = faqs.length > 0
             {relatedCourses.map((rel) => (
               <CourseCard
                 tag={rel.eyebrow || rel.category?.title || 'Curso'}
-                image={rel.heroImage ? urlFor(rel.heroImage).width(900).url() : '/images/hero-pasteleria.webp'}
+                image={rel.ogImage ? urlFor(rel.ogImage).width(900).url() : (rel.heroImage ? urlFor(rel.heroImage).width(900).url() : '/images/hero-pasteleria.webp')}
                 imageAlt={rel.title.replace(/<[^>]*>/g, '')}
                 meta={rel.category?.title || 'Curso'}
                 title={rel.title}

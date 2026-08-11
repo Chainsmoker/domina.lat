@@ -191,7 +191,7 @@ const categories = [
               {paginatedCourses.map((c) => (
                 <CourseCard
                   tag={c.resourceType || c.eyebrow || c.category?.title || 'Video curso'}
-                  image={c.heroImage ? urlFor(c.heroImage).width(900).url() : '/images/hero-manicure.webp'}
+                  image={c.ogImage ? urlFor(c.ogImage).width(900).url() : (c.heroImage ? urlFor(c.heroImage).width(900).url() : '/images/hero-manicure.webp')}
                   imageAlt={c.title.replace(/<[^>]*>/g, '')}
                   meta={c.category?.title || 'Curso'}
                   title={c.title}

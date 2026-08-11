@@ -126,7 +126,7 @@ export async function getCategories(): Promise<Category[]> {
         cardStyle,
         color,
         order,
-        featuredCourse->{ title, "slug": slug.current, heroImage, dek }
+        featuredCourse->{ title, "slug": slug.current, heroImage, ogImage, dek }
       }`
     });
     return categories || [];
@@ -154,7 +154,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
         cardStyle,
         color,
         order,
-        featuredCourse->{ title, "slug": slug.current, heroImage, dek }
+        featuredCourse->{ title, "slug": slug.current, heroImage, ogImage, dek }
       }`,
       params: { slug }
     });

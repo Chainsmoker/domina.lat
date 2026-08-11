@@ -24,7 +24,7 @@ for (const c of allFetchedCourses) {
   if (!seenCategories.has(catSlug) && dynamicCourses.length < 4) {
     seenCategories.add(catSlug);
     dynamicCourses.push({
-      image: c.heroImage ? urlFor(c.heroImage).width(850).url() : '/images/hero-manicure.webp',
+      image: c.ogImage ? urlFor(c.ogImage).width(850).url() : (c.heroImage ? urlFor(c.heroImage).width(850).url() : '/images/hero-manicure.webp'),
       imageAlt: c.title,
       pill: c.eyebrow || 'Curso',
       meta: c.category?.title || 'General',
