@@ -6,4 +6,7 @@ export default defineCliConfig({
     dataset: 'production',
   },
   studioHost: 'domina-cms',
+  deployment: {
+    appId: 'i9q2nlwpsobwtmgdp5fiyhb2',
+  },
 });
