@@ -27,7 +27,7 @@ for (const c of allFetchedCourses) {
       image: c.heroImage ? urlFor(c.heroImage).width(850).url() : '/images/hero-manicure.webp',
       imageAlt: c.title,
       pill: c.eyebrow || 'Curso',
-      meta: `${c.category?.title || 'General'} · ${c.level || 'Inicial'}`,
+      meta: c.category?.title || 'General',
       title: c.title,
       desc: c.dek || 'Curso práctico para aprender una habilidad.',
       slug: c.slug

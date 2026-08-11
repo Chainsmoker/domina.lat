@@ -141,7 +141,7 @@ const jsonLd = faqs.length > 0
 
         <!-- DETALLES DERECHA -->
         <div class="course-main">
-          <span class="eyebrow">{courseCategory} · {course.level || 'Nivel inicial'}</span>
+          <span class="eyebrow">{courseCategory}</span>
           <h1 class="display" set:html={formattedTitle} />
           <p class="lead">{course.dek || 'Una formación para aprender preparación, esmaltado, decoración y atención al cliente con una ruta clara antes de empezar a ofrecer el servicio.'}</p>
 
@@ -572,7 +572,7 @@ const jsonLd = faqs.length > 0
                 tag={rel.eyebrow || rel.category?.title || 'Curso'}
                 image={rel.heroImage ? urlFor(rel.heroImage).width(900).url() : '/images/hero-pasteleria.webp'}
                 imageAlt={rel.title.replace(/<[^>]*>/g, '')}
-                meta={`${rel.category?.title || 'Curso'} ${rel.level ? `· ${rel.level}` : ''}`}
+                meta={rel.category?.title || 'Curso'}
                 title={rel.title}
                 description={rel.dek || ''}
                 href={`/cursos/${rel.slug}`}

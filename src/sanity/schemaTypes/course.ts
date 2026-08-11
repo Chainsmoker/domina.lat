@@ -68,13 +68,6 @@ export const courseType = defineType({
       validation: (Rule) => Rule.required().positive().error('El precio aproximado es obligatorio.'),
     }),
     defineField({
-      name: 'level',
-      title: 'Nivel recomendado',
-      type: 'string',
-      description: 'Ej: Nivel inicial, Intermedio, Todos los niveles',
-      validation: (Rule) => Rule.required().error('El nivel recomendado es obligatorio.'),
-    }),
-    defineField({
       name: 'heroImage',
       title: 'Imagen del curso',
       type: 'image',

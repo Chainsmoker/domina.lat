@@ -5,10 +5,9 @@
       id: 'unas-profesionales-desde-cero',
       category: 'belleza',
       title: 'Uñas profesionales desde cero',
-      level: 'Inicial',
       badge: 'Ruta recomendada',
       img: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=1200&q=85',
-      meta: 'Belleza · Nivel inicial',
+      meta: 'Belleza',
       desc: 'Aprende preparación, esmaltado, decoración y atención al cliente con una ruta pensada para comenzar a ofrecer el servicio.',
       creatorName: 'Mariana Ruiz',
       creatorInitials: 'MR',
@@ -23,10 +22,9 @@
       id: 'pasteleria-para-emprender',
       category: 'cocina',
       title: 'Pastelería para emprender',
-      level: 'Inicial',
       badge: 'Más buscado',
       img: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=85',
-      meta: 'Pastelería · Inicial',
+      meta: 'Pastelería',
       desc: 'Recetas, decoración, costos y presentación para comenzar a vender.',
       creatorName: 'Laura Castillo',
       creatorInitials: 'LC',
@@ -41,10 +39,9 @@
       id: 'reparacion-de-celulares',
       category: 'oficios',
       title: 'Reparación de celulares',
-      level: 'Inicial',
       badge: 'Nueva habilidad',
       img: 'https://images.unsplash.com/photo-1588508065123-287b28e013da?auto=format&fit=crop&w=900&q=85',
-      meta: 'Tecnología · Inicial',
+      meta: 'Tecnología',
       desc: 'Diagnóstico, herramientas y procedimientos esenciales para comenzar.',
       creatorName: 'Diego Acosta',
       creatorInitials: 'DA',
@@ -59,10 +56,9 @@
       id: 'ia-para-trabajar-y-crear',
       category: 'digital',
       title: 'Inteligencia artificial para negocios',
-      level: 'Inicial',
       badge: 'Tendencia',
       img: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=900&q=85',
-      meta: 'Digital · Inicial',
+      meta: 'Digital',
       desc: 'Automatiza tareas, crea contenido y organiza procesos con herramientas accesibles.',
       creatorName: 'Andrés Peña',
       creatorInitials: 'AP',
@@ -77,10 +73,9 @@
       id: 'costura-creativa-desde-cero',
       category: 'creatividad',
       title: 'Costura creativa desde cero',
-      level: 'Inicial',
       badge: null,
       img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=900&q=85',
-      meta: 'Creatividad · Inicial',
+      meta: 'Creatividad',
       desc: 'Conoce tu máquina y crea piezas sencillas con acabados cuidados.',
       creatorName: 'Sofía Rivas',
       creatorInitials: 'SR',
@@ -95,10 +90,9 @@
       id: 'marketing-para-servicios-locales',
       category: 'digital',
       title: 'Marketing para servicios locales',
-      level: 'Inicial',
       badge: 'Emprendimiento',
       img: 'https://images.unsplash.com/photo-1557838923-2985c318be48?auto=format&fit=crop&w=900&q=85',
-      meta: 'Digital · Negocios',
+      meta: 'Digital',
       desc: 'Cómo conseguir tus primeros clientes sin presupuestos gigantescos.',
       creatorName: 'Sebastián Cruz',
       creatorInitials: 'SC',
@@ -113,10 +107,9 @@
       id: 'costura-y-arreglos-express',
       category: 'oficios',
       title: 'Costura y arreglos express',
-      level: 'Inicial',
       badge: 'Rápida salida',
       img: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=900&q=85',
-      meta: 'Oficios · Costura',
+      meta: 'Oficios',
       desc: 'Aprende ajustes, dobladillos y reformas para ofrecer un servicio buscado.',
       creatorName: 'Lucía Fernández',
       creatorInitials: 'LF',
@@ -131,10 +124,9 @@
       id: 'repostería-creativa-y-mesas-dulces',
       category: 'cocina',
       title: 'Repostería creativa y mesas dulces',
-      level: 'Intermedio',
       badge: 'Eventos',
       img: 'https://images.unsplash.com/photo-1535141192574-5d4897c13136?auto=format&fit=crop&w=900&q=85',
-      meta: 'Cocina · Pastelería',
+      meta: 'Cocina',
       desc: 'Montaje, costeo y combinaciones para cumpleaños y celebraciones.',
       creatorName: 'Camila Torres',
       creatorInitials: 'CT',
@@ -150,7 +142,6 @@
   let courses = initialCourses.map(c => ({ ...c }));
   let searchQuery = '';
   let selectedCategory = 'todos';
-  let selectedLevels = [];
   let maxPrice = 120;
   let sortBy = 'Recomendados';
   let showMobileFilter = false;
@@ -164,18 +155,9 @@
     { id: 'creatividad', label: 'Costura y creatividad' }
   ];
 
-  function toggleLevel(level) {
-    if (selectedLevels.includes(level)) {
-      selectedLevels = selectedLevels.filter(l => l !== level);
-    } else {
-      selectedLevels = [...selectedLevels, level];
-    }
-  }
-
   function clearFilters() {
     searchQuery = '';
     selectedCategory = 'todos';
-    selectedLevels = [];
     maxPrice = 120;
     sortBy = 'Recomendados';
   }
@@ -187,9 +169,8 @@
   $: filteredCourses = courses.filter(c => {
     const categoryOk = selectedCategory === 'todos' || c.category === selectedCategory;
     const searchOk = !searchQuery || c.title.toLowerCase().includes(searchQuery.toLowerCase()) || c.desc.toLowerCase().includes(searchQuery.toLowerCase());
-    const levelOk = selectedLevels.length === 0 || selectedLevels.includes(c.level);
     const priceOk = c.priceNum <= maxPrice;
-    return categoryOk && searchOk && levelOk && priceOk;
+    return categoryOk && searchOk && priceOk;
   }).sort((a, b) => {
     if (sortBy === 'Precio: menor a mayor') return a.priceNum - b.priceNum;
     if (sortBy === 'Precio: mayor a menor') return b.priceNum - a.priceNum;
@@ -259,18 +240,6 @@
       <div class="filter-head">
         <h2>Filtrar cursos</h2>
         <button class="clear" on:click={clearFilters}>Limpiar</button>
-      </div>
-      <div class="filter-group">
-        <h3>Nivel</h3>
-        <label class="check">
-          <input type="checkbox" checked={selectedLevels.includes('Inicial')} on:change={() => toggleLevel('Inicial')} /> Inicial
-        </label>
-        <label class="check">
-          <input type="checkbox" checked={selectedLevels.includes('Intermedio')} on:change={() => toggleLevel('Intermedio')} /> Intermedio
-        </label>
-        <label class="check">
-          <input type="checkbox" checked={selectedLevels.includes('Avanzado')} on:change={() => toggleLevel('Avanzado')} /> Avanzado
-        </label>
       </div>
       <div class="filter-group">
         <h3>Objetivo</h3>
