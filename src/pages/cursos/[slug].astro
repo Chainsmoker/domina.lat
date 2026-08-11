@@ -53,6 +53,16 @@ const ratingText = course.ratingText || 'valoración mostrada por la plataforma 
 
 // Temario opcional de Sanity
 const modules = course.modules && course.modules.length > 0 ? course.modules : [];
+const totalLessons = modules.reduce((acc: number, mod: any) => {
+  if (mod.lessons && mod.lessons.length > 0) {
+    if (typeof mod.lessons[0] === 'string' && mod.lessons[0].includes('clases')) {
+      const match = mod.lessons[0].match(/\d+/);
+      return acc + (match ? parseInt(match[0]) : 1);
+    }
+    return acc + mod.lessons.length;
+  }
+  return acc;
+}, 0);
 
 // Reseñas / Opiniones de estudiantes desde Sanity
 const studentReviews = course.studentReviews && course.studentReviews.length > 0 ? course.studentReviews : [];
@@ -271,39 +281,64 @@ const jsonLd = faqs.length > 0
 
     <!-- SECCIÓN TEMARIO INTERACTIVO (SOLO SI TIENE MÓDULOS EN SANITY) -->
     {modules.length > 0 && (
-      <section class="curriculum">
+      <section class="curriculum" id="temario">
         <div class="container curriculum-grid">
-          <div>
+          <div class="curriculum-header">
             <span class="eyebrow">Temario</span>
             <h2 class="display">La ruta, módulo por módulo.</h2>
             <p>Estructura de módulos y contenido del programa.</p>
+
+            <div class="curriculum-meta">
+              <span class="curriculum-badge">{modules.length} {modules.length === 1 ? 'módulo' : 'módulos'}</span>
+              {totalLessons > 0 && <span class="curriculum-badge">{totalLessons} lecciones en total</span>}
+            </div>
+
+            {modules.length > 1 && (
+              <button type="button" class="btn-toggle-all" id="toggleAllModules">
+                <span>Expandir todos los módulos</span>
+              </button>
+            )}
           </div>
-          <div class="modules" id="modulesAccordion">
-            {modules.map((mod: any, idx: number) => (
-              <div class={`module-item ${idx === 0 ? 'active' : ''}`}>
-                <button type="button" class="module-trigger" aria-expanded={idx === 0 ? "true" : "false"}>
-                  <span>{mod.moduleTitle}</span>
-                  <div class="summary-right">
-                    {mod.lessons && mod.lessons.length > 0 && (
-                      <em>{typeof mod.lessons[0] === 'string' && mod.lessons[0].includes('clases') ? mod.lessons[0] : `${mod.lessons.length} lecciones`}</em>
-                    )}
-                    <svg class="chevron-icon" width="14" height="9" viewBox="0 0 14 9" fill="none">
-                      <path d="M1 1.5l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+
+          <div class="modules-wrapper">
+            <div class="modules" id="modulesAccordion">
+              {modules.map((mod: any, idx: number) => {
+                const lessonCountText = mod.lessons && mod.lessons.length > 0
+                  ? (typeof mod.lessons[0] === 'string' && mod.lessons[0].includes('clases') ? mod.lessons[0] : `${mod.lessons.length} lecciones`)
+                  : '';
+                const isInitiallyHidden = modules.length > 8 && idx >= 6;
+
+                return (
+                  <div class={`module-item ${idx === 0 ? 'active' : ''} ${isInitiallyHidden ? 'module-hidden' : ''}`}>
+                    <button type="button" class="module-trigger" aria-expanded={idx === 0 ? "true" : "false"}>
+                      <span>{mod.moduleTitle}</span>
+                      <div class="summary-right">
+                        {lessonCountText && <em>{lessonCountText}</em>}
+                        <svg class="chevron-icon" width="14" height="9" viewBox="0 0 14 9" fill="none">
+                          <path d="M1 1.5l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </div>
+                    </button>
+                    <div class="module-content">
+                      <div class="module-inside">
+                        {mod.moduleDesc && <p>{mod.moduleDesc}</p>}
+                        {mod.lessons && mod.lessons.length > 0 && typeof mod.lessons[0] === 'string' && !mod.lessons[0].includes('clases') && (
+                          <ul style="margin:8px 0 0;padding-left:18px">
+                            {mod.lessons.map((lesson: string) => <li>✦ {lesson}</li>)}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </button>
-                <div class="module-content">
-                  <div class="module-inside">
-                    {mod.moduleDesc && <p>{mod.moduleDesc}</p>}
-                    {mod.lessons && mod.lessons.length > 0 && typeof mod.lessons[0] === 'string' && !mod.lessons[0].includes('clases') && (
-                      <ul style="margin:8px 0 0;padding-left:18px">
-                        {mod.lessons.map((lesson: string) => <li>✦ {lesson}</li>)}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+                );
+              })}
+            </div>
+
+            {modules.length > 8 && (
+              <button type="button" class="btn-show-more-modules" id="showMoreModulesBtn">
+                <span>Ver los {modules.length} módulos completos ({modules.length - 6} módulos más) ↓</span>
+              </button>
+            )}
           </div>
         </div>
       </section>
@@ -613,8 +648,10 @@ const jsonLd = faqs.length > 0
 </Layout>
 
 <script>
-  // Accordion interactivo con animación suave y altura exacta para el temario
+  // Accordion interactivo con animación suave y controles avanzados para el temario
   const moduleItems = document.querySelectorAll('.module-item');
+  const toggleAllBtn = document.getElementById('toggleAllModules');
+  const showMoreBtn = document.getElementById('showMoreModulesBtn');
 
   moduleItems.forEach((item) => {
     const trigger = item.querySelector('.module-trigger');
@@ -641,6 +678,40 @@ const jsonLd = faqs.length > 0
       }
     });
   });
+
+  if (toggleAllBtn) {
+    let allExpanded = false;
+    toggleAllBtn.addEventListener('click', () => {
+      allExpanded = !allExpanded;
+      moduleItems.forEach((item) => {
+        const trigger = item.querySelector('.module-trigger');
+        const content = item.querySelector('.module-content') as HTMLElement;
+        item.classList.remove('module-hidden');
+        if (allExpanded) {
+          item.classList.add('active');
+          trigger?.setAttribute('aria-expanded', 'true');
+          if (content) content.style.maxHeight = `${content.scrollHeight}px`;
+        } else {
+          item.classList.remove('active');
+          trigger?.setAttribute('aria-expanded', 'false');
+          if (content) content.style.maxHeight = '0px';
+        }
+      });
+      const btnSpan = toggleAllBtn.querySelector('span');
+      if (btnSpan) btnSpan.textContent = allExpanded ? 'Contraer todos los módulos' : 'Expandir todos los módulos';
+      if (showMoreBtn) showMoreBtn.style.display = 'none';
+    });
+  }
+
+  if (showMoreBtn) {
+    showMoreBtn.addEventListener('click', () => {
+      const hiddenItems = document.querySelectorAll('.module-hidden');
+      hiddenItems.forEach((item) => {
+        item.classList.remove('module-hidden');
+      });
+      showMoreBtn.style.display = 'none';
+    });
+  }
 
   // Sticky CTA
   const sticky = document.getElementById('stickyCta');
@@ -1153,6 +1224,66 @@ const jsonLd = faqs.length > 0
     grid-template-columns: 0.78fr 1.22fr;
     gap: 38px;
     align-items: start;
+  }
+  .curriculum-header {
+    position: sticky;
+    top: 110px;
+    align-self: start;
+  }
+  .curriculum-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 20px 0 16px;
+  }
+  .curriculum-badge {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #D7FF5F;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font: 700 0.85rem "Manrope", sans-serif;
+  }
+  .btn-toggle-all {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font: 700 0.86rem "Manrope", sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 4px;
+  }
+  .btn-toggle-all:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #ffffff;
+  }
+  .modules-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  .module-hidden {
+    display: none !important;
+  }
+  .btn-show-more-modules {
+    width: 100%;
+    margin-top: 14px;
+    background: #171E32;
+    border: 1.5px dashed rgba(215, 255, 95, 0.4);
+    color: #D7FF5F;
+    padding: 14px 20px;
+    border-radius: 14px;
+    font: 800 0.95rem "Manrope", sans-serif;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+  }
+  .btn-show-more-modules:hover {
+    background: #1C253E;
+    border-color: #D7FF5F;
+    color: #ffffff;
   }
   .curriculum h2 {
     font-size: clamp(3rem, 6vw, 6rem);
