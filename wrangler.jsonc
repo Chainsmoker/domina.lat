@@ -1,7 +1,9 @@
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"compatibility_date": "2026-08-08",
-	"compatibility_flags": ["nodejs_compat"],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	"name": "domina-lat",
 	"main": "@astrojs/cloudflare/entrypoints/server",
 	"assets": {

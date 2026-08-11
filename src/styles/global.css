@@ -25,6 +25,21 @@ html {
   overflow-x: clip;
 }
 
+/* GLOBAL PROGRESS BAR FOR TRANSITIONS */
+.global-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background-color: var(--orange, #FF5C35);
+  box-shadow: 0 0 10px rgba(255, 92, 53, 0.7);
+  z-index: 99999;
+  width: 0%;
+  opacity: 0;
+  transition: width 0.4s ease-out, opacity 0.2s ease;
+  pointer-events: none;
+}
+
 body {
   margin: 0;
   background: var(--paper);

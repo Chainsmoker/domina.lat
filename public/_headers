@@ -1,0 +1,25 @@
+# Cache estático de larga duración para assets compilados
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache de imágenes y fuentes estáticas
+/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.webp
+  Cache-Control: public, max-age=2592000
+
+/*.png
+  Cache-Control: public, max-age=2592000
+
+/*.svg
+  Cache-Control: public, max-age=2592000
+
+/*.ico
+  Cache-Control: public, max-age=2592000
+
+# Cabeceras globales de seguridad y rendimiento
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin

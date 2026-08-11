@@ -1,6 +1,7 @@
 ---
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
 
 interface Props {
@@ -67,10 +68,46 @@ const imageUrl = image.startsWith('http') ? image : new URL(image, siteUrl).href
   {jsonLd && (
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   )}
+  <ClientRouter />
 </head>
 <body>
+  <div class="global-progress-bar" aria-hidden="true"></div>
   <Navbar />
   <slot />
   <Footer />
+
+  <script is:inline>
+    document.addEventListener('astro:before-preparation', () => {
+      const bar = document.querySelector('.global-progress-bar');
+      if (bar) {
+        bar.style.width = '0%';
+        bar.style.opacity = '1';
+        bar.getBoundingClientRect();
+        bar.style.width = '90%';
+        bar.style.transition = 'width 10s cubic-bezier(0.08, 0.82, 0.17, 1)';
+      }
+    });
+    document.addEventListener('astro:after-swap', () => {
+      if (location.hash) {
+        const el = document.querySelector(location.hash);
+        if (el) el.scrollIntoView();
+      } else {
+        window.scrollTo(0, 0);
+      }
+    });
+    document.addEventListener('astro:page-load', () => {
+      const bar = document.querySelector('.global-progress-bar');
+      if (bar) {
+        bar.style.width = '100%';
+        bar.style.transition = 'width 0.2s ease-out';
+        setTimeout(() => {
+          bar.style.opacity = '0';
+          setTimeout(() => {
+            bar.style.width = '0%';
+          }, 200);
+        }, 150);
+      }
+    });
+  </script>
 </body>
 </html>
