@@ -293,13 +293,17 @@ const exploreCourses = courses
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  function setupNavbar() {
     const menuToggle = document.getElementById('menuToggle');
     const menuClose = document.getElementById('menuClose');
     const mobileDrawer = document.getElementById('mobileDrawer');
     const mobileBrandImage = mobileDrawer?.querySelector<HTMLImageElement>('[data-src]');
 
-    function openMenu() {
+    function openMenu(e?: Event) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       if (mobileDrawer) {
         if (mobileBrandImage && !mobileBrandImage.src) {
           mobileBrandImage.src = mobileBrandImage.dataset.src || '';
@@ -309,19 +313,30 @@ const exploreCourses = courses
       }
     }
 
-    function closeMenu() {
+    function closeMenu(e?: Event) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       if (mobileDrawer) {
         mobileDrawer.classList.remove('open');
         document.body.style.overflow = '';
       }
     }
 
-    if (menuToggle) menuToggle.addEventListener('click', openMenu);
-    if (menuClose) menuClose.addEventListener('click', closeMenu);
+    if (menuToggle) {
+      menuToggle.removeEventListener('click', openMenu);
+      menuToggle.addEventListener('click', openMenu);
+    }
+    if (menuClose) {
+      menuClose.removeEventListener('click', closeMenu);
+      menuClose.addEventListener('click', closeMenu);
+    }
 
     if (mobileDrawer) {
       const mobileLinks = mobileDrawer.querySelectorAll('a');
       mobileLinks.forEach((link) => {
+        link.removeEventListener('click', closeMenu);
         link.addEventListener('click', closeMenu);
       });
     }
@@ -342,12 +357,14 @@ const exploreCourses = courses
         }, 220);
       }
 
+      categoryMenu.removeEventListener('mouseenter', openCategoryMenu);
       categoryMenu.addEventListener('mouseenter', openCategoryMenu);
+      categoryMenu.removeEventListener('mouseleave', closeCategoryMenu);
       categoryMenu.addEventListener('mouseleave', closeCategoryMenu);
 
       const trigger = categoryMenu.querySelector('.nav-trigger');
       if (trigger) {
-        trigger.addEventListener('click', (e) => {
+        const handleTriggerClick = (e: Event) => {
           e.preventDefault();
           e.stopPropagation();
           if (categoryMenu.classList.contains('open')) {
@@ -355,7 +372,9 @@ const exploreCourses = courses
           } else {
             openCategoryMenu();
           }
-        });
+        };
+        trigger.removeEventListener('click', handleTriggerClick);
+        trigger.addEventListener('click', handleTriggerClick);
       }
 
       document.addEventListener('click', (e) => {
@@ -364,5 +383,13 @@ const exploreCourses = courses
         }
       });
     }
-  });
+  }
+
+  // Inicializar en carga directa y despues de view transitions / page swaps
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupNavbar);
+  } else {
+    setupNavbar();
+  }
+  document.addEventListener('astro:page-load', setupNavbar);
 </script>
