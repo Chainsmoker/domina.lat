@@ -313,11 +313,7 @@ const exploreCourses = courses
       }
     }
 
-    function closeMenu(e?: Event) {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
+    function closeMenu() {
       if (mobileDrawer) {
         mobileDrawer.classList.remove('open');
         document.body.style.overflow = '';

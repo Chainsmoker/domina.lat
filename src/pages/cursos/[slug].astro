@@ -1550,23 +1550,23 @@ const jsonLd = faqs.length > 0
   .orbit-a { width: 300px; height: 300px; top: -145px; right: -108px; }
   .orbit-b { width: 185px; height: 185px; bottom: -70px; left: -50px; border-width: 18px; border-color: var(--lime); }
   .review-media-badge { position: absolute; z-index: 3; right: 28px; bottom: 28px; display: grid; width: 92px; height: 92px; place-items: center; border-radius: 50%; color: var(--ink); background: var(--lime); text-align: center; font: 800 .78rem/1 "Manrope", sans-serif; text-transform: uppercase; letter-spacing: .04em; transform: rotate(-10deg); }
-  .theme-ink { background: #10182a; }
-  .theme-violet { background: #8d7cff; color: var(--ink); }
-  .theme-violet .review-feature-copy .review-label, .theme-violet .review-index { color: #fff; }
-  .theme-violet .review-feature p { color: rgba(11,16,32,.72); }
-  .theme-orange { background: var(--orange); color: var(--ink); }
-  .theme-orange .review-feature-copy .review-label, .theme-orange .review-index { color: #fff; }
-  .theme-orange .review-feature p { color: rgba(11,16,32,.75); }
-  .theme-lime { background: var(--lime); color: var(--ink); }
-  .theme-lime .review-feature-copy .review-label { color: var(--orange); }
-  .theme-lime .review-index { color: rgba(11,16,32,.18); }
-  .theme-lime .review-feature p { color: rgba(11,16,32,.74); }
-  .theme-lime h3, .theme-lime .review-feature h3 { color: var(--ink) !important; }
-  .theme-cream { background: var(--cream); color: var(--ink); }
-  .theme-cream .review-feature-copy .review-label { color: var(--orange); }
-  .theme-cream .review-index { color: rgba(11,16,32,.16); }
-  .theme-cream .review-feature p { color: rgba(11,16,32,.72); }
-  .theme-cream h3, .theme-cream .review-feature h3 { color: var(--ink) !important; }
+  .review-feature.theme-ink { background: #10182a; color: #fff; }
+  .review-feature.theme-violet { background: #8d7cff; color: #fff; }
+  .review-feature.theme-violet .review-feature-copy .review-label, .review-feature.theme-violet .review-index { color: #fff; }
+  .review-feature.theme-violet p { color: rgba(255,255,255,.88) !important; }
+  .review-feature.theme-orange { background: var(--orange); color: #fff; }
+  .review-feature.theme-orange .review-feature-copy .review-label, .review-feature.theme-orange .review-index { color: #fff; }
+  .review-feature.theme-orange p { color: rgba(255,255,255,.9) !important; }
+  .review-feature.theme-lime { background: var(--lime); color: var(--ink); }
+  .review-feature.theme-lime .review-feature-copy .review-label { color: var(--orange); }
+  .review-feature.theme-lime .review-index { color: rgba(11,16,32,.18); }
+  .review-feature.theme-lime h3 { color: var(--ink) !important; }
+  .review-feature.theme-lime p { color: #2A3040 !important; }
+  .review-feature.theme-cream { background: var(--cream); color: var(--ink); }
+  .review-feature.theme-cream .review-feature-copy .review-label { color: var(--orange); }
+  .review-feature.theme-cream .review-index { color: rgba(11,16,32,.16); }
+  .review-feature.theme-cream h3 { color: var(--ink) !important; }
+  .review-feature.theme-cream p { color: #3A4050 !important; }
   .review-metrics { display: grid; grid-template-columns: .72fr 1.28fr; gap: 50px; align-items: center; padding: clamp(36px, 6vw, 78px); border-radius: 32px; }
   .review-metrics.theme-violet { background: linear-gradient(135deg, #8d7cff, #b0a5ff); }
   .review-metrics.theme-cream { background: #eeece5; color: var(--ink); }

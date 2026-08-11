@@ -2289,7 +2289,9 @@ footer a {
     display: none;
   }
   .menu-btn, .menu {
-    display: block;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
   }
   .nav-actions .btn:first-child {
     display: none;
