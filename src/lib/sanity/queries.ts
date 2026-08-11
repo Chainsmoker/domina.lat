@@ -25,6 +25,15 @@ export interface CourseModule {
   lessons?: string[];
 }
 
+export interface StudentReview {
+  author: string;
+  role?: string;
+  avatar?: any;
+  rating: number;
+  comment: string;
+  dateText?: string;
+}
+
 export interface Course {
   _id: string;
   title: string;
@@ -57,6 +66,7 @@ export interface Course {
   authorBgColor?: string;
   authorTextColor?: string;
   modules?: CourseModule[];
+  studentReviews?: StudentReview[];
   faqs?: Array<{ question: string; answer: string }>;
   editorialScore?: number;
   editorialTitle?: string;
@@ -189,6 +199,7 @@ export async function getCourses(): Promise<Course[]> {
         authorBgColor,
         authorTextColor,
         modules,
+        studentReviews,
         faqs,
         editorialScore,
         editorialTitle,
@@ -237,6 +248,7 @@ export async function getCoursesByCategory(categorySlug: string): Promise<Course
         authorBgColor,
         authorTextColor,
         modules,
+        studentReviews,
         faqs,
         editorialScore,
         editorialTitle,
@@ -286,6 +298,7 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
         authorBgColor,
         authorTextColor,
         modules,
+        studentReviews,
         faqs,
         editorialScore,
         editorialTitle,

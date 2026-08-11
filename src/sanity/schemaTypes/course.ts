@@ -265,6 +265,77 @@ export const courseType = defineType({
       ],
     }),
 
+    // --- RESEÑAS / OPINIONES DE ESTUDIANTES ---
+    defineField({
+      name: 'studentReviews',
+      title: 'Reseñas de estudiantes / Testimonios (OPCIONAL)',
+      type: 'array',
+      description: 'Lista de opiniones y reseñas de estudiantes o compradores del curso (autor, estrellas, opinión, etc.)',
+      of: [
+        {
+          type: 'object',
+          name: 'studentReviewItem',
+          title: 'Reseña de estudiante',
+          fields: [
+            defineField({
+              name: 'author',
+              title: 'Nombre del autor / estudiante',
+              type: 'string',
+              validation: (Rule) => Rule.required().error('El nombre del autor es obligatorio.'),
+            }),
+            defineField({
+              name: 'role',
+              title: 'Etiqueta o rol del autor (opcional)',
+              type: 'string',
+              description: 'Ej: Alumna verificada, Compradora en Hotmart, Estudiante inicial',
+            }),
+            defineField({
+              name: 'avatar',
+              title: 'Foto / Avatar del estudiante (opcional)',
+              type: 'image',
+              options: { hotspot: true },
+            }),
+            defineField({
+              name: 'rating',
+              title: 'Puntuación (1 a 5 estrellas)',
+              type: 'number',
+              initialValue: 5,
+              validation: (Rule) => Rule.required().min(1).max(5).error('La puntuación debe estar entre 1 y 5.'),
+            }),
+            defineField({
+              name: 'comment',
+              title: 'Opinión / Descripción de la reseña',
+              type: 'text',
+              rows: 3,
+              validation: (Rule) => Rule.required().error('El comentario u opinión es obligatorio.'),
+            }),
+            defineField({
+              name: 'dateText',
+              title: 'Fecha o tiempo (opcional)',
+              type: 'string',
+              description: 'Ej: Hace 2 semanas, Enero 2026, Reciente',
+            }),
+          ],
+          preview: {
+            select: {
+              title: 'author',
+              subtitle: 'comment',
+              rating: 'rating',
+              media: 'avatar',
+            },
+            prepare({ title, subtitle, rating, media }) {
+              const stars = '★'.repeat(rating || 5);
+              return {
+                title: `${title || 'Sin nombre'} (${stars})`,
+                subtitle,
+                media,
+              };
+            },
+          },
+        },
+      ],
+    }),
+
     // --- PREGUNTAS FRECUENTES (FAQS) ---
     defineField({
       name: 'faqs',

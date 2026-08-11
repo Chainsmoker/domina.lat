@@ -324,17 +324,17 @@ const recImg = recommendedCourse?.heroImage ? urlFor(recommendedCourse.heroImage
 
     // Category Mega Menu Interaction & Grace Delay
     const categoryMenu = document.querySelector('.category-menu');
-    let closeTimeout;
+    let closeTimeout: ReturnType<typeof setTimeout> | undefined;
 
     if (categoryMenu) {
       function openCategoryMenu() {
-        clearTimeout(closeTimeout);
-        categoryMenu.classList.add('open');
+        if (closeTimeout) clearTimeout(closeTimeout);
+        categoryMenu?.classList.add('open');
       }
 
       function closeCategoryMenu() {
         closeTimeout = setTimeout(() => {
-          categoryMenu.classList.remove('open');
+          categoryMenu?.classList.remove('open');
         }, 220);
       }
 
@@ -355,7 +355,7 @@ const recImg = recommendedCourse?.heroImage ? urlFor(recommendedCourse.heroImage
       }
 
       document.addEventListener('click', (e) => {
-        if (!categoryMenu.contains(e.target)) {
+        if (e.target instanceof Node && !categoryMenu.contains(e.target)) {
           categoryMenu.classList.remove('open');
         }
       });

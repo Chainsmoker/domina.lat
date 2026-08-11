@@ -54,6 +54,9 @@ const ratingText = course.ratingText || 'valoración mostrada por la plataforma 
 // Temario opcional de Sanity
 const modules = course.modules && course.modules.length > 0 ? course.modules : [];
 
+// Reseñas / Opiniones de estudiantes desde Sanity
+const studentReviews = course.studentReviews && course.studentReviews.length > 0 ? course.studentReviews : [];
+
 // Qué aprenderás desde Sanity
 const learnCards = course.learnItems && course.learnItems.length > 0 ? course.learnItems : [];
 
@@ -282,6 +285,53 @@ const jsonLd = faqs.length > 0
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- SECCIÓN RESEÑAS DE ESTUDIANTES (SOLO SI TIENE RESEÑAS EN SANITY) -->
+    {studentReviews.length > 0 && (
+      <section class="student-reviews-section">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow">Opiniones y reseñas</span>
+              <h2 class="display">Lo que dicen quienes ya lo hicieron.</h2>
+            </div>
+            <p>Experiencias y testimonios reales de estudiantes sobre esta formación.</p>
+          </div>
+          <div class="reviews-grid">
+            {studentReviews.map((rev) => {
+              const starsCount = Math.min(5, Math.max(1, Math.round(rev.rating || 5)));
+              const starsStr = '★'.repeat(starsCount) + '☆'.repeat(5 - starsCount);
+              const avatarUrl = rev.avatar ? urlFor(rev.avatar).width(120).height(120).url() : '';
+              const initials = rev.author ? rev.author.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : 'AN';
+
+              return (
+                <article class="review-card">
+                  <div class="review-header">
+                    <div class="review-author-info">
+                      {avatarUrl ? (
+                        <img class="review-avatar-img" src={avatarUrl} alt={rev.author} loading="lazy" />
+                      ) : (
+                        <div class="review-avatar-fallback">{initials}</div>
+                      )}
+                      <div>
+                        <strong class="review-author-name">{rev.author}</strong>
+                        {rev.role && <span class="review-author-role">{rev.role}</span>}
+                      </div>
+                    </div>
+                    {rev.dateText && <span class="review-date">{rev.dateText}</span>}
+                  </div>
+                  <div class="review-stars" aria-label={`Valoración: ${starsCount} de 5 estrellas`}>
+                    <span class="stars-gold">{starsStr}</span>
+                    <span class="review-score">{rev.rating.toFixed(1)}</span>
+                  </div>
+                  <p class="review-text">{rev.comment}</p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -1108,6 +1158,100 @@ const jsonLd = faqs.length > 0
     color: #BFC5D1;
     line-height: 1.55;
     font-size: 0.92rem;
+  }
+
+  /* RESEÑAS DE ESTUDIANTES / TESTIMONIOS */
+  .student-reviews-section {
+    padding: 90px 0;
+    background: var(--cream);
+  }
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 22px;
+    margin-top: 36px;
+  }
+  .review-card {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 4px 18px rgba(11, 16, 32, 0.03);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .review-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(11, 16, 32, 0.08);
+  }
+  .review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .review-author-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .review-avatar-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .review-avatar-fallback {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--violet);
+    color: #fff;
+    font: 800 0.92rem "Manrope", sans-serif;
+    display: grid;
+    place-items: center;
+  }
+  .review-author-name {
+    display: block;
+    font: 700 0.98rem "Manrope", sans-serif;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .review-author-role {
+    display: inline-block;
+    font-size: 0.76rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .review-date {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .review-stars {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stars-gold {
+    color: #F4A21B;
+    letter-spacing: 2px;
+  }
+  .review-score {
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin-left: 4px;
+  }
+  .review-text {
+    color: #4A5264;
+    font-size: 0.96rem;
+    line-height: 1.62;
+    margin: 0;
   }
 
   /* AUTOR CON COLORES DINÁMICOS DESDE SANITY */
