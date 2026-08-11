@@ -10,6 +10,12 @@ import NewsletterSection from '../components/NewsletterSection.astro';
 import { getGuideCategories, getPosts } from '../lib/sanity/queries';
 import { urlFor } from '../lib/sanity/image';
 
+// Edge Cache: 60s browser, 5min Cloudflare CDN hit
+Astro.response.headers.set(
+  'cache-control',
+  'public, max-age=60, s-maxage=300, stale-while-revalidate=86400'
+);
+
 const categories = await getGuideCategories();
 const allPosts = await getPosts();
 

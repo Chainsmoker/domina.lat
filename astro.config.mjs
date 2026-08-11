@@ -19,6 +19,7 @@ export default defineConfig({
   trailingSlash: 'never',
   compressHTML: true,
   output: 'server',
+  prefetch: true,
   adapter: cloudflare({
     imageService: 'compile',
   }),

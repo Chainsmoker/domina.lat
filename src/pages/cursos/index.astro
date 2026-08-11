@@ -16,6 +16,12 @@ const sortParam = searchParams.get('orden') || 'default';
 const currentPage = Math.max(1, parseInt(searchParams.get('pagina') || '1') || 1);
 const pageSize = 6;
 
+// Edge Cache: 60s browser, 5min Cloudflare CDN CDN hit for ultra fast navigation
+Astro.response.headers.set(
+  'cache-control',
+  'public, max-age=60, s-maxage=300, stale-while-revalidate=86400'
+);
+
 const allSanCourses = await getCourses();
 const sanCategories = await getCourseCategories();
 

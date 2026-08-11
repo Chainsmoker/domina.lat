@@ -7,6 +7,12 @@ import { formatPrice } from '../lib/utils/formatPrice';
 
 const { category } = Astro.props;
 
+// Edge Cache: 60s browser, 5min Cloudflare CDN hit
+Astro.response.headers.set(
+  'cache-control',
+  'public, max-age=60, s-maxage=300, stale-while-revalidate=86400'
+);
+
 // Obtener información de la categoría y sus cursos desde Sanity
 const categorySlug = category?.slug || 'belleza-y-unas';
 const sanityCategory = (await getCategoryBySlug(categorySlug)) || category;
