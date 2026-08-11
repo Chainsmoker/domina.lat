@@ -34,6 +34,12 @@ export interface StudentReview {
   dateText?: string;
 }
 
+export interface ExtraButton {
+  text: string;
+  url: string;
+  variant?: 'outline' | 'lime' | 'orange' | 'dark';
+}
+
 export interface Course {
   _id: string;
   title: string;
@@ -54,6 +60,7 @@ export interface Course {
   affiliateUrl?: string;
   secondaryCtaText?: string;
   secondaryCtaUrl?: string;
+  extraButtons?: ExtraButton[];
   ratingScore?: number;
   ratingText?: string;
   facts?: string[];
@@ -188,6 +195,7 @@ export async function getCourses(): Promise<Course[]> {
         affiliateUrl,
         secondaryCtaText,
         secondaryCtaUrl,
+        extraButtons,
         ratingScore,
         ratingText,
         facts,
@@ -238,6 +246,7 @@ export async function getCoursesByCategory(categorySlug: string): Promise<Course
         affiliateUrl,
         secondaryCtaText,
         secondaryCtaUrl,
+        extraButtons,
         ratingScore,
         ratingText,
         facts,
@@ -289,6 +298,7 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
         affiliateUrl,
         secondaryCtaText,
         secondaryCtaUrl,
+        extraButtons,
         ratingScore,
         ratingText,
         facts,

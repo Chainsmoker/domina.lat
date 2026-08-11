@@ -103,17 +103,68 @@ export const courseType = defineType({
       validation: (Rule) => Rule.required().uri({ scheme: ['http', 'https'] }).error('El enlace de compra es obligatorio.'),
     }),
     defineField({
+      name: 'extraButtons',
+      title: 'Botones adicionales / Recursos y Clases gratis (OPCIONAL)',
+      type: 'array',
+      description: 'Añade múltiples botones con enlace (ej: Clase gratuita, Temario en PDF, Video demo, Grupo de WhatsApp).',
+      of: [
+        {
+          type: 'object',
+          name: 'extraButtonItem',
+          title: 'Botón adicional',
+          fields: [
+            defineField({
+              name: 'text',
+              title: 'Texto del botón',
+              type: 'string',
+              description: 'Ej: Ver clase gratuita, Descargar guía PDF, Ver lección gratis',
+              validation: (Rule) => Rule.required().error('El texto del botón es obligatorio.'),
+            }),
+            defineField({
+              name: 'url',
+              title: 'Enlace del botón (URL)',
+              type: 'url',
+              description: 'Enlace a YouTube, Hotmart, PDF, Drive o recursos externos.',
+              validation: (Rule) => Rule.required().uri({ scheme: ['http', 'https'] }).error('El enlace es obligatorio.'),
+            }),
+            defineField({
+              name: 'variant',
+              title: 'Estilo visual del botón',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Borde transparente (Estándar)', value: 'outline' },
+                  { title: 'Verde lima (Destacado)', value: 'lime' },
+                  { title: 'Naranja vibrante', value: 'orange' },
+                  { title: 'Fondo oscuro', value: 'dark' },
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'outline',
+            }),
+          ],
+          preview: {
+            select: {
+              title: 'text',
+              subtitle: 'url',
+            },
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'secondaryCtaText',
-      title: 'Texto del botón secundario / Clase gratuita (OPCIONAL)',
+      title: 'Texto del botón secundario (OBSOLETO)',
       type: 'string',
-      description: 'Ej: Ver clase gratuita, Probar lección gratis, Ver recursos',
+      readOnly: true,
+      hidden: true,
     }),
     defineField({
       name: 'secondaryCtaUrl',
-      title: 'Enlace del botón secundario / Clase gratuita (OPCIONAL)',
+      title: 'Enlace del botón secundario (OBSOLETO)',
       type: 'url',
-      description: 'Enlace directo a la clase previa, video de YouTube o recurso gratuito.',
-      validation: (Rule) => Rule.uri({ scheme: ['http', 'https'] }),
+      readOnly: true,
+      hidden: true,
     }),
 
     // RATING / VALORACIÓN

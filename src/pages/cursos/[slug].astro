@@ -57,6 +57,11 @@ const modules = course.modules && course.modules.length > 0 ? course.modules : [
 // Reseñas / Opiniones de estudiantes desde Sanity
 const studentReviews = course.studentReviews && course.studentReviews.length > 0 ? course.studentReviews : [];
 
+// Botones adicionales / Recursos extra desde Sanity (con fallback a campos anteriores)
+const extraButtons = course.extraButtons && course.extraButtons.length > 0
+  ? course.extraButtons
+  : (course.secondaryCtaUrl ? [{ text: course.secondaryCtaText || 'Ver clase gratuita', url: course.secondaryCtaUrl, variant: 'outline' as const }] : []);
+
 // Qué aprenderás desde Sanity
 const learnCards = course.learnItems && course.learnItems.length > 0 ? course.learnItems : [];
 
@@ -186,10 +191,19 @@ const jsonLd = faqs.length > 0
             <a class="btn btn-acid" href={`/go/${course.slug}`} target="_blank" rel="sponsored nofollow">
               Ver oferta oficial ↗
             </a>
-            {course.secondaryCtaUrl && (
-              <a class="btn btn-secondary-cta" href={course.secondaryCtaUrl} target="_blank" rel="noopener noreferrer">
-                {course.secondaryCtaText || 'Ver clase gratuita ↗'}
-              </a>
+            {extraButtons.length > 0 && (
+              <div class="extra-buttons-list">
+                {extraButtons.map((btn: any) => (
+                  <a
+                    class={`btn btn-extra ${btn.variant ? `btn-extra-${btn.variant}` : 'btn-extra-outline'}`}
+                    href={btn.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {btn.text.includes('↗') ? btn.text : `${btn.text} ↗`}
+                  </a>
+                ))}
+              </div>
             )}
             <small>Revisa el precio, moneda, garantía y condiciones finales antes de pagar.</small>
             <div class="purchase-list">
@@ -831,12 +845,14 @@ const jsonLd = faqs.length > 0
     justify-content: center;
     text-decoration: none;
   }
-  .purchase .btn-secondary-cta {
-    width: 100%;
+  .extra-buttons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     margin-top: 10px;
-    background: transparent;
-    color: #ffffff;
-    border: 1.5px solid rgba(255, 255, 255, 0.28);
+  }
+  .purchase .btn-extra {
+    width: 100%;
     padding: 13px 20px;
     border-radius: 999px;
     font-weight: 700;
@@ -846,9 +862,42 @@ const jsonLd = faqs.length > 0
     text-decoration: none;
     transition: all 0.2s ease;
   }
-  .purchase .btn-secondary-cta:hover {
+  .purchase .btn-extra-outline {
+    background: transparent;
+    color: #ffffff;
+    border: 1.5px solid rgba(255, 255, 255, 0.28);
+  }
+  .purchase .btn-extra-outline:hover {
     border-color: #ffffff;
     background: rgba(255, 255, 255, 0.08);
+  }
+  .purchase .btn-extra-lime {
+    background: var(--lime);
+    color: var(--ink);
+    border: 1.5px solid var(--lime);
+    font-weight: 800;
+  }
+  .purchase .btn-extra-lime:hover {
+    background: #c5ee4f;
+    border-color: #c5ee4f;
+  }
+  .purchase .btn-extra-orange {
+    background: var(--orange);
+    color: #ffffff;
+    border: 1.5px solid var(--orange);
+    font-weight: 800;
+  }
+  .purchase .btn-extra-orange:hover {
+    background: #e54d26;
+    border-color: #e54d26;
+  }
+  .purchase .btn-extra-dark {
+    background: #1C253E;
+    color: #ffffff;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+  }
+  .purchase .btn-extra-dark:hover {
+    background: #253152;
   }
   .purchase small {
     display: block;
