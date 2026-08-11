@@ -86,6 +86,12 @@ export const courseType = defineType({
       validation: (Rule) => Rule.required().positive().error('El precio aproximado es obligatorio.'),
     }),
     defineField({
+      name: 'originalPrice',
+      title: 'Precio original / tachado (USD)',
+      type: 'number',
+      description: 'Precio tachado anterior en dólares para mostrar el descuento (OPCIONAL, ej: 59 o 99). Si está vacío, no se muestra precio tachado.',
+    }),
+    defineField({
       name: 'heroImage',
       title: 'Imagen del curso',
       type: 'image',

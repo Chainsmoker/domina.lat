@@ -34,6 +34,7 @@ const formattedTitle = formatTitle(course.title);
 const rawTitle = course.title.replace(/<[^>]*>/g, '');
 const courseCategory = course.category?.title || 'Belleza';
 const coursePrice = formatPrice(course.price) || '$39';
+const originalPriceFormatted = course.originalPrice ? formatPrice(course.originalPrice) : null;
 const courseImage = course.heroImage ? urlFor(course.heroImage).width(1400).url() : '/images/hero-manicure.webp';
 
 // Creador / Autor opcional desde Sanity
@@ -193,7 +194,7 @@ const jsonLd = faqs.length > 0
           <div class="purchase">
             <div class="price-row">
               <div class="price">
-                <del>$59</del>
+                {originalPriceFormatted && <del>{originalPriceFormatted}</del>}
                 <strong>{coursePrice}</strong>
               </div>
               <span>Oferta indicada por el vendedor</span>

@@ -58,6 +58,7 @@ export interface Course {
     eyebrow?: string;
   };
   price?: number | string;
+  originalPrice?: number;
   heroImage?: any;
   isFeatured?: boolean;
   isMenuRecommended?: boolean;
@@ -197,6 +198,7 @@ export async function getCourses(): Promise<Course[]> {
         dek,
         category->{ _id, title, "slug": slug.current, eyebrow },
         price,
+        originalPrice,
         heroImage,
         isFeatured,
         isMenuRecommended,
@@ -253,6 +255,7 @@ export async function getCoursesByCategory(categorySlug: string): Promise<Course
         dek,
         category->{ _id, title, "slug": slug.current, eyebrow },
         price,
+        originalPrice,
         heroImage,
         isFeatured,
         affiliateUrl,
@@ -309,6 +312,7 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
         dek,
         category->{ _id, title, "slug": slug.current, eyebrow },
         price,
+        originalPrice,
         heroImage,
         isFeatured,
         affiliateUrl,
