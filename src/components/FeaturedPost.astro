@@ -1,0 +1,177 @@
+---
+import { formatTitle } from '../lib/utils/formatTitle';
+
+interface Props {
+  tag?: string;
+  title: string;
+  description: string;
+  readingTime?: string;
+  updatedDate?: string;
+  image: string;
+  imageAlt: string;
+  href?: string;
+}
+
+const {
+  tag = "Guía destacada",
+  title,
+  description,
+  readingTime = "10 min de lectura",
+  updatedDate = "Actualizada en 2026",
+  image,
+  imageAlt,
+  href = "#"
+} = Astro.props;
+
+const formattedTitle = formatTitle(title);
+---
+<section class="featured" id="destacada">
+  <div class="container">
+    <article class="featured-card">
+      <div class="featured-media">
+        <img src={image} alt={imageAlt} />
+      </div>
+      <div class="featured-copy">
+        <div>
+          <span class="tag">{tag}</span>
+          <h2 set:html={formattedTitle} />
+          <p>{description}</p>
+          <div class="meta">
+            <span>{readingTime}</span>
+            <span>•</span>
+            <span>{updatedDate}</span>
+          </div>
+        </div>
+        <a class="btn" href={href}>Leer guía completa ↗</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<style>
+  .featured {
+    padding: 54px 0 96px;
+  }
+  .featured-card {
+    display: grid;
+    grid-template-columns: 0.92fr 1.08fr;
+    background: var(--ink);
+    border-radius: 32px;
+    overflow: hidden;
+    color: #fff;
+    box-shadow: var(--shadow);
+    max-height: 480px;
+  }
+  .featured-media {
+    position: relative;
+    height: 100%;
+    max-height: 480px;
+    overflow: hidden;
+  }
+  .featured-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to right,
+      transparent 60%,
+      rgba(11, 16, 32, 0.45)
+    );
+  }
+  .featured-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .featured-copy {
+    padding: 48px 52px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 18px;
+    overflow: hidden;
+  }
+  .featured-copy h2 {
+    font: 800 clamp(1.8rem, 2.8vw, 2.7rem) / 1.1 "Manrope", sans-serif;
+    letter-spacing: -0.04em;
+    margin: 12px 0 10px;
+    color: #fff;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .featured-copy h2 :global(span) {
+    color: var(--orange);
+  }
+  .featured-copy p {
+    color: #c0c6d4;
+    font-size: 1.02rem;
+    line-height: 1.6;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .featured-copy .meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .featured-copy .meta span {
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    color: #aeb5c6 !important;
+    font-size: 0.86rem;
+    font-weight: 500;
+  }
+  .tag {
+    display: inline-flex;
+    background: var(--lime);
+    color: var(--ink);
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .featured-copy .btn {
+    width: max-content;
+    background: #fff;
+    color: var(--ink);
+    border-color: #fff;
+    padding: 12px 22px;
+    font-size: 0.92rem;
+    margin-top: 6px;
+  }
+
+  @media (max-width: 1040px) {
+    .featured-card {
+      grid-template-columns: 1fr;
+      max-height: none;
+    }
+    .featured-media {
+      height: 320px;
+      max-height: 320px;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .featured-copy {
+      padding: 28px;
+      gap: 14px;
+    }
+    .featured-media {
+      height: 250px;
+      max-height: 250px;
+    }
+  }
+</style>

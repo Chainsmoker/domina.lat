@@ -1,0 +1,32 @@
+---
+import CategoryCard from './CategoryCard.astro';
+import { getCourseCategories } from '../lib/sanity/queries';
+
+const allCategories = await getCourseCategories();
+// Limitar a exactamente las 5 categorías de la rejilla principal de templates/index.html
+const categories = allCategories.slice(0, 5);
+
+const defaultCardStyles = ['cat-1', 'cat-2', 'cat-3', 'cat-4', 'cat-5'];
+---
+<section id="categorias">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Explora por objetivo</span>
+        <h2 class="display section-title">¿Qué quieres dominar?</h2>
+      </div>
+      <p>No te mostramos cientos de opciones sin contexto. Organizamos cursos por habilidades, nivel y posibilidad de aplicación real.</p>
+    </div>
+    <div class="category-grid">
+      {categories.map((cat, idx) => (
+        <CategoryCard
+          class={cat.cardStyle || defaultCardStyles[idx] || `cat-${idx + 1}`}
+          href={`/categoria/${cat.slug}`}
+          eyebrow={cat.eyebrow || 'Categoría'}
+          title={cat.cardTitle || cat.title}
+          description={idx === 0 ? (cat.description || 'Empieza desde cero o perfecciona una técnica.') : undefined}
+        />
+      ))}
+    </div>
+  </div>
+</section>

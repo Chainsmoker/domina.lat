@@ -1,0 +1,1027 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCourses, getPosts } from '../lib/sanity/queries';
+import { urlFor } from '../lib/sanity/image';
+
+const allFetchedCourses = await getCourses();
+const allFetchedPosts = await getPosts();
+
+const seenCategories = new Set<string>();
+const dynamicCourses: Array<{
+  image: string;
+  imageAlt: string;
+  pill: string;
+  meta: string;
+  title: string;
+  desc: string;
+  slug: string;
+}> = [];
+
+for (const c of allFetchedCourses) {
+  const catSlug = c.category?.slug || 'general';
+  if (!seenCategories.has(catSlug) && dynamicCourses.length < 4) {
+    seenCategories.add(catSlug);
+    dynamicCourses.push({
+      image: c.heroImage ? urlFor(c.heroImage).width(850).url() : '/images/hero-manicure.webp',
+      imageAlt: c.title,
+      pill: c.eyebrow || 'Curso',
+      meta: `${c.category?.title || 'General'} · ${c.level || 'Inicial'}`,
+      title: c.title,
+      desc: c.dek || 'Curso práctico para aprender una habilidad.',
+      slug: c.slug
+    });
+  }
+}
+
+const dynamicGuides = allFetchedPosts.slice(0, 3).map((p) => ({
+  image: p.heroImage ? urlFor(p.heroImage).width(850).url() : '/images/hero-manicure.webp',
+  imageAlt: p.title.replace(/<[^>]*>/g, ''),
+  category: p.category?.title || p.eyebrow || 'Guía',
+  title: p.title,
+  desc: p.dek || 'Guía práctica para entender la oportunidad.',
+  link: `/guias/${p.slug}`
+}));
+
+const stats = [
+  { title: 'Servicios', desc: 'Uñas, belleza, reparación y habilidades que puedes ofrecer.' },
+  { title: 'Productos', desc: 'Pastelería, panadería, costura y creaciones vendibles.' },
+  { title: 'Digital', desc: 'Diseño, contenido, IA y marketing para trabajar online.' },
+  { title: 'Con criterio', desc: 'Comparamos inversión, dificultad y tipo de oportunidad.' }
+];
+
+const paths = [
+  {
+    image: '/images/ruta-servicios.webp',
+    imageAlt: 'Servicio de uñas profesionales',
+    pill: 'Servicios',
+    pillColor: 'var(--lime)',
+    title: 'Trabaja con clientes',
+    desc: 'Uñas, pestañas, maquillaje, barbería o reparación. Ideal si disfrutas resolver necesidades directamente.',
+    link: '/categoria/belleza-y-unas'
+  },
+  {
+    image: '/images/ruta-productos.webp',
+    imageAlt: 'Pastelería para vender',
+    pill: 'Productos',
+    pillColor: 'var(--orange)',
+    title: 'Crea y vende',
+    desc: 'Pastelería, panadería, costura o manualidades. Convierte técnica y presentación en productos concretos.',
+    link: '/categoria/cocina-y-pasteleria'
+  },
+  {
+    image: '/images/ruta-digital.webp',
+    imageAlt: 'Trabajo digital desde computadora',
+    pill: 'Digital',
+    pillColor: 'var(--violet)',
+    title: 'Ofrece habilidades online',
+    desc: 'Diseño, contenido, marketing e inteligencia artificial para prestar servicios sin depender de un local.',
+    link: '/categoria/digital-e-ia'
+  }
+];
+
+const tableData = [
+  { idea: 'Uñas profesionales', inversion: 'Baja–media', invBadgeClass: '', aprendizaje: 'Práctica constante', venta: 'Servicio local' },
+  { idea: 'Pastelería', inversion: 'Media', invBadgeClass: 'orange', aprendizaje: 'Técnica + producción', venta: 'Pedidos y catálogo' },
+  { idea: 'Reparación de celulares', inversion: 'Media', invBadgeClass: 'violet', aprendizaje: 'Diagnóstico técnico', venta: 'Servicio especializado' },
+  { idea: 'Diseño y contenido', inversion: 'Baja', invBadgeClass: '', aprendizaje: 'Portafolio + práctica', venta: 'Servicio remoto' }
+];
+
+const steps = [
+  { num: '01', title: 'Elige una habilidad', desc: 'Según tus intereses, presupuesto, tiempo y forma preferida de trabajar.' },
+  { num: '02', title: 'Aprende y practica', desc: 'Avanza con proyectos pequeños antes de cobrar o asumir pedidos complejos.' },
+  { num: '03', title: 'Prueba la demanda', desc: 'Habla con clientes potenciales, muestra ejemplos y valida qué necesitan.' },
+  { num: '04', title: 'Mejora tu oferta', desc: 'Ajusta calidad, costos, presentación y experiencia con cada trabajo.' }
+];
+---
+
+<Layout title="Cursos para emprender desde casa | Domina" description="Explora habilidades prácticas, cursos y rutas para iniciar un pequeño negocio desde casa con Domina.">
+  <main class="page-emprender">
+    <section class="hero">
+      <div class="container">
+        <div class="hero-card">
+          <div class="hero-copy">
+            <div>
+              <div class="hero-eyebrow-pill">
+                <span class="dot"></span> DOMINA PARA EMPRENDER
+              </div>
+              <h1 class="display">Aprende una habilidad. <span>Crea tu propio camino.</span></h1>
+              <p>Explora rutas prácticas que se convierten en servicios, productos o pequeños negocios. Evaluamos temarios, inversión inicial y alternativas reales antes de sugerirte un curso.</p>
+              <div class="hero-actions">
+                <a class="btn btn-acid" href="#ideas">Explorar ideas ↗</a>
+                <a class="btn btn-light" href="/cursos">Ver catálogo de cursos</a>
+              </div>
+            </div>
+            <div class="trust-features">
+              <div class="trust-item">
+                <span class="trust-icon" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--lime)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                </span>
+                <div>
+                  <b>Inversión clara</b>
+                  <small>Sin costos ocultos</small>
+                </div>
+              </div>
+              <div class="trust-item">
+                <span class="trust-icon" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--lime)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </span>
+                <div>
+                  <b>Paso a paso</b>
+                  <small>Desde cero</small>
+                </div>
+              </div>
+              <div class="trust-item">
+                <span class="trust-icon" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--lime)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </span>
+                <div>
+                  <b>Evaluación real</b>
+                  <small>Cursos probados</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="hero-media">
+            <img src="/images/emprender-gestion.webp" alt="Persona gestionando un emprendimiento" />
+            <div class="float-badge top-right">
+              <span class="badge-dot-live"></span> Ruta destacada 2026
+            </div>
+            <div class="float-card-new bottom-left">
+              <div class="icon-circle" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>
+              </div>
+              <div>
+                <strong>Servicios & Negocios</strong>
+                <span>Baja inversión · Alta demanda</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="container stats-grid">
+        {stats.map((s) => (
+          <div class="stat">
+            <b>{s.title}</b>
+            <span>{s.desc}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="section" id="ideas">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Rutas para comenzar</span>
+            <h2 class="display">Rutas prácticas para <span>comenzar.</span></h2>
+          </div>
+          <p>No todas las personas quieren el mismo tipo de negocio. Elige según cómo prefieres trabajar, vender y relacionarte con clientes.</p>
+        </div>
+        <div class="paths">
+          {paths.map((p) => (
+            <article class="path">
+              <img src={p.image} alt={p.imageAlt} />
+              <div class="path-copy">
+                <span class="pill" style={`background:${p.pillColor}`}>{p.pill}</span>
+                <h3>{p.title}</h3>
+                <p>{p.desc}</p>
+                <a class="btn" style="border-color:#fff;color:#fff" href={p.link}>Ver cursos ↗</a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section compare" id="comparativa">
+      <div class="container compare-grid">
+        <div>
+          <span class="eyebrow">Comparación rápida</span>
+          <h2 class="display">Elige según tu <span>realidad.</span></h2>
+          <p>Estas referencias son orientativas. La inversión y el tiempo dependen del país, herramientas, experiencia y alcance del servicio.</p>
+          <a class="btn btn-dark" href="/guias">Leer guías para decidir ↗</a>
+        </div>
+        <div class="table">
+          <div class="row head">
+            <div>Idea</div>
+            <div>Inversión inicial</div>
+            <div>Curva de aprendizaje</div>
+            <div>Forma de vender</div>
+          </div>
+          {tableData.map((row) => (
+            <div class="row">
+              <div class="idea">{row.idea}</div>
+              <div data-label="Inversión">
+                <span class={`badge ${row.invBadgeClass}`}>{row.inversion}</span>
+              </div>
+              <div data-label="Aprendizaje">{row.aprendizaje}</div>
+              <div data-label="Venta">{row.venta}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="courses">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Selección inicial</span>
+            <h2 class="display">Cursos para empezar con intención.</h2>
+          </div>
+          <p>Ejemplos de rutas que Domina puede recomendar según objetivo, nivel e inversión disponible.</p>
+        </div>
+        {dynamicCourses.length > 0 ? (
+          <div class="course-grid">
+            {dynamicCourses.map((c) => (
+              <article class="course">
+                <div class="course-media">
+                  <img src={c.image} alt={c.imageAlt} />
+                  <span class="pill">{c.pill}</span>
+                </div>
+                <div class="course-body">
+                  <small>{c.meta}</small>
+                  <h3>{c.title}</h3>
+                  <p>{c.desc}</p>
+                  <div class="course-foot">
+                    <b>Ver ficha</b>
+                    <a href={`/cursos/${c.slug}`}>↗</a>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div class="empty-state-card">
+            <div class="empty-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            </div>
+            <h3>Próximamente cursos en esta sección</h3>
+            <p>Estamos seleccionando los mejores cursos para emprender por categoría. Publicaremos las recomendaciones muy pronto.</p>
+            <a href="/cursos" class="btn btn-acid">Ver catálogo completo ↗</a>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <section class="steps" id="pasos">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Ruta realista</span>
+            <h2 class="display">Aprender no es el <span>último paso.</span></h2>
+          </div>
+          <p>Un curso puede ayudarte a comenzar, pero el resultado depende de práctica, validación, servicio y consistencia.</p>
+        </div>
+        <div class="step-grid">
+          {steps.map((st) => (
+            <div class="step">
+              <div class="num">{st.num}</div>
+              <h3>{st.title}</h3>
+              <p>{st.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="guides">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Antes de invertir</span>
+            <h2 class="display">Guías para decidir mejor.</h2>
+          </div>
+          <p>Contenido práctico para comprender la oportunidad antes de comprar herramientas o una formación.</p>
+        </div>
+        {dynamicGuides.length > 0 ? (
+          <div class="guide-grid">
+            {dynamicGuides.map((g) => (
+              <article class="guide">
+                <div class="guide-media">
+                  <img src={g.image} alt={g.imageAlt} />
+                </div>
+                <div class="guide-body">
+                  <small>{g.category}</small>
+                  <h3>{g.title}</h3>
+                  <p>{g.desc}</p>
+                  <a href={g.link}>Leer guía ↗</a>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div class="empty-state-card">
+            <div class="empty-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            </div>
+            <h3>Próximamente guías en esta sección</h3>
+            <p>Pronto publicaremos guías paso a paso para ayudarte a decidir el mejor camino antes de invertir.</p>
+            <a href="/guias" class="btn btn-acid">Explorar todas las guías ↗</a>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="container">
+        <div class="cta-box">
+          <div>
+            <span class="eyebrow">Empieza con una decisión</span>
+            <h2 class="display">¿Qué habilidad encaja contigo?</h2>
+            <p>Explora cursos, compara opciones y construye una ruta que tenga sentido para tu tiempo, presupuesto y objetivos.</p>
+          </div>
+          <div class="cta-actions">
+            <a class="btn btn-dark" href="/cursos">Explorar cursos ↗</a>
+            <a class="btn" href="/guias">Leer guías</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .hero {
+    padding: 42px 0 24px;
+  }
+  .hero .container,
+  .hero :global(.container) {
+    width: min(1280px, calc(100% - 36px)) !important;
+  }
+  .hero-card {
+    background: var(--ink);
+    color: #fff;
+    border-radius: 32px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    min-height: 520px;
+    box-shadow: 0 30px 80px rgba(11, 16, 32, 0.18);
+  }
+  .hero-copy {
+    padding: 48px 52px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 28px;
+  }
+  .hero-eyebrow-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font: 800 0.76rem "Manrope", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #e2e7f0;
+    margin-bottom: 16px;
+  }
+  .hero-eyebrow-pill .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--lime);
+    box-shadow: 0 0 0 3px rgba(215, 255, 95, 0.25);
+  }
+  .hero h1 {
+    font-size: clamp(2.6rem, 4.4vw, 4.4rem) !important;
+    letter-spacing: -0.04em !important;
+    line-height: 1.04 !important;
+    color: #ffffff !important;
+    margin-bottom: 14px;
+  }
+  .hero h1 :global(span),
+  .hero h1 span {
+    color: var(--lime) !important;
+    display: block;
+  }
+  .hero p {
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: #c0c6d4;
+    max-width: 540px;
+    margin: 0;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+  .hero .btn-acid {
+    background: var(--lime);
+    color: var(--ink);
+    border-color: var(--lime);
+    padding: 13px 22px;
+  }
+  .hero .btn-light {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 13px 22px;
+    backdrop-filter: blur(10px);
+  }
+  .hero .btn-light:hover {
+    background: #fff;
+    color: var(--ink);
+  }
+  .trust-features {
+    display: flex;
+    gap: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-wrap: wrap;
+  }
+  .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .trust-icon {
+    font-size: 1.2rem;
+  }
+  .trust-item b {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+  }
+  .trust-item small {
+    display: block;
+    font-size: 0.78rem;
+    color: #aeb5c6;
+  }
+
+  .hero-media {
+    position: relative;
+    height: 100%;
+    min-height: 480px;
+  }
+  .hero-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(11, 16, 32, 0.5), transparent 40%),
+      linear-gradient(0deg, rgba(11, 16, 32, 0.35), transparent 35%);
+  }
+  .hero-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .float-badge {
+    position: absolute;
+    z-index: 2;
+    background: rgba(11, 16, 32, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font: 800 0.8rem "Manrope", sans-serif;
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .float-badge.top-right {
+    top: 24px;
+    right: 24px;
+  }
+  .badge-dot-live {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--orange);
+    box-shadow: 0 0 0 3px rgba(255, 92, 53, 0.3);
+  }
+  .float-card-new {
+    position: absolute;
+    z-index: 2;
+    background: rgba(252, 250, 245, 0.96);
+    color: var(--ink);
+    border-radius: 20px;
+    padding: 16px 20px;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .float-card-new.bottom-left {
+    left: 24px;
+    bottom: 28px;
+  }
+  .icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(255, 92, 53, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .float-card-new strong {
+    display: block;
+    font: 800 1.02rem "Manrope", sans-serif;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .float-card-new span {
+    display: block;
+    color: #555d6e;
+    font-size: 0.84rem;
+    margin-top: 2px;
+  }
+
+  .stats {
+    padding: 28px 0 76px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .stat {
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background: #fff;
+    padding: 22px;
+  }
+  .stat b {
+    display: block;
+    font: 800 1.15rem "Manrope", sans-serif;
+  }
+  .stat span {
+    display: block;
+    color: var(--muted);
+    margin-top: 7px;
+    line-height: 1.45;
+  }
+
+  .section {
+    padding: 88px 0;
+  }
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 30px;
+    margin-bottom: 32px;
+  }
+  .section-head h2 {
+    font-size: clamp(3.5rem, 6.7vw, 7.2rem);
+  }
+  .section-head p {
+    max-width: 480px;
+    color: var(--muted);
+    line-height: 1.68;
+  }
+  .paths {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  .path {
+    border-radius: 28px;
+    overflow: hidden;
+    position: relative;
+    min-height: 450px;
+    color: #fff;
+    isolation: isolate;
+  }
+  .path::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      0deg,
+      rgba(11, 16, 32, 0.88),
+      rgba(11, 16, 32, 0.06) 70%
+    );
+    z-index: -1;
+  }
+  .path img {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .path-copy {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    bottom: 24px;
+  }
+  .path h3 {
+    font: 800 2rem / 1 "Manrope", sans-serif;
+    letter-spacing: -0.04em;
+    margin: 10px 0;
+  }
+  .path p {
+    color: #d8dce4;
+    line-height: 1.55;
+  }
+  .path .pill {
+    display: inline-flex;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: var(--lime);
+    color: var(--ink);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 800;
+  }
+  .path:nth-child(2) .pill {
+    background: var(--orange);
+  }
+  .path:nth-child(3) .pill {
+    background: var(--violet);
+    color: #fff;
+  }
+
+  .compare {
+    background: var(--cream);
+    padding: 96px 0;
+  }
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 0.78fr 1.22fr;
+    gap: 48px;
+    align-items: start;
+  }
+  .compare h2 {
+    font-size: clamp(3.2rem, 5.8vw, 6.2rem) !important;
+    letter-spacing: -0.04em !important;
+    line-height: 0.95 !important;
+    margin: 16px 0 20px;
+  }
+  .compare h2 :global(span),
+  .compare h2 span {
+    color: var(--orange);
+  }
+  .compare p {
+    color: #4b5363;
+    font-size: 1.08rem;
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+  .table {
+    background: #fff;
+    border: 1px solid rgba(11, 16, 32, 0.08);
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 16px 48px rgba(11, 16, 32, 0.04);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1.3fr repeat(3, 0.9fr);
+    align-items: center;
+    border-bottom: 1px solid rgba(11, 16, 32, 0.06);
+    padding: 6px 10px;
+    transition: background 0.2s ease;
+  }
+  .row:last-child {
+    border: 0;
+  }
+  .row:not(.head):hover {
+    background: rgba(255, 92, 53, 0.03);
+  }
+  .row > div {
+    padding: 16px 14px;
+    font-size: 0.94rem;
+    color: #383e50;
+  }
+  .row.head {
+    background: var(--ink);
+    color: #fff;
+    font-weight: 800;
+    padding: 10px;
+    border-radius: 20px 20px 0 0;
+  }
+  .row.head > div {
+    color: #fff;
+    font-size: 0.86rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .row .idea {
+    font: 800 1.08rem "Manrope", sans-serif;
+    color: var(--ink);
+  }
+  .badge {
+    display: inline-flex;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(189, 232, 219, 0.5);
+    color: #145946;
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+  .badge.orange {
+    background: rgba(255, 92, 53, 0.15);
+    color: #c93412;
+  }
+  .badge.violet {
+    background: rgba(141, 124, 255, 0.18);
+    color: #4532b8;
+  }
+
+  .courses {
+    padding: 96px 0;
+  }
+  .course-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+  .course {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .course:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 52px rgba(11, 16, 32, 0.1);
+  }
+  .course-media {
+    height: 220px;
+    position: relative;
+  }
+  .course-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .course-media .pill {
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    background: var(--lime);
+    padding: 7px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 800;
+  }
+  .course-body {
+    padding: 22px;
+  }
+  .course small {
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 800;
+  }
+  .course h3 {
+    font: 800 1.4rem / 1.08 "Manrope", sans-serif;
+    letter-spacing: -0.03em;
+    margin: 10px 0;
+  }
+  .course p {
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .course-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 18px;
+  }
+  .course-foot b {
+    font: 800 1rem "Manrope", sans-serif;
+  }
+
+  .steps {
+    padding: 96px 0;
+    background: var(--ink);
+    color: #fff;
+  }
+  .steps .section-head h2 {
+    color: #ffffff !important;
+  }
+  .steps .section-head h2 :global(span),
+  .steps .section-head h2 span {
+    color: var(--lime) !important;
+  }
+  .steps .section-head p {
+    color: #c6cbd4;
+  }
+  .step-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+  .steps .step-grid .step {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 28px !important;
+    padding: 34px 28px !important;
+    min-height: 250px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2) !important;
+  }
+  .steps .step-grid .step:hover {
+    transform: translateY(-6px) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(215, 255, 95, 0.4) !important;
+  }
+  .steps .step-grid .step .num {
+    font: 800 3.4rem / 1 "Manrope", sans-serif !important;
+    margin-bottom: 18px !important;
+  }
+  .steps .step-grid .step:nth-child(1) .num {
+    color: var(--orange) !important;
+  }
+  .steps .step-grid .step:nth-child(2) .num {
+    color: var(--lime) !important;
+  }
+  .steps .step-grid .step:nth-child(3) .num {
+    color: var(--violet) !important;
+  }
+  .steps .step-grid .step:nth-child(4) .num {
+    color: var(--mint) !important;
+  }
+  .steps .step-grid .step h3 {
+    font: 800 1.35rem / 1.22 "Manrope", sans-serif !important;
+    color: #ffffff !important;
+    margin: 0 0 10px 0 !important;
+    letter-spacing: -0.025em !important;
+  }
+  .steps .step-grid .step p {
+    color: #c6cbd4 !important;
+    font-size: 0.96rem !important;
+    line-height: 1.6 !important;
+    margin: 0 !important;
+  }
+
+  .guides {
+    padding: 90px 0;
+  }
+  .guide-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr 0.8fr;
+    gap: 16px;
+  }
+  .guide {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    overflow: hidden;
+  }
+  .guide-media {
+    height: 230px;
+  }
+  .guide-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .guide:first-child .guide-media {
+    height: 320px;
+  }
+  .guide-body {
+    padding: 22px;
+  }
+  .guide h3 {
+    font: 800 1.45rem / 1.08 "Manrope", sans-serif;
+    margin: 8px 0;
+  }
+  .guide p {
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  .guide a {
+    font-weight: 800;
+    display: inline-flex;
+    margin-top: 10px;
+  }
+
+  .cta {
+    padding: 0 0 90px;
+  }
+  .cta-box {
+    border-radius: 34px;
+    background: var(--orange);
+    padding: 50px;
+    display: grid;
+    grid-template-columns: 1fr 0.75fr;
+    gap: 30px;
+    align-items: center;
+  }
+  .cta h2 {
+    font-size: clamp(3.3rem, 6.5vw, 7rem);
+  }
+  .cta p {
+    line-height: 1.65;
+    max-width: 600px;
+  }
+  .cta-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 1040px) {
+    .hero-card,
+    .compare-grid,
+    .cta-box {
+      grid-template-columns: 1fr;
+    }
+    .hero-media {
+      min-height: 500px;
+    }
+    .stats-grid,
+    .step-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .paths {
+      grid-template-columns: 1fr 1fr;
+    }
+    .course-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .guide-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .guide:first-child {
+      grid-column: span 2;
+    }
+  }
+  @media (max-width: 720px) {
+    .hero {
+      padding-top: 24px;
+    }
+    .hero-copy {
+      padding: 28px;
+    }
+    .hero h1 {
+      font-size: clamp(3.6rem, 17vw, 5.5rem);
+    }
+    .hero-media {
+      min-height: 430px;
+    }
+    .float-card {
+      left: 16px;
+      right: 16px;
+    }
+    .float-two {
+      display: none;
+    }
+    .stats-grid,
+    .paths,
+    .course-grid,
+    .step-grid,
+    .guide-grid {
+      grid-template-columns: 1fr;
+    }
+    .guide:first-child {
+      grid-column: auto;
+    }
+    .section-head {
+      display: block;
+    }
+    .row {
+      grid-template-columns: 1fr;
+    }
+    .row.head {
+      display: none;
+    }
+    .row > div {
+      padding: 10px 18px;
+    }
+    .row .idea {
+      padding-top: 18px;
+    }
+    .row > div:not(.idea):before {
+      content: attr(data-label);
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .cta-box {
+      padding: 28px;
+    }
+  }
+</style>

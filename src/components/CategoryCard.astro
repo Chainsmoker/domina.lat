@@ -1,0 +1,20 @@
+---
+interface Props {
+  class?: string;
+  href?: string;
+  eyebrow: string;
+  title: string;
+  description?: string;
+}
+
+const { class: className = '', href = '#cursos', eyebrow, title, description } = Astro.props;
+---
+<a class={`category-card ${className}`} href={href}>
+  <div>
+    <span class="eyebrow">{eyebrow}</span>
+    <h3>{title}</h3>
+    {description && <p>{description}</p>}
+  </div>
+  <span class="arrow">↗</span>
+  <div class="cat-visual"></div>
+</a>

@@ -1,0 +1,48 @@
+---
+const steps = [
+  {
+    num: 1,
+    title: 'Explora',
+    description: 'Filtra por habilidad, nivel y objetivo.'
+  },
+  {
+    num: 2,
+    title: 'Compara',
+    description: 'Revisa contenido, enfoque y para quién está pensado.'
+  },
+  {
+    num: 3,
+    title: 'Empieza',
+    description: 'Accede al curso recomendado y aprende a tu ritmo.'
+  }
+];
+---
+<section id="emprender">
+  <div class="container promise-grid">
+    <div class="promise-panel dark">
+      <div class="panel-header">
+        <span class="eyebrow">Para emprender</span>
+        <h3>Una habilidad puede ser tu siguiente oportunidad.</h3>
+        <p>Aprende algo que puedas aplicar, mostrar y ofrecer. Sin promesas vacías: conocimiento práctico, paso a paso.</p>
+      </div>
+      <div class="panel-action">
+        <a class="btn btn-dark" href="#cursos">Explorar cursos para emprender</a>
+      </div>
+      <div class="big-number">01</div>
+    </div>
+    <div class="promise-panel light">
+      <span class="eyebrow">Así funciona</span>
+      <div class="steps">
+        {steps.map((step) => (
+          <div class="step">
+            <div class="step-num">{step.num}</div>
+            <div>
+              <h4>{step.title}</h4>
+              <p>{step.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

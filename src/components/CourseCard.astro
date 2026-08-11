@@ -1,0 +1,201 @@
+---
+import { formatPrice } from '../lib/utils/formatPrice';
+
+interface Props {
+  tag: string;
+  image: string;
+  imageAlt: string;
+  meta: string;
+  title: string;
+  description: string;
+  href?: string;
+  priceText?: number | string;
+  ratingText?: string;
+  ratingScore?: number | string;
+}
+
+const {
+  tag,
+  image,
+  imageAlt,
+  meta,
+  title,
+  description,
+  href = "#",
+  priceText = "Ver detalles",
+  ratingText = "Ver curso ↗",
+  ratingScore
+} = Astro.props;
+
+const rawTitle = title.replace(/<[^>]*>/g, '');
+const displayPrice = formatPrice(priceText) || (typeof priceText === 'string' ? priceText : 'Ver detalles');
+const hasRating = ratingScore !== undefined && ratingScore !== null && ratingScore !== '';
+---
+<article class="course-card">
+  <a href={href} class="course-card-link">
+    <div class="course-media">
+      <span class="tag">{tag}</span>
+      {hasRating && <span class="rating-badge">★ {ratingScore}</span>}
+      <img src={image} alt={imageAlt} />
+    </div>
+    <div class="course-body">
+      <div class="course-meta">{meta}</div>
+      <h3>{rawTitle}</h3>
+      <p>{description}</p>
+      {hasRating && (
+        <div class="stars-line">
+          <span class="stars">★★★★★</span>
+          <span class="score-val">{ratingScore}</span>
+        </div>
+      )}
+      <div class="course-footer">
+        <div class="price-box">
+          <small>Desde</small>
+          <strong>{displayPrice}</strong>
+        </div>
+        <span class="cta-link">{ratingText}</span>
+      </div>
+    </div>
+  </a>
+</article>
+
+<style>
+  .course-card {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    overflow: hidden;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease;
+  }
+  .course-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 22px 50px rgba(11, 16, 32, 0.11);
+    border-color: rgba(11, 16, 32, 0.25);
+  }
+  .course-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .course-media {
+    height: 220px;
+    position: relative;
+    overflow: hidden;
+  }
+  .course-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  .course-card:hover .course-media img {
+    transform: scale(1.04);
+  }
+  .tag {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 2;
+    background: var(--lime);
+    color: var(--ink);
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+  .rating-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    background: rgba(11, 16, 32, 0.85);
+    backdrop-filter: blur(10px);
+    color: #FFD13B;
+    padding: 6px 11px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  .course-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .course-meta {
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-weight: 800;
+    color: var(--muted);
+  }
+  .course-body h3 {
+    font: 800 1.3rem / 1.18 "Manrope", sans-serif;
+    letter-spacing: -0.035em;
+    margin: 10px 0 8px;
+    color: var(--ink) !important;
+  }
+  .course-body p {
+    color: #555c6e;
+    line-height: 1.55;
+    font-size: 0.94rem;
+    margin: 0 0 14px;
+  }
+  .stars-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 18px;
+    margin-top: auto;
+  }
+  .stars {
+    color: #F4A21B;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+  }
+  .score-val {
+    font-weight: 800;
+    font-size: 0.86rem;
+    color: var(--ink);
+  }
+  .reviews-count {
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+  .course-footer {
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .price-box small {
+    display: block;
+    color: var(--muted);
+    font-size: 0.72rem;
+  }
+  .price-box strong {
+    font: 800 1.35rem "Manrope", sans-serif;
+    color: var(--ink);
+  }
+  .cta-link {
+    font-weight: 800;
+    color: var(--ink);
+    font-size: 0.92rem;
+    background: var(--cream);
+    padding: 9px 16px;
+    border-radius: 999px;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .course-card:hover .cta-link {
+    background: var(--ink);
+    color: #ffffff;
+  }
+</style>

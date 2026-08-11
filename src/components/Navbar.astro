@@ -1,0 +1,364 @@
+---
+import { getCourseCategories, getCourses } from '../lib/sanity/queries';
+import { urlFor } from '../lib/sanity/image';
+
+const categories = (await getCourseCategories()).slice(0, 5);
+const courses = await getCourses();
+const latestCourses = courses.slice(0, 5);
+
+// Obtener curso recomendado configurado en Sanity
+const categoryFeatured = categories.find((cat) => cat.featuredCourse)?.featuredCourse;
+const recommendedCourse = categoryFeatured || courses.find((c) => c.isMenuRecommended) || courses.find((c) => c.isFeatured) || courses[0];
+const recTitle = recommendedCourse ? recommendedCourse.title.replace(/<[^>]*>/g, '') : 'Pastelería para emprender';
+const recLink = recommendedCourse ? `/cursos/${recommendedCourse.slug}` : '/cursos';
+const recImg = recommendedCourse?.heroImage ? urlFor(recommendedCourse.heroImage).width(700).url() : null;
+---
+<div class="nav-wrap">
+  <div class="container">
+    <nav>
+      <a class="brand" href="/" aria-label="Domina Inicio">
+        <picture>
+          <source srcset="/logo.webp" type="image/webp" />
+          <img class="brand-logo" src="/logo.png" width="583" height="141" alt="Domina logo" decoding="async" />
+        </picture>
+      </a>
+      <div class="nav-links">
+        <a href="/cursos">Cursos</a>
+        <div class="category-menu">
+          <button class="nav-trigger" aria-haspopup="true">
+            Categorías 
+            <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5 6 6.5l5-5" stroke="currentColor" stroke-width="1.6"/></svg>
+          </button>
+          <div class="mega-wrap">
+            <div class="mega">
+              <div class="mega-intro">
+                <div>
+                  <span class="eyebrow">Explora por interés</span>
+                  <h3>¿Qué quieres dominar ahora?</h3>
+                  <p>Rutas prácticas organizadas para aprender, trabajar o empezar algo propio.</p>
+                </div>
+                <a class="btn btn-dark" href="/cursos">Ver todos los cursos ↗</a>
+              </div>
+              <div class="mega-col">
+                <h4>Categorías</h4>
+                {categories.map((cat) => (
+                  <a href={`/categoria/${cat.slug}`}>{cat.title}</a>
+                ))}
+              </div>
+              <div class="mega-col">
+                <h4>Explora</h4>
+                {latestCourses.map((course) => (
+                  <a href={`/cursos/${course.slug}`}>{course.title}</a>
+                ))}
+              </div>
+              {recommendedCourse && recImg && (
+                <article class="mega-course">
+                  <div class="thumb">
+                    <img src={recImg} alt={recTitle} width="640" height="357" loading="lazy" decoding="async" />
+                  </div>
+                  <div class="copy">
+                    <small>Curso recomendado</small>
+                    <strong>{recTitle}</strong>
+                    <a href={recLink}>Descubrir curso ↗</a>
+                  </div>
+                </article>
+              )}
+            </div>
+          </div>
+        </div>
+        <a href="/emprender">Para emprender</a>
+        <a href="/guias">Guías</a>
+        <a href="/contacto">Contacto</a>
+      </div>
+      <div class="nav-actions">
+        <a class="btn" href="/guias">Leer guías</a>
+        <a class="btn btn-dark nav-cta" href="/cursos">
+          <span class="desktop-only">Explorar cursos ↗</span>
+          <span class="mobile-only">Cursos ↗</span>
+        </a>
+        <button class="menu" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </button>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- Full-Screen Mobile Navigation Overlay -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="mobile-drawer-head">
+    <a class="brand" href="/" aria-label="Domina Inicio">
+      <img class="brand-logo" data-src="/logo-white.webp" width="583" height="141" alt="Domina logo" decoding="async" />
+    </a>
+    <button class="menu-close-btn" id="menuClose" aria-label="Cerrar menú">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="mobile-drawer-body">
+    <div class="mobile-drawer-inner">
+      <div class="mobile-nav-list">
+        <a class="mobile-link" href="/cursos">
+          <span>Cursos</span>
+          <small>Explora el catálogo completo ↗</small>
+        </a>
+        <a class="mobile-link" href="/categoria/belleza-y-unas">
+          <span>Categorías</span>
+          <small>Belleza, pastelería, reparación, IA...</small>
+        </a>
+        <a class="mobile-link" href="/emprender">
+          <span>Para emprender</span>
+          <small>Modelos de negocio desde casa</small>
+        </a>
+        <a class="mobile-link" href="/guias">
+          <span>Guías y artículos</span>
+          <small>Consejos prácticos y comparativas</small>
+        </a>
+        <a class="mobile-link" href="/contacto">
+          <span>Contacto</span>
+          <small>Resolver dudas o soporte</small>
+        </a>
+      </div>
+      <div class="mobile-drawer-cta">
+        <a class="btn btn-acid" href="/cursos">Explorar catálogo ↗</a>
+        <a class="btn btn-outline-light" href="/guias">Leer guías recomendadas</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .menu {
+    display: none;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    transition: all 0.2s ease;
+  }
+  .menu:hover {
+    background: var(--cream);
+  }
+
+  /* Full Screen Mobile Overlay */
+  .mobile-drawer {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    background: var(--ink);
+    z-index: 99999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-100%);
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+  }
+  .mobile-drawer.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  .mobile-drawer-head {
+    height: 76px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex: none;
+  }
+  .brand-light {
+    color: #fff !important;
+  }
+  .mark-light {
+    background: #fff !important;
+  }
+  .menu-close-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .menu-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .mobile-drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 20px 40px;
+  }
+  .mobile-drawer-inner {
+    width: min(100%, 560px);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .mobile-nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .mobile-link {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 22px;
+    padding: 18px 22px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: all 0.2s ease;
+  }
+  .mobile-link span {
+    font: 800 1.3rem / 1.1 "Manrope", sans-serif;
+    letter-spacing: -0.03em;
+    color: #fff;
+  }
+  .mobile-link small {
+    color: #b0b6c6;
+    font-size: 0.88rem;
+  }
+  .mobile-link:active,
+  .mobile-link:hover {
+    background: rgba(255, 255, 255, 0.14);
+    transform: translateY(-2px);
+  }
+  .mobile-drawer-cta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .mobile-drawer-cta .btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 800;
+    justify-content: center;
+  }
+  .btn-outline-light {
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: transparent;
+    color: #fff;
+  }
+  .btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .mobile-only {
+    display: none;
+  }
+
+  @media (max-width: 980px) {
+    .menu {
+      display: flex;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .desktop-only {
+      display: none;
+    }
+    .mobile-only {
+      display: inline;
+    }
+    .nav-cta {
+      padding: 9px 14px;
+      font-size: 0.82rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const menuToggle = document.getElementById('menuToggle');
+    const menuClose = document.getElementById('menuClose');
+    const mobileDrawer = document.getElementById('mobileDrawer');
+    const mobileBrandImage = mobileDrawer?.querySelector<HTMLImageElement>('[data-src]');
+
+    function openMenu() {
+      if (mobileDrawer) {
+        if (mobileBrandImage && !mobileBrandImage.src) {
+          mobileBrandImage.src = mobileBrandImage.dataset.src || '';
+        }
+        mobileDrawer.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeMenu() {
+      if (mobileDrawer) {
+        mobileDrawer.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    }
+
+    if (menuToggle) menuToggle.addEventListener('click', openMenu);
+    if (menuClose) menuClose.addEventListener('click', closeMenu);
+
+    if (mobileDrawer) {
+      const mobileLinks = mobileDrawer.querySelectorAll('a');
+      mobileLinks.forEach((link) => {
+        link.addEventListener('click', closeMenu);
+      });
+    }
+
+    // Category Mega Menu Interaction & Grace Delay
+    const categoryMenu = document.querySelector('.category-menu');
+    let closeTimeout;
+
+    if (categoryMenu) {
+      function openCategoryMenu() {
+        clearTimeout(closeTimeout);
+        categoryMenu.classList.add('open');
+      }
+
+      function closeCategoryMenu() {
+        closeTimeout = setTimeout(() => {
+          categoryMenu.classList.remove('open');
+        }, 220);
+      }
+
+      categoryMenu.addEventListener('mouseenter', openCategoryMenu);
+      categoryMenu.addEventListener('mouseleave', closeCategoryMenu);
+
+      const trigger = categoryMenu.querySelector('.nav-trigger');
+      if (trigger) {
+        trigger.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (categoryMenu.classList.contains('open')) {
+            categoryMenu.classList.remove('open');
+          } else {
+            openCategoryMenu();
+          }
+        });
+      }
+
+      document.addEventListener('click', (e) => {
+        if (!categoryMenu.contains(e.target)) {
+          categoryMenu.classList.remove('open');
+        }
+      });
+    }
+  });
+</script>

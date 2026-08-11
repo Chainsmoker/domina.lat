@@ -1,0 +1,42 @@
+---
+import CourseCard from './CourseCard.astro';
+import { getCourses } from '../lib/sanity/queries';
+import { urlFor } from '../lib/sanity/image';
+
+const allCourses = await getCourses();
+const courses = allCourses.slice(0, 3);
+---
+<section id="cursos" class="courses">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Selección Domina</span>
+        <h2 class="display section-title">Cursos para empezar hoy.</h2>
+      </div>
+      <p>Programas elegidos por claridad, aplicación práctica y potencial para convertir una habilidad en un servicio o proyecto.</p>
+    </div>
+    {courses.length > 0 ? (
+      <div class="course-grid">
+        {courses.map((course) => (
+          <CourseCard
+            tag={course.resourceType || course.eyebrow || course.category?.title || 'Video curso'}
+            image={course.heroImage ? urlFor(course.heroImage).width(800).url() : '/images/hero-manicure.webp'}
+            imageAlt={course.title.replace(/<[^>]*>/g, '')}
+            meta={`${course.category?.title || 'Curso'} · ${course.level || 'Inicial'}`}
+            title={course.title}
+            description={course.dek || ''}
+            href={`/cursos/${course.slug}`}
+            priceText={course.price || 'Ver detalles'}
+            ratingScore={course.ratingScore}
+          />
+        ))}
+      </div>
+    ) : (
+      <div class="empty-state-card" style="padding: 48px 24px; text-align: center; border: 2px dashed var(--line); border-radius: 28px; background: #ffffff;">
+        <h3 style="font: 800 1.6rem 'Manrope', sans-serif; margin: 0 0 8px; color: var(--ink);">Próximamente nuevos cursos</h3>
+        <p style="color: var(--muted); margin: 0 0 20px;">Estamos agregando formaciones analizadas al catálogo de Domina.</p>
+        <a href="/cursos" class="btn btn-dark" style="display: inline-block;">Explorar categorías ↗</a>
+      </div>
+    )}
+  </div>
+</section>

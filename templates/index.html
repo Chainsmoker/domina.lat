@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Domina — Aprende habilidades reales</title>
+  <meta name="description" content="Cursos seleccionados para aprender habilidades prácticas, emprender y avanzar." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#0B1020;
+      --ink-2:#151C31;
+      --cream:#F5F1E8;
+      --paper:#FCFAF5;
+      --orange:#FF5C35;
+      --lime:#D7FF5F;
+      --violet:#8D7CFF;
+      --muted:#6D7282;
+      --line:rgba(11,16,32,.14);
+      --shadow:0 24px 60px rgba(11,16,32,.12);
+      --radius:28px;
+      --radius-sm:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:"DM Sans",sans-serif}
+    a{text-decoration:none;color:inherit}
+    img{display:block;width:100%;height:100%;object-fit:cover}
+    button{font:inherit}
+    .container{width:min(1180px,calc(100% - 36px));margin-inline:auto}
+    .eyebrow{display:inline-flex;gap:10px;align-items:center;font-weight:700;text-transform:uppercase;letter-spacing:.14em;font-size:.75rem}
+    .eyebrow::before{content:"";width:30px;height:2px;background:currentColor}
+    .display{font-family:"Manrope",sans-serif;font-weight:800;letter-spacing:-.055em;line-height:.95;margin:0}
+    .section-title{font-size:clamp(2.4rem,5vw,5.2rem);max-width:900px}
+
+    /* NAV */
+    .nav-wrap{position:sticky;top:0;z-index:50;background:rgba(252,250,245,.84);backdrop-filter:blur(14px);border-bottom:1px solid rgba(11,16,32,.08)}
+    nav{height:78px;display:flex;align-items:center;justify-content:space-between;gap:22px}
+    .brand{display:flex;align-items:center;gap:12px;font-family:"Manrope";font-size:1.25rem;font-weight:800;letter-spacing:-.03em}
+    .mark{width:38px;height:38px;border-radius:11px;background:var(--ink);position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+    .mark::before{content:"";position:absolute;inset:8px;border:5px solid var(--paper);border-left-width:4px;border-radius:5px 9px 9px 5px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 64%,48% 42%,48% 100%,0 100%)}
+    .mark::after{content:"";position:absolute;left:-2px;bottom:8px;width:24px;height:7px;background:var(--orange);transform:rotate(-26deg);border-radius:2px}
+    .nav-links{display:flex;gap:28px;align-items:center;font-size:.95rem;color:#33394B}
+    .nav-links a{position:relative}
+    .nav-links a::after{content:"";position:absolute;left:0;right:100%;bottom:-7px;height:2px;background:var(--orange);transition:.25s}
+    .nav-links a:hover::after{right:0}
+    .nav-actions{display:flex;align-items:center;gap:10px}
+    .btn{border:1px solid var(--ink);border-radius:999px;padding:13px 20px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-weight:700;transition:.25s;cursor:pointer}
+    .btn:hover{transform:translateY(-2px)}
+    .btn-dark{background:var(--ink);color:white;box-shadow:0 10px 24px rgba(11,16,32,.18)}
+    .btn-acid{background:var(--lime);border-color:var(--lime);color:var(--ink)}
+    .menu-btn{display:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:white}
+
+    /* HERO */
+    .hero{padding:58px 0 30px;overflow:hidden}
+    .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center}
+    .hero h1{font-size:clamp(4rem,8.7vw,8.7rem);max-width:780px}
+    .hero h1 .accent{display:block;color:var(--orange)}
+    .hero-copy{font-size:1.17rem;line-height:1.7;color:#4E5465;max-width:620px;margin:28px 0}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:12px}
+    .trust-row{display:flex;flex-wrap:wrap;gap:24px;margin-top:26px;color:#5E6474;font-size:.92rem}
+    .trust-row span{display:flex;gap:9px;align-items:center}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--orange)}
+
+    .hero-art{position:relative;min-height:610px}
+    .hero-card{position:absolute;overflow:hidden;border-radius:30px;box-shadow:var(--shadow);border:1px solid rgba(11,16,32,.08)}
+    .hero-card.main{inset:0 42px 90px 0;background:#B7A9FF}
+    .hero-card.small{width:44%;height:210px;right:0;bottom:20px;background:#FFBCA8;transform:rotate(4deg)}
+    .hero-card.top{width:46%;height:170px;right:0;top:24px;background:var(--lime);padding:22px;transform:rotate(-3deg);display:flex;flex-direction:column;justify-content:space-between}
+    .hero-card img{filter:saturate(.92) contrast(1.02)}
+    .course-pill{position:absolute;left:28px;bottom:28px;background:rgba(11,16,32,.88);color:#fff;padding:14px 16px;border-radius:14px;backdrop-filter:blur(8px);max-width:240px}
+    .course-pill small{color:#C8CBD4}
+    .stat-big{font-family:"Manrope";font-weight:800;font-size:3.1rem;letter-spacing:-.05em}
+    .floating-badge{position:absolute;left:-16px;top:46%;background:white;border:1px solid var(--line);padding:13px 16px;border-radius:999px;font-weight:700;box-shadow:0 14px 30px rgba(11,16,32,.12);transform:rotate(-6deg)}
+
+    /* TICKER */
+    .ticker{margin:38px 0 80px;border-block:1px solid var(--line);overflow:hidden;background:var(--cream)}
+    .ticker-track{display:flex;width:max-content;animation:marquee 22s linear infinite;padding:17px 0;font-family:"Manrope";font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+    .ticker span{display:flex;align-items:center;gap:18px;margin-right:38px}
+    .ticker i{width:8px;height:8px;border-radius:50%;background:var(--orange)}
+    @keyframes marquee{to{transform:translateX(-50%)}}
+
+    /* CATEGORIES */
+    section{padding:94px 0}
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:34px}
+    .section-head p{max-width:470px;color:var(--muted);line-height:1.65;margin:0}
+    .category-grid{display:grid;grid-template-columns:1.2fr .8fr .8fr;grid-auto-rows:230px;gap:16px}
+    .category-card{position:relative;border-radius:var(--radius);overflow:hidden;padding:26px;display:flex;flex-direction:column;justify-content:space-between;transition:.3s;isolation:isolate}
+    .category-card:hover{transform:translateY(-7px)}
+    .category-card h3{font:800 2rem/1 "Manrope";letter-spacing:-.04em;margin:0;max-width:240px}
+    .category-card p{margin:8px 0 0;color:rgba(11,16,32,.68)}
+    .category-card .arrow{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.76);font-size:1.2rem}
+    .cat-1{grid-row:span 2;background:#FFC2B0}
+    .cat-2{background:#D5CAFF}
+    .cat-3{background:var(--lime)}
+    .cat-4{background:#FFE09E}
+    .cat-5{background:#BDE8DB}
+    .cat-visual{position:absolute;right:-18px;bottom:-22px;width:56%;aspect-ratio:1;border-radius:50%;background:rgba(255,255,255,.42);z-index:-1}
+    .cat-visual::before,.cat-visual::after{content:"";position:absolute;border:3px solid rgba(11,16,32,.36);border-radius:50%}
+    .cat-visual::before{inset:18%}
+    .cat-visual::after{inset:36%}
+
+    /* COURSES */
+    .courses{background:var(--ink);color:white}
+    .courses .section-head p{color:#AEB4C2}
+    .course-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .course-card{background:#161D31;border:1px solid rgba(255,255,255,.09);border-radius:24px;overflow:hidden;transition:.3s}
+    .course-card:hover{transform:translateY(-8px);border-color:rgba(255,255,255,.2)}
+    .course-media{height:230px;position:relative}
+    .course-media::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(11,16,32,.3),transparent 55%)}
+    .tag{position:absolute;z-index:2;top:16px;left:16px;background:var(--lime);color:var(--ink);font-weight:800;font-size:.78rem;padding:8px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.05em}
+    .course-body{padding:22px}
+    .course-meta{font-size:.82rem;color:#AAB1C1;text-transform:uppercase;letter-spacing:.09em;font-weight:700}
+    .course-card h3{font:800 1.45rem/1.15 "Manrope";letter-spacing:-.03em;margin:10px 0 10px}
+    .course-card p{color:#BFC4CF;line-height:1.55;margin:0 0 20px}
+    .course-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.08);padding-top:16px}
+    .price{font:800 1.3rem "Manrope"}
+    .rating{color:#E7E9EE;font-size:.9rem}
+
+    /* EDITORIAL BLOCK */
+    .promise-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:20px}
+    .promise-panel{border-radius:32px;min-height:520px;padding:36px;position:relative;overflow:hidden}
+    .promise-panel.dark{background:var(--orange);color:var(--ink)}
+    .promise-panel.light{background:var(--cream);border:1px solid var(--line)}
+    .promise-panel h3{font:800 clamp(2.6rem,5vw,5.5rem)/.95 "Manrope";letter-spacing:-.06em;margin:0;max-width:630px}
+    .promise-panel p{font-size:1.1rem;line-height:1.65;max-width:500px}
+    .big-number{position:absolute;right:20px;bottom:-42px;font:800 13rem/1 "Manrope";color:rgba(11,16,32,.11)}
+    .steps{display:grid;gap:12px;margin-top:30px}
+    .step{display:grid;grid-template-columns:52px 1fr;gap:14px;align-items:start;padding:18px;border-radius:18px;background:white;border:1px solid var(--line)}
+    .step-num{width:42px;height:42px;border-radius:50%;background:var(--ink);color:white;display:grid;place-items:center;font-weight:800}
+    .step h4{margin:0 0 5px;font:800 1.15rem "Manrope"}
+    .step p{margin:0;font-size:.96rem;color:var(--muted)}
+
+    /* BLOG */
+    .story-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:18px}
+    .story-card{border-radius:28px;overflow:hidden;border:1px solid var(--line);background:white}
+    .story-media{height:330px}
+    .story-card.small .story-media{height:170px}
+    .story-content{padding:24px}
+    .story-content h3{font:800 1.8rem/1.1 "Manrope";letter-spacing:-.04em;margin:8px 0}
+    .story-card.small .story-content h3{font-size:1.25rem}
+    .story-content p{color:var(--muted);line-height:1.6}
+    .story-side{display:grid;gap:18px}
+
+    /* CTA */
+    .final-cta{padding-top:20px}
+    .cta-box{background:var(--violet);border-radius:36px;padding:64px;position:relative;overflow:hidden;color:var(--ink)}
+    .cta-box::after{content:"";position:absolute;width:420px;height:420px;border-radius:50%;right:-160px;top:-160px;border:70px solid rgba(255,255,255,.28)}
+    .cta-box h2{font-size:clamp(3rem,7vw,7rem);max-width:900px;position:relative;z-index:2}
+    .cta-box p{max-width:560px;font-size:1.12rem;line-height:1.65;position:relative;z-index:2}
+
+    footer{padding:70px 0 28px}
+    .footer-grid{display:grid;grid-template-columns:1.5fr repeat(3,1fr);gap:30px;padding-bottom:42px;border-bottom:1px solid var(--line)}
+    footer h4{font:800 1rem "Manrope";margin:0 0 16px}
+    footer a{display:block;color:var(--muted);margin:10px 0}
+    .foot-note{display:flex;justify-content:space-between;gap:20px;padding-top:22px;color:#7A7F8E;font-size:.88rem}
+
+    @media (max-width:980px){
+      .nav-links{display:none}.menu-btn{display:block}.nav-actions .btn:first-child{display:none}
+      .hero-grid,.promise-grid{grid-template-columns:1fr}
+      .hero-art{min-height:520px;margin-top:10px}
+      .category-grid{grid-template-columns:1fr 1fr}.cat-1{grid-row:auto;grid-column:span 2}
+      .course-grid{grid-template-columns:1fr 1fr}.course-card:last-child{grid-column:span 2}
+      .story-grid{grid-template-columns:1fr}.story-side{grid-template-columns:1fr 1fr}
+      .footer-grid{grid-template-columns:1.3fr 1fr 1fr}.footer-grid>div:last-child{grid-column:2/4}
+    }
+    @media (max-width:640px){
+      .container{width:min(100% - 22px,1180px)}
+      nav{height:68px}.brand{font-size:1.1rem}.mark{width:34px;height:34px}
+      .nav-actions .btn-dark{padding:11px 15px;font-size:.9rem}
+      .hero{padding-top:36px}.hero h1{font-size:clamp(3.4rem,17vw,5.2rem)}
+      .hero-copy{font-size:1rem;margin:20px 0}
+      .hero-art{min-height:430px}.hero-card.main{inset:0 25px 70px 0}.hero-card.small{height:150px}.hero-card.top{height:140px;padding:16px}.stat-big{font-size:2.3rem}.floating-badge{left:2px;top:48%;font-size:.82rem}
+      section{padding:68px 0}.section-head{display:block}.section-head p{margin-top:18px}
+      .category-grid{grid-template-columns:1fr;grid-auto-rows:220px}.cat-1{grid-column:auto}.category-card h3{font-size:1.7rem}
+      .course-grid{grid-template-columns:1fr}.course-card:last-child{grid-column:auto}
+      .promise-panel{min-height:auto;padding:26px}.promise-panel h3{font-size:2.9rem}.big-number{font-size:8rem}
+      .story-side{grid-template-columns:1fr}
+      .cta-box{padding:34px 24px}.cta-box h2{font-size:3.2rem}
+      .footer-grid{grid-template-columns:1fr 1fr}.footer-grid>div:first-child,.footer-grid>div:last-child{grid-column:span 2}
+      .foot-note{display:block}.foot-note span{display:block;margin-top:8px}
+    }
+  </style>
+</head>
+<body>
+  <div class="nav-wrap">
+    <div class="container">
+      <nav>
+        <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span>Domina</a>
+        <div class="nav-links">
+          <a href="#cursos">Cursos</a>
+          <a href="#categorias">Categorías</a>
+          <a href="#emprender">Para emprender</a>
+          <a href="#guias">Guías</a>
+        </div>
+        <div class="nav-actions">
+          <a class="btn" href="#guias">Leer guías</a>
+          <a class="btn btn-dark" href="#cursos">Explorar cursos ↗</a>
+          <button class="menu-btn" aria-label="Abrir menú">☰</button>
+        </div>
+      </nav>
+    </div>
+  </div>
+
+  <main id="top">
+    <header class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">La habilidad correcta cambia tu camino</span>
+          <h1 class="display">Aprende.<span class="accent">Emprende.</span>Domina.</h1>
+          <p class="hero-copy">Cursos seleccionados para transformar curiosidad en habilidad, habilidad en servicio y servicio en una oportunidad real.</p>
+          <div class="hero-actions">
+            <a class="btn btn-dark" href="#cursos">Explorar cursos</a>
+            <a class="btn btn-acid" href="#categorias">Ver categorías ↓</a>
+          </div>
+          <div class="trust-row">
+            <span><i class="dot"></i>Selección editorial</span>
+            <span><i class="dot"></i>Aprende a tu ritmo</span>
+            <span><i class="dot"></i>Opciones para emprender</span>
+          </div>
+        </div>
+
+        <div class="hero-art" aria-label="Personas aprendiendo habilidades prácticas">
+          <div class="hero-card main">
+            <img src="https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1200&q=85" alt="Persona preparando pastelería" />
+            <div class="course-pill"><small>Curso destacado</small><br><strong>Pastelería para emprender</strong></div>
+          </div>
+          <div class="hero-card top">
+            <span class="eyebrow">Aprendizaje práctico</span>
+            <div class="stat-big">+acción<br>−teoría vacía</div>
+          </div>
+          <div class="hero-card small">
+            <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=900&q=85" alt="Manicure profesional" />
+          </div>
+          <div class="floating-badge">✦ Cursos con propósito real</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span>Uñas profesionales <i></i> Pastelería <i></i> Reparación <i></i> Inteligencia artificial <i></i> Costura <i></i> Marketing digital <i></i></span>
+        <span>Uñas profesionales <i></i> Pastelería <i></i> Reparación <i></i> Inteligencia artificial <i></i> Costura <i></i> Marketing digital <i></i></span>
+      </div>
+    </div>
+
+    <section id="categorias">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Explora por objetivo</span>
+            <h2 class="display section-title">¿Qué quieres dominar?</h2>
+          </div>
+          <p>No te mostramos cientos de opciones sin contexto. Organizamos cursos por habilidades, nivel y posibilidad de aplicación real.</p>
+        </div>
+        <div class="category-grid">
+          <a class="category-card cat-1" href="#cursos"><div><span class="eyebrow">Belleza</span><h3>Uñas, maquillaje y servicios que puedes ofrecer.</h3><p>Empieza desde cero o perfecciona una técnica.</p></div><span class="arrow">↗</span><div class="cat-visual"></div></a>
+          <a class="category-card cat-2" href="#cursos"><div><span class="eyebrow">Cocina</span><h3>Pastelería y repostería para vender.</h3></div><span class="arrow">↗</span><div class="cat-visual"></div></a>
+          <a class="category-card cat-3" href="#cursos"><div><span class="eyebrow">Digital</span><h3>IA, diseño y marketing.</h3></div><span class="arrow">↗</span><div class="cat-visual"></div></a>
+          <a class="category-card cat-4" href="#cursos"><div><span class="eyebrow">Oficios</span><h3>Reparación, electricidad y más.</h3></div><span class="arrow">↗</span><div class="cat-visual"></div></a>
+          <a class="category-card cat-5" href="#cursos"><div><span class="eyebrow">Creatividad</span><h3>Costura, decoración y manualidades.</h3></div><span class="arrow">↗</span><div class="cat-visual"></div></a>
+        </div>
+      </div>
+    </section>
+
+    <section id="cursos" class="courses">
+      <div class="container">
+        <div class="section-head">
+          <div><span class="eyebrow">Selección Domina</span><h2 class="display section-title">Cursos para empezar hoy.</h2></div>
+          <p>Programas elegidos por claridad, aplicación práctica y potencial para convertir una habilidad en un servicio o proyecto.</p>
+        </div>
+        <div class="course-grid">
+          <article class="course-card">
+            <div class="course-media"><span class="tag">Más buscado</span><img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=900&q=85" alt="Curso de uñas profesionales" /></div>
+            <div class="course-body"><div class="course-meta">Belleza · Nivel inicial</div><h3>Uñas profesionales desde cero</h3><p>Técnicas, materiales y procesos esenciales para comenzar a ofrecer un servicio profesional.</p><div class="course-footer"><span class="price">Ver detalles</span><span class="rating">Curso recomendado ↗</span></div></div>
+          </article>
+          <article class="course-card">
+            <div class="course-media"><span class="tag">Para emprender</span><img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=85" alt="Curso de pastelería" /></div>
+            <div class="course-body"><div class="course-meta">Pastelería · Nivel inicial</div><h3>Pastelería para emprender</h3><p>Recetas, decoración y fundamentos para convertir tus productos en una propuesta vendible.</p><div class="course-footer"><span class="price">Ver detalles</span><span class="rating">Curso recomendado ↗</span></div></div>
+          </article>
+          <article class="course-card">
+            <div class="course-media"><span class="tag">Nueva habilidad</span><img src="https://images.unsplash.com/photo-1588508065123-287b28e013da?auto=format&fit=crop&w=900&q=85" alt="Reparación de celulares" /></div>
+            <div class="course-body"><div class="course-meta">Tecnología · Nivel inicial</div><h3>Reparación de celulares</h3><p>Aprende herramientas, diagnóstico básico y procedimientos comunes de reparación.</p><div class="course-footer"><span class="price">Ver detalles</span><span class="rating">Curso recomendado ↗</span></div></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="emprender">
+      <div class="container promise-grid">
+        <div class="promise-panel dark">
+          <span class="eyebrow">Para emprender</span>
+          <h3>Una habilidad puede ser tu siguiente oportunidad.</h3>
+          <p>Aprende algo que puedas aplicar, mostrar y ofrecer. Sin promesas vacías: conocimiento práctico, paso a paso.</p>
+          <a class="btn btn-dark" href="#cursos">Explorar cursos para emprender</a>
+          <div class="big-number">01</div>
+        </div>
+        <div class="promise-panel light">
+          <span class="eyebrow">Así funciona</span>
+          <div class="steps">
+            <div class="step"><div class="step-num">1</div><div><h4>Explora</h4><p>Filtra por habilidad, nivel y objetivo.</p></div></div>
+            <div class="step"><div class="step-num">2</div><div><h4>Compara</h4><p>Revisa contenido, enfoque y para quién está pensado.</p></div></div>
+            <div class="step"><div class="step-num">3</div><div><h4>Empieza</h4><p>Accede al curso recomendado y aprende a tu ritmo.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="guias">
+      <div class="container">
+        <div class="section-head">
+          <div><span class="eyebrow">Guías Domina</span><h2 class="display section-title">Aprende antes de elegir.</h2></div>
+          <p>Contenido útil para entender qué necesitas, cuánto invertir y qué ruta tiene más sentido para ti.</p>
+        </div>
+        <div class="story-grid">
+          <article class="story-card">
+            <div class="story-media"><img src="https://images.unsplash.com/photo-1607779097040-26e80aa78e66?auto=format&fit=crop&w=1200&q=85" alt="Emprendimiento de uñas" /></div>
+            <div class="story-content"><span class="eyebrow">Guía práctica</span><h3>Cómo empezar un negocio de uñas desde casa sin comprar de más.</h3><p>Herramientas esenciales, errores comunes y una ruta de aprendizaje realista.</p><a class="btn" href="#">Leer guía ↗</a></div>
+          </article>
+          <div class="story-side">
+            <article class="story-card small"><div class="story-media"><img src="https://images.unsplash.com/photo-1486427944299-d1955d23e34d?auto=format&fit=crop&w=900&q=85" alt="Pastelería" /></div><div class="story-content"><span class="eyebrow">Pastelería</span><h3>Qué necesitas para empezar a vender postres.</h3><a href="#">Leer guía ↗</a></div></article>
+            <article class="story-card small"><div class="story-media"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=85" alt="Aprendizaje digital" /></div><div class="story-content"><span class="eyebrow">Digital</span><h3>Qué habilidad digital aprender primero.</h3><a href="#">Leer guía ↗</a></div></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="container">
+        <div class="cta-box">
+          <span class="eyebrow">Tu siguiente paso</span>
+          <h2 class="display">¿Qué habilidad quieres dominar primero?</h2>
+          <p>Explora cursos seleccionados y encuentra una ruta clara para aprender, avanzar o construir un proyecto propio.</p>
+          <a class="btn btn-dark" href="#cursos">Explorar todos los cursos ↗</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div><a class="brand" href="#top"><span class="mark"></span>Domina</a><p style="color:var(--muted);max-width:360px;line-height:1.6">Cursos y recursos seleccionados para aprender habilidades reales y aplicarlas en tu vida, trabajo o emprendimiento.</p></div>
+        <div><h4>Explorar</h4><a href="#cursos">Cursos</a><a href="#categorias">Categorías</a><a href="#emprender">Para emprender</a></div>
+        <div><h4>Contenido</h4><a href="#guias">Guías</a><a href="#">Comparativas</a><a href="#">Novedades</a></div>
+        <div><h4>Legal</h4><a href="#">Privacidad</a><a href="#">Términos</a><a href="#">Aviso de afiliados</a></div>
+      </div>
+      <div class="foot-note"><span>© 2026 Domina. Todos los derechos reservados.</span><span>Domina puede recibir una comisión por algunas recomendaciones, sin costo adicional para ti.</span></div>
+    </div>
+  </footer>
+</body>
+</html>

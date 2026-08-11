@@ -1,0 +1,108 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LegalHero from '../components/LegalHero.astro';
+
+const tocItems = [
+  { href: '#modelo', label: 'Cómo funciona' },
+  { href: '#identificacion', label: 'Identificación' },
+  { href: '#seleccion', label: 'Selección' },
+  { href: '#independencia', label: 'Independencia' },
+  { href: '#precios', label: 'Precios' },
+  { href: '#compra', label: 'Compras' },
+  { href: '#resultados', label: 'Resultados' },
+  { href: '#contacto', label: 'Contacto' },
+];
+---
+
+<Layout title="Aviso de afiliados | Domina" description="Transparencia sobre comisiones, recomendaciones y enlaces de afiliado en Domina.">
+  <main>
+    <LegalHero
+      eyebrow="Transparencia"
+      title="Recomendamos. A veces cobramos comisión."
+      description="Queremos que sepas cuándo una recomendación puede generar ingresos para Domina y cómo procuramos separar ese incentivo de la decisión editorial."
+      lastUpdated="5 de agosto de 2026"
+      version="Versión inicial"
+      domain="domina.lat"
+      accentColor="#D7FF5F"
+    />
+
+    <div class="container legal-layout">
+      <aside class="toc">
+        <strong>En esta página</strong>
+        <nav>
+          {tocItems.map((item) => (
+            <a href={item.href}>{item.label}</a>
+          ))}
+        </nav>
+      </aside>
+
+      <article class="legal-copy">
+
+        <section id="modelo">
+          <h2>1. Cómo funciona el modelo de afiliación</h2>
+          <p>Domina selecciona, organiza y recomienda cursos y recursos de terceros. Algunos enlaces son enlaces de afiliado. Esto significa que, si realizas una compra después de utilizarlos, Domina puede recibir una comisión del vendedor o de la plataforma asociada.</p>
+          <div class="callout">
+            <p><strong>El precio para ti no aumenta por usar un enlace de afiliado.</strong> La comisión es asumida por el proveedor según su programa.</p>
+          </div>
+        </section>
+
+        <section id="identificacion">
+          <h2>2. Cómo identificamos estos enlaces</h2>
+          <p>Buscamos que la relación comercial sea fácil de entender. En páginas, comparativas, artículos o publicaciones con enlaces afiliados, utilizaremos avisos visibles como “enlace de afiliado”, “podemos recibir una comisión” o una explicación equivalente cerca de la recomendación.</p>
+          <p>No consideramos suficiente ocultar esta información únicamente en esta página legal.</p>
+        </section>
+
+        <section id="seleccion">
+          <h2>3. Cómo seleccionamos cursos</h2>
+          <p>La existencia de una comisión no debería ser el único criterio editorial. Domina puede considerar:</p>
+          <ul>
+            <li>Claridad de la propuesta y del temario.</li>
+            <li>Aplicación práctica de la habilidad.</li>
+            <li>Información disponible sobre el creador.</li>
+            <li>Calidad de la página de venta y condiciones ofrecidas.</li>
+            <li>Precio, garantías, soporte y adecuación al público.</li>
+            <li>Comentarios, demostraciones o materiales disponibles.</li>
+          </ul>
+          <p>Una etiqueta como “recomendado” refleja una evaluación editorial basada en la información disponible, no una garantía absoluta de calidad o resultados.</p>
+        </section>
+
+        <section id="independencia">
+          <h2>4. Independencia editorial</h2>
+          <p>Domina puede ordenar o destacar cursos con los que exista una relación comercial. Cuando haya posicionamiento patrocinado, pago directo por visibilidad o una colaboración especial, deberá identificarse de manera diferenciada.</p>
+          <p>No publicaremos testimonios falsos ni afirmaremos haber probado personalmente un producto cuando no sea cierto.</p>
+        </section>
+
+        <section id="precios">
+          <h2>5. Precios, promociones y disponibilidad</h2>
+          <p>Los precios, bonos, condiciones, moneda y disponibilidad son definidos por terceros y pueden cambiar sin aviso. Domina intenta mantener la información actualizada, pero debes confirmar los detalles en el sitio oficial antes de comprar.</p>
+        </section>
+
+        <section id="compra">
+          <h2>6. Compras, acceso y reembolsos</h2>
+          <p>Salvo que se indique expresamente lo contrario, la compra se realiza directamente con el proveedor externo. Ese proveedor procesa el pago, entrega el acceso, gestiona facturación, soporte, garantías y reembolsos. Domina no recibe tus datos completos de pago.</p>
+        </section>
+
+        <section id="resultados">
+          <h2>7. Resultados e ingresos</h2>
+          <p>Los cursos pueden enseñar habilidades útiles, pero Domina no garantiza que completar una formación produzca empleo, clientes, certificación oficial, ingresos o rentabilidad. Los resultados dependen de la práctica, experiencia, mercado, recursos y decisiones de cada persona.</p>
+        </section>
+
+        <section id="programas">
+          <h2>8. Programas de afiliación</h2>
+          <p>Domina podrá participar en plataformas de afiliados como Hotmart y otras redes asociadas. Esta lista se actualiza conforme se incorporen programas y no implica que todas las recomendaciones sean remuneradas.</p>
+        </section>
+
+        <section id="contacto">
+          <h2>9. Dudas o correcciones</h2>
+          <p>Para consultar si un enlace es afiliado, reportar información desactualizada o cuestionar una recomendación, escribe a <a href="mailto:hola@domina.lat">hola@domina.lat</a> o utiliza la <a href="/contacto">página de contacto</a>.</p>
+        </section>
+
+        <div class="legal-links">
+          <a href="/privacidad">Privacidad →</a>
+          <a href="/aviso-afiliados">Afiliados →</a>
+          <a href="/terminos">Términos →</a>
+        </div>
+      </article>
+    </div>
+  </main>
+</Layout>

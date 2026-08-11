@@ -1,0 +1,186 @@
+---
+import { getPosts } from '../lib/sanity/queries';
+import { urlFor } from '../lib/sanity/image';
+import { formatTitle } from '../lib/utils/formatTitle';
+
+const posts = await getPosts();
+const featuredPost = posts[0] || null;
+const sidePosts = posts.slice(1, 3);
+---
+
+<section id="guias">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Guías Domina</span>
+        <h2 class="display section-title">Aprende antes de elegir.</h2>
+      </div>
+      <p>Contenido útil para entender qué necesitas, cuánto invertir y qué ruta tiene más sentido para ti.</p>
+    </div>
+    {posts.length > 0 ? (
+      <div class="story-grid">
+        {featuredPost && (
+          <article class="story-card featured">
+            <div class="story-media">
+              <span class="story-badge">{featuredPost.category?.title || featuredPost.eyebrow || 'Guía recomendada'}</span>
+              <img src={featuredPost.heroImage ? urlFor(featuredPost.heroImage).width(900).url() : '/images/hero-manicure.webp'} alt={featuredPost.title.replace(/<[^>]*>/g, '')} />
+            </div>
+            <div class="story-content">
+              <h3 set:html={formatTitle(featuredPost.title)} />
+              <p>{featuredPost.dek}</p>
+              <a class="story-link" href={`/guias/${featuredPost.slug}`}>Leer guía completa ↗</a>
+            </div>
+          </article>
+        )}
+
+        {sidePosts.length > 0 && (
+          <div class="story-side">
+            {sidePosts.map((post) => (
+              <article class="story-card side">
+                <div class="story-media">
+                  <span class="story-badge-sm">{post.category?.title || post.eyebrow || 'Guía'}</span>
+                  <img src={post.heroImage ? urlFor(post.heroImage).width(600).url() : '/images/hero-pasteleria.webp'} alt={post.title.replace(/<[^>]*>/g, '')} />
+                </div>
+                <div class="story-content">
+                  <h3 set:html={formatTitle(post.title)} />
+                  <a class="story-link" href={`/guias/${post.slug}`}>Leer guía ↗</a>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    ) : (
+      <div class="empty-state-card" style="padding: 48px 24px; text-align: center; border: 2px dashed var(--line); border-radius: 28px; background: #ffffff;">
+        <h3 style="font: 800 1.6rem 'Manrope', sans-serif; margin: 0 0 8px; color: var(--ink);">Próximamente nuevas guías</h3>
+        <p style="color: var(--muted); margin: 0 0 20px;">Estamos preparando guías prácticas para ayudarte a elegir.</p>
+        <a href="/guias" class="btn btn-dark" style="display: inline-block;">Ver sección de guías ↗</a>
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  #guias {
+    padding: 90px 0;
+  }
+  .story-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 24px;
+  }
+  .story-card {
+    border-radius: 28px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(11, 16, 32, 0.05);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+  }
+  .story-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 48px rgba(11, 16, 32, 0.12);
+  }
+  .story-media {
+    position: relative;
+    height: 310px;
+    overflow: hidden;
+  }
+  .story-card.side .story-media {
+    height: 160px;
+  }
+  .story-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  .story-card:hover .story-media img {
+    transform: scale(1.05);
+  }
+  .story-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 2;
+    background: var(--lime);
+    color: var(--ink);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    box-shadow: 0 4px 12px rgba(11, 16, 32, 0.1);
+  }
+  .story-badge-sm {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink);
+    backdrop-filter: blur(8px);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .story-content {
+    padding: 26px 28px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .story-card.side .story-content {
+    padding: 20px 22px;
+  }
+  .story-card h3,
+  .story-card h3 :global(span) {
+    color: var(--ink) !important;
+    font: 800 1.65rem / 1.15 "Manrope", sans-serif;
+    letter-spacing: -0.04em;
+    margin: 0 0 10px;
+  }
+  .story-card.side h3,
+  .story-card.side h3 :global(span) {
+    font-size: 1.25rem;
+    line-height: 1.2;
+    margin: 0 0 12px;
+  }
+  .story-content p {
+    color: #4A5162;
+    line-height: 1.6;
+    font-size: 1rem;
+    margin: 0 0 20px;
+  }
+  .story-link {
+    margin-top: auto;
+    font-weight: 800;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+  }
+  .story-link:hover {
+    color: var(--orange);
+  }
+  .story-side {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  @media (max-width: 900px) {
+    .story-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

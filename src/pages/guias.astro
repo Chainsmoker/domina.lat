@@ -1,0 +1,607 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import FeaturedPost from '../components/FeaturedPost.astro';
+import PostCard from '../components/PostCard.astro';
+import EditorialSection from '../components/EditorialSection.astro';
+import NewsletterSection from '../components/NewsletterSection.astro';
+
+import { getGuideCategories, getPosts } from '../lib/sanity/queries';
+import { urlFor } from '../lib/sanity/image';
+
+const categories = await getGuideCategories();
+const allPosts = await getPosts();
+
+// Extraer parámetros SSR desde la URL para filtrado directo y SEO
+const searchParams = Astro.url.searchParams;
+const qParam = searchParams.get('q')?.trim() || '';
+const categoryParam = searchParams.get('categoria')?.trim() || 'todos';
+const currentPage = Math.max(1, parseInt(searchParams.get('pagina') || '1') || 1);
+const POSTS_PER_PAGE = 6;
+
+// Filtrar publicaciones por categoría y término de búsqueda
+let filteredPosts = allPosts;
+
+if (categoryParam !== 'todos') {
+  filteredPosts = filteredPosts.filter(
+    (p) => p.category?.slug === categoryParam
+  );
+}
+
+if (qParam) {
+  const term = qParam.toLowerCase();
+  filteredPosts = filteredPosts.filter(
+    (p) =>
+      p.title.toLowerCase().includes(term) ||
+      (p.dek && p.dek.toLowerCase().includes(term))
+  );
+}
+
+const totalPosts = filteredPosts.length;
+const totalPages = Math.ceil(totalPosts / POSTS_PER_PAGE) || 1;
+const paginatedPosts = filteredPosts.slice(
+  (currentPage - 1) * POSTS_PER_PAGE,
+  currentPage * POSTS_PER_PAGE
+);
+const validPage = Math.min(currentPage, totalPages);
+const hasFilters = Boolean(qParam) || categoryParam !== 'todos';
+const canonical = !hasFilters && validPage > 1 ? `/guias?pagina=${validPage}` : '/guias';
+const robots = hasFilters ? 'noindex,follow' : undefined;
+const pageTitle = validPage > 1 && !hasFilters
+  ? `Guías para aprender y emprender – Página ${validPage} | Domina`
+  : 'Guías para aprender y emprender | Domina';
+
+const featuredPost = allPosts[0] || null;
+
+// Construir URL helper preservando filtros y ancla #guias-list
+function buildUrl(params: { category?: string; q?: string; page?: number }) {
+  const cat = params.category !== undefined ? params.category : categoryParam;
+  const query = params.q !== undefined ? params.q : (params.category !== undefined ? '' : qParam);
+  const page = params.page !== undefined ? params.page : 1;
+
+  const urlParams = new URLSearchParams();
+  if (query) urlParams.set('q', query);
+  if (cat && cat !== 'todos') urlParams.set('categoria', cat);
+  if (page > 1) urlParams.set('pagina', page.toString());
+
+  const queryString = urlParams.toString();
+  return `/guias${queryString ? `?${queryString}` : ''}#guias-list`;
+}
+---
+
+<Layout title={pageTitle} description="Guías prácticas de Domina sobre cursos, habilidades, emprendimiento, belleza, pastelería, reparación y tecnología." canonical={canonical} robots={robots}>
+  <main class="page-guias">
+    <header class="hero">
+      <div class="container hero-top">
+        <div>
+          <span class="eyebrow">Guías de Domina</span>
+          <h1 class="display">Aprende antes de <span>elegir.</span></h1>
+        </div>
+        <div class="hero-copy">
+          <p>Guías prácticas para comparar cursos, entender una habilidad y tomar mejores decisiones antes de invertir tiempo o dinero.</p>
+          
+          <!-- BÚSQUEDA SSR APUNTANDO A /guias#guias-list -->
+          <form class="search" action="/guias#guias-list" method="GET">
+            {categoryParam !== 'todos' && <input type="hidden" name="categoria" value={categoryParam} />}
+            <input type="search" name="q" value={qParam} placeholder="Buscar: uñas, pastelería, reparación…" aria-label="Buscar guías" />
+            <button class="btn btn-dark" type="submit">Buscar ↗</button>
+          </form>
+        </div>
+      </div>
+    </header>
+
+    <!-- POST DESTACADO (Solo si no hay búsqueda activa) -->
+    {!qParam && categoryParam === 'todos' && featuredPost && (
+      <FeaturedPost
+        tag={featuredPost.heroBadge || featuredPost.category?.title || 'Guía destacada'}
+        title={featuredPost.title}
+        description={featuredPost.dek || ''}
+        readingTime={featuredPost.readingTime || '5 min de lectura'}
+        updatedDate={featuredPost.publishedAt ? new Date(featuredPost.publishedAt).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : 'Actualizada'}
+        image={featuredPost.heroImage ? urlFor(featuredPost.heroImage).width(1200).url() : '/images/hero-manicure.webp'}
+        imageAlt={featuredPost.title.replace(/<[^>]*>/g, '')}
+        href={`/guias/${featuredPost.slug}`}
+      />
+    )}
+
+    <!-- LISTADO DE GUÍAS CON ANCLA #guias-list -->
+    <section class="blog-section" id="guias-list">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">
+              {qParam ? `Búsqueda: "${qParam}"` : categoryParam !== 'todos' ? `Categoría: ${categories.find(c => c.slug === categoryParam)?.title || categoryParam}` : 'Últimas publicaciones'}
+            </span>
+            <h2 class="display">Guías que resuelven algo.</h2>
+          </div>
+          <p>Respuestas concretas antes de recomendar una formación.</p>
+        </div>
+
+        <!-- CHIPS DE CATEGORÍAS DE GUÍAS -->
+        <div class="chips">
+          <a class={`chip ${categoryParam === 'todos' ? 'active' : ''}`} href={buildUrl({ category: 'todos', page: 1 })}>
+            Todas las guías
+          </a>
+          {categories.map((cat) => (
+            <a
+              class={`chip ${categoryParam === cat.slug ? 'active' : ''}`}
+              href={buildUrl({ category: cat.slug, page: 1 })}
+            >
+              {cat.title}
+            </a>
+          ))}
+        </div>
+
+        <div id="catalogContent">
+          {paginatedPosts.length > 0 ? (
+            <>
+              <div class="grid" id="postGrid">
+                {paginatedPosts.map((post) => (
+                  <PostCard
+                    tag={post.category?.title || post.eyebrow || 'Guía'}
+                    image={post.heroImage ? urlFor(post.heroImage).width(800).url() : '/images/hero-manicure.webp'}
+                    imageAlt={post.title.replace(/<[^>]*>/g, '')}
+                    meta={post.category?.title || 'Guía'}
+                    readingTime={post.readingTime}
+                    title={post.title}
+                    description={post.dek || ''}
+                    href={`/guias/${post.slug}`}
+                    authorName={post.authorName}
+                  />
+                ))}
+              </div>
+
+              <!-- PAGINADOR SSR -->
+              {totalPages > 1 && (
+                <div class="pagination">
+                  {currentPage > 1 && (
+                    <a href={buildUrl({ page: currentPage - 1 })} class="page-btn">
+                      ← Anterior
+                    </a>
+                  )}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                    <a
+                      href={buildUrl({ page: p })}
+                      class={`page-num ${p === currentPage ? 'active' : ''}`}
+                    >
+                      {p}
+                    </a>
+                  ))}
+                  {currentPage < totalPages && (
+                    <a href={buildUrl({ page: currentPage + 1 })} class="page-btn">
+                      Siguiente →
+                    </a>
+                  )}
+                </div>
+              )}
+            </>
+          ) : (
+            <div class="empty-state-card">
+              <div class="empty-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"/>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+              </div>
+              <h3>No encontramos guías para tu búsqueda</h3>
+              <p>
+                {qParam ? `No encontramos ninguna publicación que coincida con "${qParam}".` : 'No hay publicaciones registradas en esta categoría por el momento.'}
+                Prueba buscando con otros términos como "uñas", "pastelería" o "celulares", o borra los filtros.
+              </p>
+              <a href="/guias#guias-list" class="btn btn-acid">Ver todas las guías ↗</a>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <EditorialSection />
+    <NewsletterSection />
+  </main>
+</Layout>
+
+<script>
+  function showSkeleton() {
+    const content = document.getElementById('catalogContent');
+    if (!content) return;
+
+    const skeletonHTML = Array.from({ length: 6 }).map(() => `
+      <div class="card skeleton-post-card" aria-hidden="true">
+        <div class="skeleton-media"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-meta"></div>
+          <div class="skeleton-line title"></div>
+          <div class="skeleton-line text"></div>
+          <div class="skeleton-line text short"></div>
+          <div class="skeleton-foot">
+            <div class="skeleton-author">
+              <div class="skeleton-avatar"></div>
+              <div class="skeleton-author-name"></div>
+            </div>
+            <div class="skeleton-btn"></div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    content.innerHTML = `<div class="grid" id="postGrid">${skeletonHTML}</div>`;
+  }
+
+  async function loadGuides(url: string, pushHistory = true) {
+    console.log('[Guides] loadGuides start:', url);
+    try {
+      showSkeleton();
+      if (pushHistory) {
+        history.pushState(null, '', url);
+      }
+
+      const listSection = document.getElementById('guias-list');
+      if (listSection && window.scrollY > listSection.offsetTop + 100) {
+        listSection.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      const [res] = await Promise.all([
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } }),
+        new Promise((resolve) => setTimeout(resolve, 250))
+      ]);
+
+      if (!res.ok) throw new Error('Fetch falló con status ' + res.status);
+
+      const html = await res.text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+
+      // Intercambio completo de contenedor de catálogo (Rejilla / Estado Vacío + Paginación)
+      const currentContent = document.getElementById('catalogContent');
+      const newContent = doc.getElementById('catalogContent');
+
+      if (currentContent && newContent) {
+        currentContent.innerHTML = newContent.innerHTML;
+      }
+
+      // Actualizar cabecera de sección (conteo de resultados y eyebrow)
+      const currentHead = listSection?.querySelector('.section-head');
+      const newHead = doc.querySelector('#guias-list .section-head');
+      if (currentHead && newHead) {
+        currentHead.innerHTML = newHead.innerHTML;
+      }
+
+      // Actualizar chips de categorías activas
+      const currentChips = document.querySelectorAll('.chips a.chip');
+      const newChips = doc.querySelectorAll('.chips a.chip');
+      currentChips.forEach((chip, idx) => {
+        if (newChips[idx]) {
+          chip.className = newChips[idx].className;
+        }
+      });
+
+      console.log('[Guides] loadGuides success!');
+
+    } catch (err) {
+      console.error('Error cargando guías:', err);
+    }
+  }
+
+  // Delegación global de clicks (Chips, Paginación, Empty state reset)
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+
+    const chipLink = target.closest('.chips a.chip') as HTMLAnchorElement;
+    if (chipLink) {
+      e.preventDefault();
+      loadGuides(chipLink.href);
+      return;
+    }
+
+    const pageLink = target.closest('.pagination a') as HTMLAnchorElement;
+    if (pageLink) {
+      e.preventDefault();
+      loadGuides(pageLink.href);
+      return;
+    }
+
+    const emptyBtn = target.closest('.empty-state-card a') as HTMLAnchorElement;
+    if (emptyBtn) {
+      e.preventDefault();
+      loadGuides(emptyBtn.href);
+      return;
+    }
+  });
+
+  // Delegación global de envíos de formulario (Search form)
+  document.addEventListener('submit', (e) => {
+    const form = e.target as HTMLFormElement;
+    if (form.classList.contains('search')) {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const params = new URLSearchParams(window.location.search);
+
+      const q = formData.get('q')?.toString().trim();
+      if (q) params.set('q', q);
+      else params.delete('q');
+      params.delete('pagina');
+
+      const newUrl = `/guias?${params.toString()}#guias-list`;
+      loadGuides(newUrl);
+      return;
+    }
+  });
+
+  window.addEventListener('popstate', () => {
+    loadGuides(window.location.href, false);
+  });
+</script>
+
+<style>
+  .page-guias .hero {
+    padding: 72px 0 42px;
+  }
+  .page-guias .hero-top {
+    display: grid;
+    grid-template-columns: 1fr 0.75fr;
+    gap: 40px;
+    align-items: end;
+  }
+  .page-guias .hero h1 {
+    font-size: clamp(4rem, 7.8vw, 8.2rem);
+    max-width: 850px;
+    letter-spacing: -0.04em;
+    line-height: 0.96;
+  }
+  .page-guias .hero h1 span {
+    color: var(--orange);
+  }
+  .hero-copy p {
+    font-size: 1.12rem;
+    line-height: 1.75;
+    color: #555d6e;
+    margin: 0 0 26px;
+  }
+  .search {
+    display: flex;
+    gap: 10px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px;
+    box-shadow: 0 15px 40px rgba(11, 16, 32, 0.07);
+  }
+  .search input {
+    border: 0;
+    outline: 0;
+    background: transparent;
+    padding: 10px 14px;
+    min-width: 0;
+    flex: 1;
+    font: inherit;
+  }
+  .chips {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .chip {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 10px 18px;
+    background: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--ink);
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .chip:hover {
+    border-color: var(--ink);
+  }
+  .chip.active {
+    background: var(--ink);
+    color: #fff;
+  }
+
+  /* SKELETON LOADERS (USANDO :global PARA ELEMENTOS CLIENT-SIDE DINÁMICOS) */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  :global(.skeleton-post-card) {
+    pointer-events: none;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    overflow: hidden;
+    height: 440px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 14px rgba(11, 16, 32, 0.04);
+  }
+  :global(.skeleton-post-card .skeleton-media) {
+    height: 220px;
+    background: linear-gradient(90deg, #f0f2f5 25%, #e2e5ec 37%, #f0f2f5 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    flex-shrink: 0;
+  }
+  :global(.skeleton-post-card .skeleton-body) {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+  }
+  :global(.skeleton-post-card .skeleton-meta) {
+    width: 35%;
+    height: 14px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #f0f2f5 25%, #e2e5ec 37%, #f0f2f5 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+  }
+  :global(.skeleton-post-card .skeleton-line) {
+    height: 14px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #f0f2f5 25%, #e2e5ec 37%, #f0f2f5 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+  }
+  :global(.skeleton-post-card .skeleton-line.title) { width: 85%; height: 22px; }
+  :global(.skeleton-post-card .skeleton-line.text) { width: 95%; height: 14px; }
+  :global(.skeleton-post-card .skeleton-line.short) { width: 60%; height: 14px; }
+  :global(.skeleton-post-card .skeleton-foot) {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  :global(.skeleton-post-card .skeleton-author) {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  :global(.skeleton-post-card .skeleton-avatar) {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, #f0f2f5 25%, #e2e5ec 37%, #f0f2f5 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    flex-shrink: 0;
+  }
+  :global(.skeleton-post-card .skeleton-author-name) {
+    width: 80px;
+    height: 14px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #f0f2f5 25%, #e2e5ec 37%, #f0f2f5 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+  }
+  :global(.skeleton-post-card .skeleton-btn) {
+    width: 90px;
+    height: 34px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #f0f2f5 25%, #e2e5ec 37%, #f0f2f5 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+  }
+
+  .blog-section {
+    padding: 80px 0;
+  }
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 30px;
+    margin-bottom: 30px;
+  }
+  .section-head h2 {
+    font-size: clamp(3.4rem, 6.5vw, 7rem);
+    letter-spacing: -0.04em;
+    line-height: 0.94;
+  }
+  .section-head p {
+    max-width: 440px;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  :global(.grid) {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 48px;
+  }
+  .page-num, .page-btn {
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: 0.15s ease;
+  }
+  .page-num.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+  .page-num:hover, .page-btn:hover {
+    border-color: var(--ink);
+  }
+  .empty-state-card {
+    grid-column: 1 / -1;
+    background: #ffffff;
+    border: 2px dashed var(--line);
+    border-radius: 32px;
+    padding: 60px 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 16px 40px rgba(11, 16, 32, 0.05);
+  }
+  .empty-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 20px;
+    background: var(--lime);
+    color: var(--ink);
+    display: grid;
+    place-items: center;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 20px rgba(215, 255, 95, 0.4);
+  }
+  .empty-state-card h3 {
+    font: 800 2rem / 1.1 "Manrope", sans-serif;
+    letter-spacing: -0.04em;
+    margin: 0 0 10px;
+    color: var(--ink);
+  }
+  .empty-state-card p {
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.65;
+    margin: 0 0 24px;
+    font-size: 0.98rem;
+  }
+
+  @media (max-width: 1040px) {
+    .page-guias .hero-top {
+      grid-template-columns: 1fr;
+    }
+    :global(#postGrid) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 720px) {
+    .page-guias .hero {
+      padding-top: 42px;
+    }
+    .page-guias .hero h1 {
+      font-size: clamp(3.7rem, 17vw, 5.6rem);
+    }
+    .search {
+      border-radius: 20px;
+      flex-direction: column;
+    }
+    :global(#postGrid) {
+      grid-template-columns: 1fr;
+    }
+    .section-head {
+      display: block;
+    }
+  }
+</style>

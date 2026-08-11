@@ -1,11 +1,40 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Ticker from '../components/Ticker.astro';
+import CategoriesSection from '../components/CategoriesSection.astro';
+import CoursesSection from '../components/CoursesSection.astro';
+import EmprenderSection from '../components/EmprenderSection.astro';
+import GuidesSection from '../components/GuidesSection.astro';
+import CtaSection from '../components/CtaSection.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      name: 'Domina',
+      url: 'https://domina.lat/',
+      logo: 'https://domina.lat/apple-touch-icon.png',
+    },
+    {
+      '@type': 'WebSite',
+      name: 'Domina',
+      url: 'https://domina.lat/',
+      inLanguage: 'es',
+    },
+  ],
+};
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Domina — Aprende habilidades reales" description="Cursos seleccionados para aprender habilidades prácticas, emprender y avanzar." image="/images/hero-manicure.webp" jsonLd={jsonLd}>
+  <main id="top">
+    <Hero />
+    <Ticker />
+    <CategoriesSection />
+    <CoursesSection />
+    <EmprenderSection />
+    <GuidesSection />
+    <CtaSection />
+  </main>
 </Layout>

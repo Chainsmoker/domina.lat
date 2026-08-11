@@ -1,0 +1,273 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="500 | Algo salió mal — Domina" description="Ocurrió un error interno temporal.">
+  <main class="page-500">
+    <div class="container grid-500">
+      <section>
+        <span class="eyebrow eyebrow-acid">Error interno</span>
+        <div class="code-500">5<span>0</span>0</div>
+        <h1>La plataforma necesita un momento.</h1>
+        <p class="copy">Algo falló al procesar esta página. Tus datos no deberían verse afectados. Puedes volver a intentarlo o regresar a una sección estable de Domina.</p>
+        
+        <div class="actions">
+          <button class="btn btn-acid" id="retryBtn">Intentar de nuevo ↻</button>
+          <a class="btn btn-outline" href="/">Ir al inicio</a>
+          <a class="btn btn-outline" href="/contacto">Reportar problema</a>
+        </div>
+
+        <p class="incident">Código de referencia visual: DOM-500 · Si el problema continúa, indícanos qué estabas intentando abrir.</p>
+      </section>
+
+      <aside class="machine" aria-hidden="true">
+        <span class="bolt"></span>
+        <div class="panel-500">
+          <div class="panel-head">
+            <i class="dot-500 orange"></i>
+            <i class="dot-500 yellow"></i>
+            <i class="dot-500 lime"></i>
+          </div>
+          <div class="screen-500">
+            <div class="line-500 v"></div>
+            <div class="line-500"></div>
+            <div class="line-500"></div>
+            <div class="line-500 o"></div>
+            <div class="line-500"></div>
+          </div>
+        </div>
+        <div class="error-card">
+          <strong>Una pieza no respondió.</strong>
+          <p>Estamos mostrando una salida segura mientras el servicio vuelve a estar disponible.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  const retryBtn = document.getElementById('retryBtn');
+  if (retryBtn) {
+    retryBtn.addEventListener('click', () => {
+      window.location.reload();
+    });
+  }
+</script>
+
+<style>
+  .page-500 {
+    background: var(--ink);
+    color: #fff;
+    min-height: calc(100vh - 78px - 300px);
+    display: grid;
+    place-items: center;
+    padding: 64px 0 90px;
+  }
+
+  .grid-500 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 75px;
+    align-items: center;
+  }
+
+  .eyebrow-acid {
+    color: var(--lime);
+  }
+
+  .code-500 {
+    font: 800 clamp(7.5rem, 18vw, 15rem) / 0.8 "Manrope", sans-serif;
+    letter-spacing: -0.095em;
+    margin: 22px 0;
+    color: #fff;
+  }
+
+  .code-500 span {
+    color: var(--orange);
+  }
+
+  .page-500 h1 {
+    font: 800 clamp(2.8rem, 5vw, 5.3rem) / 0.96 "Manrope", sans-serif;
+    letter-spacing: -0.055em;
+    margin: 0 0 20px;
+  }
+
+  .copy {
+    color: #b9c0cf;
+    font-size: 1.12rem;
+    line-height: 1.75;
+    max-width: 650px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+
+  .btn-outline {
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: transparent;
+    color: #fff;
+  }
+
+  .btn-outline:hover {
+    border-color: #fff;
+  }
+
+  .incident {
+    margin-top: 28px;
+    color: #7f899c;
+    font: 600 0.78rem / 1.6 "DM Sans", sans-serif;
+    letter-spacing: 0.03em;
+  }
+
+  .machine {
+    position: relative;
+    min-height: 520px;
+  }
+
+  .panel-500 {
+    position: absolute;
+    inset: 40px 15px 65px;
+    background: #151c30;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 34px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .panel-head {
+    height: 58px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    display: flex;
+    align-items: center;
+    padding: 0 22px;
+    gap: 8px;
+  }
+
+  .dot-500 {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #414b61;
+  }
+
+  .dot-500.orange {
+    background: var(--orange);
+  }
+
+  .dot-500.yellow {
+    background: #ffd45c;
+  }
+
+  .dot-500.lime {
+    background: var(--lime);
+  }
+
+  .screen-500 {
+    padding: 42px 36px;
+  }
+
+  .line-500 {
+    height: 12px;
+    background: #273149;
+    border-radius: 999px;
+    margin: 17px 0;
+  }
+
+  .line-500.v {
+    width: 72%;
+    background: var(--violet);
+  }
+
+  .line-500:nth-child(2) {
+    width: 94%;
+  }
+
+  .line-500:nth-child(3) {
+    width: 58%;
+  }
+
+  .line-500.o {
+    width: 84%;
+    background: var(--orange);
+  }
+
+  .line-500:nth-child(5) {
+    width: 43%;
+  }
+
+  .error-card {
+    position: absolute;
+    right: -5px;
+    bottom: 18px;
+    width: 73%;
+    background: var(--cream);
+    color: var(--ink);
+    border-radius: 26px;
+    padding: 26px;
+    transform: rotate(4deg);
+    box-shadow: var(--shadow);
+  }
+
+  .error-card strong {
+    display: block;
+    font: 800 1.85rem / 1.08 "Manrope", sans-serif;
+    letter-spacing: -0.04em;
+  }
+
+  .error-card p {
+    color: #5c6475;
+    line-height: 1.6;
+    margin-bottom: 0;
+    margin-top: 6px;
+  }
+
+  .bolt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 105px;
+    height: 165px;
+    background: var(--orange);
+    clip-path: polygon(55% 0, 100% 0, 64% 42%, 96% 42%, 21% 100%, 43% 55%, 12% 55%);
+    transform: rotate(-8deg);
+  }
+
+  @media (max-width: 900px) {
+    .grid-500 {
+      grid-template-columns: 1fr;
+    }
+    .machine {
+      min-height: 390px;
+    }
+    .panel-500 {
+      inset: 20px 10px 55px;
+    }
+    .code-500 {
+      font-size: clamp(7rem, 30vw, 12rem);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .page-500 {
+      padding-top: 38px;
+    }
+    .machine {
+      min-height: 330px;
+    }
+    .screen-500 {
+      padding: 28px 24px;
+    }
+    .error-card {
+      width: 88%;
+      padding: 21px;
+    }
+    .actions .btn {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+</style>

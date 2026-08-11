@@ -1,0 +1,31 @@
+---
+export const prerender = true;
+import CategoriaPage from '../categoria.astro';
+import { getCourseCategories, getGuideCategories } from '../../lib/sanity/queries';
+
+export async function getStaticPaths() {
+  const courseCats = await getCourseCategories();
+  const guideCats = await getGuideCategories();
+
+  const pathsMap = new Map();
+
+  courseCats.forEach((cat) => {
+    pathsMap.set(cat.slug, cat);
+  });
+
+  guideCats.forEach((cat) => {
+    if (!pathsMap.has(cat.slug)) {
+      pathsMap.set(cat.slug, cat);
+    }
+  });
+
+  return Array.from(pathsMap.values()).map((cat) => ({
+    params: { slug: cat.slug },
+    props: { category: cat }
+  }));
+}
+
+const { category } = Astro.props;
+---
+
+<CategoriaPage category={category} />

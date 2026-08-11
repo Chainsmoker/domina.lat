@@ -1,0 +1,35 @@
+---
+interface Props {
+  eyebrow?: string;
+  title: string;
+  description: string;
+  lastUpdated?: string;
+  version?: string;
+  domain?: string;
+  accentColor?: string;
+}
+
+const {
+  eyebrow = "Transparencia",
+  title,
+  description,
+  lastUpdated = "5 de agosto de 2026",
+  version = "Versión inicial",
+  domain = "domina.lat",
+  accentColor = "#D7FF5F"
+} = Astro.props;
+---
+<header class="legal-hero" style={`--accent:${accentColor}`}>
+  <div class="container">
+    <div class="inner">
+      <span class="eyebrow">{eyebrow}</span>
+      <h1 class="display">{title}</h1>
+      <p>{description}</p>
+      <div class="meta">
+        <span>Última actualización: {lastUpdated}</span>
+        <span>{version}</span>
+        <span>{domain}</span>
+      </div>
+    </div>
+  </div>
+</header>

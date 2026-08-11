@@ -1,0 +1,124 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const tocItems = [
+  { id: 'responsable', text: 'Responsable' },
+  { id: 'datos', text: 'Datos recopilados' },
+  { id: 'finalidades', text: 'Finalidades' },
+  { id: 'base', text: 'Base legal' },
+  { id: 'cookies', text: 'Cookies' },
+  { id: 'terceros', text: 'Terceros' },
+  { id: 'conservacion', text: 'Conservación' },
+  { id: 'derechos', text: 'Tus derechos' },
+  { id: 'menores', text: 'Menores' },
+  { id: 'cambios', text: 'Cambios' }
+];
+---
+
+<Layout title="Política de privacidad | Domina" description="Cómo Domina recopila, utiliza y protege información personal.">
+  <main style="--accent: #BDE8DB">
+    <header class="legal-hero">
+      <div class="container">
+        <div class="inner">
+          <span class="eyebrow">Privacidad</span>
+          <h1 class="display">Tus datos, sin letra pequeña.</h1>
+          <p>Esta política explica qué información puede tratar Domina, para qué se utiliza y qué opciones tienes sobre ella.</p>
+          <div class="meta">
+            <span>Última actualización: 5 de agosto de 2026</span>
+            <span>Versión inicial</span>
+            <span>domina.lat</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="container legal-layout">
+      <aside class="toc">
+        <strong>En esta página</strong>
+        <nav>
+          {tocItems.map((item) => (
+            <a href={`#${item.id}`}>{item.text}</a>
+          ))}
+        </nav>
+      </aside>
+
+      <article class="legal-copy">
+
+        <section id="responsable">
+          <h2>1. Quién trata tus datos</h2>
+          <p>El responsable del tratamiento de los datos recopilados en domina.lat es Domina. Para consultas sobre privacidad puedes escribir a <a href="mailto:privacidad@domina.lat">privacidad@domina.lat</a>.</p>
+          <div class="callout">
+            <p>Domina funciona como plataforma de selección, organización y recomendación de cursos y recursos. Algunas compras se realizan en sitios externos, que aplican sus propias políticas.</p>
+          </div>
+        </section>
+
+        <section id="datos">
+          <h2>2. Datos que podemos recopilar</h2>
+          <p>Según cómo utilices la plataforma, podemos tratar:</p>
+          <ul>
+            <li>Datos de contacto que proporcionas en formularios, como nombre, correo, país y mensaje.</li>
+            <li>Información técnica básica, como dirección IP, navegador, dispositivo, páginas visitadas y registros de seguridad.</li>
+            <li>Preferencias de navegación, categorías consultadas y clics en enlaces internos o externos.</li>
+            <li>Datos de suscripción, cuando decidas recibir novedades o contenidos.</li>
+            <li>Información que envíen creadores o colaboradores al presentar una propuesta.</li>
+          </ul>
+          <p>No solicitamos datos sensibles ni información de pago directamente, salvo que se indique expresamente en una funcionalidad futura.</p>
+        </section>
+
+        <section id="finalidades">
+          <h2>3. Para qué utilizamos la información</h2>
+          <ul>
+            <li>Responder consultas y solicitudes.</li>
+            <li>Operar, proteger y mejorar domina.lat.</li>
+            <li>Entender qué categorías y contenidos resultan útiles.</li>
+            <li>Prevenir fraude, abuso y problemas técnicos.</li>
+            <li>Enviar comunicaciones solicitadas y permitir que te des de baja.</li>
+            <li>Gestionar propuestas de cursos, alianzas o colaboraciones.</li>
+            <li>Cumplir obligaciones legales aplicables.</li>
+          </ul>
+        </section>
+
+        <section id="base">
+          <h2>4. Base para el tratamiento</h2>
+          <p>Dependiendo del caso, tratamos datos con tu consentimiento, para atender una solicitud o relación precontractual, por interés legítimo en mantener y mejorar la plataforma, o para cumplir una obligación legal. Cuando el tratamiento dependa del consentimiento, podrás retirarlo.</p>
+        </section>
+
+        <section id="cookies">
+          <h2>5. Cookies y analítica</h2>
+          <p>Domina puede utilizar cookies necesarias para seguridad y funcionamiento, y herramientas de medición para comprender el uso del sitio. Antes de activar cookies no esenciales en jurisdicciones que lo exijan, deberá mostrarse un mecanismo de consentimiento.</p>
+        </section>
+
+        <section id="terceros">
+          <h2>6. Proveedores y enlaces externos</h2>
+          <p>Podemos compartir datos limitados con proveedores que ayudan a alojar, proteger, medir o comunicar la plataforma, sujetos a sus contratos y políticas. Cuando haces clic en un curso o recurso externo, el sitio de destino puede recopilar datos independientemente. Domina no controla sus prácticas.</p>
+        </section>
+
+        <section id="conservacion">
+          <h2>7. Conservación y seguridad</h2>
+          <p>Conservamos los datos solo durante el tiempo necesario para la finalidad informada, atender responsabilidades legales o resolver disputas. Aplicamos medidas razonables de seguridad, aunque ningún sistema conectado a internet puede garantizar protección absoluta.</p>
+        </section>
+
+        <section id="derechos">
+          <h2>8. Tus derechos</h2>
+          <p>Puedes solicitar acceso, rectificación, actualización, eliminación, oposición o limitación de tus datos personales, según la legislación aplicable. Envía tu solicitud a <a href="mailto:privacidad@domina.lat">privacidad@domina.lat</a> indicando tu identidad, petición y la información necesaria para localizar tus datos.</p>
+        </section>
+
+        <section id="menores">
+          <h2>9. Menores de edad</h2>
+          <p>Domina no está dirigida intencionalmente a menores que no puedan consentir el tratamiento de sus datos conforme a la ley aplicable. Si detectamos información recopilada indebidamente, tomaremos medidas razonables para eliminarla.</p>
+        </section>
+
+        <section id="cambios">
+          <h2>10. Cambios y contacto</h2>
+          <p>Podemos actualizar esta política cuando cambien la plataforma, los proveedores o la normativa. Publicaremos la fecha de actualización. Para consultas o reclamos escribe a <a href="mailto:privacidad@domina.lat">privacidad@domina.lat</a>.</p>
+        </section>
+
+        <div class="legal-links">
+          <a href="/privacidad">Privacidad →</a>
+          <a href="/aviso-afiliados">Afiliados →</a>
+          <a href="/terminos">Términos →</a>
+        </div>
+      </article>
+    </div>
+  </main>
+</Layout>

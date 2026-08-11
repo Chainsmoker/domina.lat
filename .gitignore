@@ -1,8 +1,11 @@
 # build output
 dist/
 
-# generated types
+# generated types and runtime caches
 .astro/
+.sanity/
+.wrangler/
+.playwright-cli/
 
 # dependencies
 node_modules/

@@ -1,0 +1,189 @@
+---
+---
+<section class="newsletter">
+  <div class="container">
+    <div class="newsletter-box">
+      <div>
+        <span class="eyebrow">Una guía a la vez</span>
+        <h2 class="display">Ideas útiles, no ruido.</h2>
+        <p>Recibe nuevas guías, comparativas y rutas de aprendizaje cuando realmente tengamos algo que valga la pena compartir.</p>
+      </div>
+      <div>
+        <form class="newsletter-form" id="newsletterForm" novalidate>
+          <input type="email" id="newsletterEmail" placeholder="tu@correo.com" required />
+          <button class="btn btn-dark" type="submit" id="newsletterSubmitBtn">
+            <span class="btn-text">Suscribirme</span>
+            <span class="btn-spinner" style="display:none">
+              <svg class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="10"/></svg>
+              Enviando...
+            </span>
+          </button>
+        </form>
+        <div class="newsletter-feedback" id="newsletterFeedback" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const newsletterForm = document.getElementById('newsletterForm') as HTMLFormElement | null;
+  const emailInput = document.getElementById('newsletterEmail') as HTMLInputElement | null;
+  const submitBtn = document.getElementById('newsletterSubmitBtn') as HTMLButtonElement | null;
+  const btnText = submitBtn?.querySelector('.btn-text') as HTMLElement | null;
+  const btnSpinner = submitBtn?.querySelector('.btn-spinner') as HTMLElement | null;
+  const feedback = document.getElementById('newsletterFeedback') as HTMLElement | null;
+
+  function validateEmail(email: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  }
+
+  if (newsletterForm && emailInput && submitBtn) {
+    newsletterForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (feedback) {
+        feedback.style.display = 'none';
+        feedback.className = 'newsletter-feedback';
+      }
+
+      const email = emailInput.value.trim();
+
+      if (!validateEmail(email)) {
+        if (feedback) {
+          feedback.textContent = 'Por favor ingresa un correo electrónico válido.';
+          feedback.classList.add('error');
+          feedback.style.display = 'block';
+        }
+        return;
+      }
+
+      // Deshabilitar botón + Spinner
+      submitBtn.disabled = true;
+      if (btnText) btnText.style.display = 'none';
+      if (btnSpinner) btnSpinner.style.display = 'inline-flex';
+
+      try {
+        const response = await fetch('/api/newsletter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          if (feedback) {
+            feedback.textContent = result.message || '¡Gracias por suscribirte!';
+            feedback.classList.add('success');
+            feedback.style.display = 'block';
+          }
+          newsletterForm.reset();
+        } else {
+          if (feedback) {
+            feedback.textContent = result.errors?.email || result.message || 'Error al suscribirte.';
+            feedback.classList.add('error');
+            feedback.style.display = 'block';
+          }
+        }
+      } catch (err) {
+        if (feedback) {
+          feedback.textContent = 'Error de conexión. Inténtalo de nuevo.';
+          feedback.classList.add('error');
+          feedback.style.display = 'block';
+        }
+      } finally {
+        submitBtn.disabled = false;
+        if (btnText) btnText.style.display = 'inline';
+        if (btnSpinner) btnSpinner.style.display = 'none';
+      }
+    });
+  }
+</script>
+
+<style>
+  .newsletter {
+    padding: 90px 0;
+  }
+  .newsletter-box {
+    background: var(--orange);
+    border-radius: 34px;
+    padding: 46px;
+    display: grid;
+    grid-template-columns: 1fr 0.8fr;
+    gap: 30px;
+    align-items: center;
+  }
+  .newsletter h2 {
+    font-size: clamp(3.1rem, 6vw, 6.8rem);
+    letter-spacing: -0.04em;
+    line-height: 0.96;
+    color: var(--ink);
+  }
+  .newsletter p {
+    line-height: 1.65;
+    max-width: 620px;
+    color: var(--ink);
+  }
+  .newsletter-form {
+    display: flex;
+    gap: 10px;
+    background: #fff;
+    padding: 8px;
+    border-radius: 999px;
+  }
+  .newsletter-form input {
+    border: 0;
+    outline: 0;
+    background: transparent;
+    flex: 1;
+    padding: 12px 18px;
+    min-width: 0;
+    font: inherit;
+  }
+  .newsletter-form button:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+  }
+  .btn-spinner {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .spinner {
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .newsletter-feedback {
+    margin-top: 12px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 12px;
+  }
+  .newsletter-feedback.success {
+    background: rgba(255, 255, 255, 0.9);
+    color: #1b5e20;
+  }
+  .newsletter-feedback.error {
+    background: rgba(255, 255, 255, 0.9);
+    color: #b71c1c;
+  }
+
+  @media (max-width: 1040px) {
+    .newsletter-box {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .newsletter-box {
+      padding: 24px;
+    }
+    .newsletter-form {
+      border-radius: 20px;
+      flex-direction: column;
+    }
+  }
+</style>

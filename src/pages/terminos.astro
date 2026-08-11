@@ -1,0 +1,128 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const tocItems = [
+  { id: 'aceptacion', text: 'Aceptación' },
+  { id: 'servicio', text: 'El servicio' },
+  { id: 'cuentas', text: 'Cuentas' },
+  { id: 'uso', text: 'Uso permitido' },
+  { id: 'terceros', text: 'Terceros' },
+  { id: 'propiedad', text: 'Propiedad' },
+  { id: 'contenido', text: 'Exactitud' },
+  { id: 'garantias', text: 'Garantías' },
+  { id: 'responsabilidad', text: 'Responsabilidad' },
+  { id: 'comunicaciones', text: 'Comunicaciones' },
+  { id: 'ley', text: 'Jurisdicción' },
+  { id: 'cambios', text: 'Cambios' }
+];
+---
+
+<Layout title="Términos y condiciones | Domina" description="Condiciones de uso de domina.lat y de sus recomendaciones de cursos externos.">
+  <main style="--accent: #8D7CFF">
+    <header class="legal-hero">
+      <div class="container">
+        <div class="inner">
+          <span class="eyebrow">Condiciones de uso</span>
+          <h1 class="display">Reglas claras para usar Domina.</h1>
+          <p>Estos términos explican qué ofrece la plataforma, qué ocurre al visitar cursos externos y cuáles son las responsabilidades de cada parte.</p>
+          <div class="meta">
+            <span>Última actualización: 5 de agosto de 2026</span>
+            <span>Versión inicial</span>
+            <span>domina.lat</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="container legal-layout">
+      <aside class="toc">
+        <strong>En esta página</strong>
+        <nav>
+          {tocItems.map((item) => (
+            <a href={`#${item.id}`}>{item.text}</a>
+          ))}
+        </nav>
+      </aside>
+
+      <article class="legal-copy">
+
+        <section id="aceptacion">
+          <h2>1. Aceptación de los términos</h2>
+          <p>Al acceder o utilizar domina.lat aceptas estos términos y la Política de privacidad. Si no estás de acuerdo, debes dejar de utilizar la plataforma. El titular del sitio es Domina.</p>
+        </section>
+
+        <section id="servicio">
+          <h2>2. Qué ofrece Domina</h2>
+          <p>Domina es una plataforma informativa de descubrimiento, organización, comparación y recomendación de cursos y recursos. Salvo indicación expresa, Domina no imparte, certifica, vende ni entrega directamente las formaciones mostradas.</p>
+          <p>La información se facilita con fines generales y puede cambiar. No constituye asesoría profesional, financiera, legal, laboral ni garantía de resultados.</p>
+        </section>
+
+        <section id="cuentas">
+          <h2>3. Cuentas y funcionalidades futuras</h2>
+          <p>Si Domina incorpora cuentas, listas guardadas, comentarios u otras funciones, deberás proporcionar información exacta, proteger tus credenciales y utilizar el servicio de forma legítima. Podremos suspender accesos que comprometan la plataforma o a terceros.</p>
+        </section>
+
+        <section id="uso">
+          <h2>4. Uso permitido</h2>
+          <p>No puedes:</p>
+          <ul>
+            <li>Utilizar el sitio para actividades ilegales, fraudulentas o engañosas.</li>
+            <li>Interferir con la seguridad, disponibilidad o funcionamiento.</li>
+            <li>Extraer contenido de forma masiva o automatizada sin autorización.</li>
+            <li>Copiar, revender o explotar elementos protegidos de Domina.</li>
+            <li>Enviar malware, spam o datos falsos mediante formularios.</li>
+            <li>Suplantar a personas, creadores o entidades.</li>
+          </ul>
+        </section>
+
+        <section id="terceros">
+          <h2>5. Cursos y sitios de terceros</h2>
+          <p>Algunos botones te llevan a sitios operados por terceros. La compra, el contrato, el precio, el acceso, el soporte, la certificación, la garantía y el reembolso se rigen por las condiciones del proveedor correspondiente. Revisa esas condiciones antes de pagar.</p>
+          <p>Domina no controla permanentemente el contenido, disponibilidad ni seguridad de esos sitios.</p>
+        </section>
+
+        <section id="propiedad">
+          <h2>6. Propiedad intelectual</h2>
+          <p>La marca Domina, el diseño, los textos originales, la estructura editorial, gráficos y código propio están protegidos por las leyes aplicables. Las marcas, imágenes y materiales de cursos externos pertenecen a sus respectivos titulares y pueden mostrarse con fines informativos, promocionales o autorizados.</p>
+        </section>
+
+        <section id="contenido">
+          <h2>7. Exactitud y cambios</h2>
+          <p>Trabajamos para presentar información útil, pero pueden existir errores, cambios de precio, promociones finalizadas o temarios actualizados. Podemos modificar, retirar o reorganizar contenido sin aviso previo.</p>
+        </section>
+
+        <section id="garantias">
+          <h2>8. Ausencia de garantías</h2>
+          <p>La plataforma se proporciona “tal como está” y “según disponibilidad”, dentro de lo permitido por la ley. No garantizamos acceso ininterrumpido, ausencia total de errores, compatibilidad con todos los dispositivos ni resultados derivados de cursos externos.</p>
+        </section>
+
+        <section id="responsabilidad">
+          <h2>9. Limitación de responsabilidad</h2>
+          <p>En la medida permitida por la ley, Domina no será responsable por decisiones de compra, pérdida de oportunidades, resultados educativos o comerciales, fallas de proveedores externos, interrupciones o daños indirectos derivados del uso del sitio.</p>
+          <p>Nada en estos términos excluye derechos irrenunciables del consumidor ni responsabilidades que legalmente no puedan limitarse.</p>
+        </section>
+
+        <section id="comunicaciones">
+          <h2>10. Comunicaciones y formularios</h2>
+          <p>Cuando nos contactas, autorizas el uso de los datos necesarios para responder. Si te suscribes a comunicaciones comerciales, podrás cancelar la suscripción mediante el enlace disponible o escribiendo a <a href="mailto:privacidad@domina.lat">privacidad@domina.lat</a>.</p>
+        </section>
+
+        <section id="ley">
+          <h2>11. Legislación y jurisdicción</h2>
+          <p>Estos términos se regirán por las leyes aplicables, sin afectar las protecciones obligatorias aplicables al usuario en su lugar de residencia.</p>
+        </section>
+
+        <section id="cambios">
+          <h2>12. Cambios y contacto</h2>
+          <p>Podemos actualizar estos términos para reflejar cambios del servicio o de la normativa. La versión vigente se publicará aquí. Para consultas escribe a <a href="mailto:hola@domina.lat">hola@domina.lat</a>.</p>
+        </section>
+
+        <div class="legal-links">
+          <a href="/privacidad">Privacidad →</a>
+          <a href="/aviso-afiliados">Afiliados →</a>
+          <a href="/terminos">Términos →</a>
+        </div>
+      </article>
+    </div>
+  </main>
+</Layout>

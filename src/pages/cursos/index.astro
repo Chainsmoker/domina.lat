@@ -1,0 +1,1216 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import CourseCard from '../../components/CourseCard.astro';
+import { getCourses, getCourseCategories } from '../../lib/sanity/queries';
+import { urlFor } from '../../lib/sanity/image';
+import { formatTitle } from '../../lib/utils/formatTitle';
+
+// Extraer parámetros SSR desde la URL (para SEO, enlaces directos y paginación)
+const searchParams = Astro.url.searchParams;
+const qParam = searchParams.get('q')?.trim() || '';
+const categoryParam = searchParams.get('categoria')?.trim() || 'todos';
+const maxPriceParam = parseInt(searchParams.get('precio') || '100') || 100;
+const sortParam = searchParams.get('orden') || 'default';
+const currentPage = Math.max(1, parseInt(searchParams.get('pagina') || '1') || 1);
+const pageSize = 6;
+
+const allSanCourses = await getCourses();
+const sanCategories = await getCourseCategories();
+
+// 1. Filtrado Server-Side
+let filtered = allSanCourses.filter((c) => {
+  const matchCategory = categoryParam === 'todos' || c.category?.slug === categoryParam;
+  const priceNum = typeof c.price === 'number' ? c.price : (parseFloat(String(c.price || '39').replace(/[^0-9.]/g, '')) || 39);
+  const matchPrice = priceNum <= maxPriceParam;
+  const matchSearch = !qParam || 
+    c.title.toLowerCase().includes(qParam.toLowerCase()) || 
+    (c.dek && c.dek.toLowerCase().includes(qParam.toLowerCase()));
+  return matchCategory && matchPrice && matchSearch;
+});
+
+// 2. Ordenación Server-Side
+if (sortParam === 'price-asc') {
+  filtered.sort((a, b) => {
+    const pA = typeof a.price === 'number' ? a.price : (parseFloat(String(a.price || '0').replace(/[^0-9.]/g, '')) || 0);
+    const pB = typeof b.price === 'number' ? b.price : (parseFloat(String(b.price || '0').replace(/[^0-9.]/g, '')) || 0);
+    return pA - pB;
+  });
+} else if (sortParam === 'price-desc') {
+  filtered.sort((a, b) => {
+    const pA = typeof a.price === 'number' ? a.price : (parseFloat(String(a.price || '0').replace(/[^0-9.]/g, '')) || 0);
+    const pB = typeof b.price === 'number' ? b.price : (parseFloat(String(b.price || '0').replace(/[^0-9.]/g, '')) || 0);
+    return pB - pA;
+  });
+} else if (sortParam === 'title-asc') {
+  filtered.sort((a, b) => a.title.localeCompare(b.title));
+} else if (sortParam === 'title-desc') {
+  filtered.sort((a, b) => b.title.localeCompare(a.title));
+}
+
+const activeFilterCount = (categoryParam !== 'todos' ? 1 : 0) + (maxPriceParam < 100 ? 1 : 0) + (sortParam !== 'default' ? 1 : 0) + (qParam ? 1 : 0);
+
+// 3. Paginación Server-Side
+const totalCourses = filtered.length;
+const totalPages = Math.max(1, Math.ceil(totalCourses / pageSize));
+const validPage = Math.min(currentPage, totalPages);
+const startIndex = (validPage - 1) * pageSize;
+const paginatedCourses = filtered.slice(startIndex, startIndex + pageSize);
+const hasFilters = Boolean(qParam) || categoryParam !== 'todos' || maxPriceParam < 100 || sortParam !== 'default';
+const canonical = !hasFilters && validPage > 1 ? `/cursos?pagina=${validPage}` : '/cursos';
+const robots = hasFilters ? 'noindex,follow' : undefined;
+const pageTitle = validPage > 1 && !hasFilters
+  ? `Cursos – Página ${validPage} | Domina`
+  : qParam
+    ? `Cursos de "${qParam}" | Domina`
+    : 'Cursos | Domina habilidades reales';
+
+// Helper de URLs dinámicas para filtros y paginación SEO con ancla #catalogo
+function buildUrl(overrides: Record<string, string | number | null>) {
+  const params = new URLSearchParams(searchParams);
+  Object.entries(overrides).forEach(([key, val]) => {
+    if (val === null || val === '' || val === 'todos' || (key === 'pagina' && val === 1)) {
+      params.delete(key);
+    } else {
+      params.set(key, String(val));
+    }
+  });
+  const queryString = params.toString();
+  return queryString ? `/cursos?${queryString}#catalogo` : '/cursos#catalogo';
+}
+
+const categories = [
+  { id: 'todos', label: 'Todos los cursos' },
+  ...sanCategories.map((cat) => ({
+    id: cat.slug,
+    label: cat.title
+  }))
+];
+---
+
+<Layout 
+  title={pageTitle}
+  description="Explora cursos seleccionados de belleza, pastelería, oficios, tecnología y emprendimiento."
+  canonical={canonical}
+  robots={robots}
+>
+  <main class="page-cursos" id="top">
+    <!-- HERO -->
+    <header class="hero">
+      <div class="container">
+        <div class="hero-grid">
+          <div>
+            <span class="eyebrow">Catálogo seleccionado</span>
+            <h1 class="display">Encuentra algo que puedas <span>dominar.</span></h1>
+            <p>No necesitas otro catálogo infinito. Explora formaciones organizadas por habilidad, categoría y objetivo para tomar una mejor decisión.</p>
+          </div>
+          <aside class="hero-note">
+            <div class="hero-note-badge">
+              <span class="eyebrow">Selección Domina</span>
+              <span class="badge-tag">✦ Calidad Curada</span>
+            </div>
+            <strong>Menos opciones vacías. Más rutas que sí tienen sentido.</strong>
+            <p>Revisamos el enfoque, la claridad de la oferta y su aplicación práctica antes de recomendar.</p>
+            <div class="hero-stats">
+              <div class="hero-stat-item">
+                <strong>{allSanCourses.length}</strong>
+                <span>Cursos evaluados</span>
+              </div>
+              <div class="hero-stat-item">
+                <strong>100%</strong>
+                <span>Práctico y directo</span>
+              </div>
+              <div class="hero-stat-item">
+                <strong>Rutas</strong>
+                <span>Por objetivo</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <!-- FORMULARIO DE BÚSQUEDA SSR CON ANCLA #catalogo -->
+        <form action="/cursos#catalogo" method="GET" class="search-shell">
+          {categoryParam !== 'todos' && <input type="hidden" name="categoria" value={categoryParam} />}
+          {maxPriceParam !== 100 && <input type="hidden" name="precio" value={maxPriceParam} />}
+          {sortParam !== 'default' && <input type="hidden" name="orden" value={sortParam} />}
+          
+          <label class="search">
+            <span class="search-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
+            <input name="q" type="search" value={qParam} placeholder="Busca uñas, pastelería, reparación, IA..." aria-label="Buscar cursos" />
+          </label>
+          <button class="btn btn-acid" type="submit">Buscar cursos ↗</button>
+        </form>
+      </div>
+    </header>
+
+    <!-- STRIP DE CATEGORÍAS SSR -->
+    <div class="category-strip">
+      <div class="container">
+        <div class="chips">
+          {categories.map((cat) => (
+            <a 
+              href={buildUrl({ categoria: cat.id, pagina: 1 })} 
+              class={`chip ${cat.id === categoryParam ? 'active' : ''}`}
+            >
+              {cat.label}
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <!-- ÁREA PRINCIPAL DEL CATÁLOGO (ANCLA #catalogo) -->
+    <section class="catalog" id="catalogo">
+      <div class="container">
+        <div class="results-top">
+          <div>
+            <h2 class="display">Catálogo de Cursos</h2>
+            {qParam && <p class="search-query-tag">Resultados para: <strong>"{qParam}"</strong></p>}
+          </div>
+          <div class="toolbar-actions">
+            <button class="btn btn-filter" id="openFilterModal" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+              Filtros {activeFilterCount > 0 ? `(${activeFilterCount})` : ''}
+            </button>
+          </div>
+        </div>
+
+        <div id="catalogContent">
+          <!-- REJILLA DE 3 COLUMNAS EN ANCHO COMPLETO -->
+          {paginatedCourses.length > 0 ? (
+            <div class="grid" id="courseGrid">
+              {paginatedCourses.map((c) => (
+                <CourseCard
+                  tag={c.resourceType || c.eyebrow || c.category?.title || 'Video curso'}
+                  image={c.heroImage ? urlFor(c.heroImage).width(900).url() : '/images/hero-manicure.webp'}
+                  imageAlt={c.title.replace(/<[^>]*>/g, '')}
+                  meta={`${c.category?.title || 'Curso'} ${c.level ? `· ${c.level}` : ''}`}
+                  title={c.title}
+                  description={c.dek || ''}
+                  href={`/cursos/${c.slug}`}
+                  priceText={c.price}
+                  ratingScore={c.ratingScore}
+                />
+              ))}
+            </div>
+          ) : (
+            <div class="empty-state-card">
+              <div class="empty-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </div>
+              <h3>No se encontraron cursos</h3>
+              <p>Prueba cambiando el término de búsqueda o eliminando los filtros aplicados.</p>
+              <a href="/cursos#catalogo" class="btn btn-acid">Ver todos los cursos ↗</a>
+            </div>
+          )}
+
+          <!-- PAGINADOR GENERAL SSR -->
+          {totalPages > 1 && (
+            <nav class="pagination" aria-label="Paginación de cursos">
+              {validPage > 1 ? (
+                <a href={buildUrl({ pagina: validPage - 1 })} class="page-link prev">← Anterior</a>
+              ) : (
+                <span class="page-link prev disabled">← Anterior</span>
+              )}
+
+              <div class="page-numbers">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <a 
+                    href={buildUrl({ pagina: p })} 
+                    class={`page-num ${p === validPage ? 'active' : ''}`}
+                  >
+                    {p}
+                  </a>
+                ))}
+              </div>
+
+              {validPage < totalPages ? (
+                <a href={buildUrl({ pagina: validPage + 1 })} class="page-link next">Siguiente →</a>
+              ) : (
+                <span class="page-link next disabled">Siguiente →</span>
+              )}
+            </nav>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <!-- CRITERIO EDITORIAL -->
+    <section class="curation">
+      <div class="container curation-grid">
+        <div>
+          <span class="eyebrow">Cómo elegimos</span>
+          <h2 class="display">No todo curso merece tu tiempo.</h2>
+          <p>Domina organiza y presenta opciones con una lógica clara. La recomendación final debe ayudarte a entender qué aprenderás, para quién sirve y cómo podrías aplicar esa habilidad.</p>
+        </div>
+        <div class="criteria">
+          <div class="criterion">
+            <strong>Aplicación práctica</strong>
+            <p>Debe llevarte de la teoría a una habilidad demostrable.</p>
+          </div>
+          <div class="criterion">
+            <strong>Oferta comprensible</strong>
+            <p>Contenido, formato y alcance explicados sin humo.</p>
+          </div>
+          <div class="criterion">
+            <strong>Ruta adecuada</strong>
+            <p>Nivel y objetivo claros antes de comprar.</p>
+          </div>
+          <div class="criterion">
+            <strong>Valor real</strong>
+            <p>Recursos y metodología acordes al precio.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODAL UNIFICADO DE FILTROS (NO FULLSCREEN) -->
+    <div class="filter-modal-backdrop" id="filterModal">
+      <div class="filter-modal">
+        <form action="/cursos#catalogo" method="GET">
+          <div class="filter-modal-header">
+            <h3>Filtrar y Ordenar Cursos</h3>
+            <button type="button" class="modal-close" id="closeFilterModal" aria-label="Cerrar modal">✕</button>
+          </div>
+          <div class="filter-modal-body">
+            <!-- Búsqueda -->
+            <div class="filter-group">
+              <label class="filter-label" for="modalSearchInput">Búsqueda</label>
+              <input class="input-field" id="modalSearchInput" name="q" type="search" value={qParam} placeholder="Uñas, pastelería, IA, reparación..." />
+            </div>
+
+            <!-- Categoría -->
+            <div class="filter-group">
+              <label class="filter-label" for="modalCategorySelect">Categoría</label>
+              <select class="input-field" id="modalCategorySelect" name="categoria">
+                {categories.map((cat) => (
+                  <option value={cat.id} selected={cat.id === categoryParam}>{cat.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <!-- Rango de precio -->
+            <div class="filter-group">
+              <span class="filter-label">
+                Precio máximo: <strong id="modalPriceValue">${maxPriceParam}</strong>
+              </span>
+              <input type="range" name="precio" min="10" max="100" step="5" value={maxPriceParam} class="range-slider" id="modalPriceInput" />
+              <div class="range-labels">
+                <span>$10</span>
+                <span>$100</span>
+              </div>
+            </div>
+
+            <!-- Ordenación -->
+            <div class="filter-group">
+              <label class="filter-label" for="modalSortSelect">Ordenar por</label>
+              <select class="input-field" id="modalSortSelect" name="orden">
+                <option value="default" selected={sortParam === 'default'}>Recomendados</option>
+                <option value="title-asc" selected={sortParam === 'title-asc'}>Nombre: A - Z</option>
+                <option value="title-desc" selected={sortParam === 'title-desc'}>Nombre: Z - A</option>
+                <option value="price-asc" selected={sortParam === 'price-asc'}>Precio: menor a mayor</option>
+                <option value="price-desc" selected={sortParam === 'price-desc'}>Precio: mayor a menor</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-modal-footer">
+            <a href="/cursos#catalogo" class="btn btn-outline">Restablecer todo</a>
+            <button class="btn btn-acid" type="submit">Aplicar filtros ↗</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  // Renderizar tarjetas Skeleton durante la carga
+  function showSkeleton() {
+    const content = document.getElementById('catalogContent');
+    if (!content) return;
+
+    const skeletonHTML = Array.from({ length: 6 }).map(() => `
+      <div class="card skeleton-card" aria-hidden="true">
+        <div class="skeleton-media"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-badge"></div>
+          <div class="skeleton-line title"></div>
+          <div class="skeleton-line text"></div>
+          <div class="skeleton-line text short"></div>
+          <div class="skeleton-foot">
+            <div class="skeleton-line price"></div>
+            <div class="skeleton-btn"></div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    content.innerHTML = `<div class="grid" id="courseGrid">${skeletonHTML}</div>`;
+  }
+
+  // Carga reactiva client-side mediante fetch y pushState
+  async function loadCatalog(url: string, pushHistory = true) {
+    console.log('[Catalog] loadCatalog start:', url);
+    try {
+      showSkeleton();
+      if (pushHistory) {
+        history.pushState(null, '', url);
+      }
+
+      const modal = document.getElementById('filterModal');
+      if (modal) {
+        modal.classList.remove('open');
+      }
+
+      const catalogSection = document.getElementById('catalogo');
+      if (catalogSection && window.scrollY > catalogSection.offsetTop + 100) {
+        catalogSection.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      // Delay mínimo perceptivo (250ms) para ver la animación Skeleton de forma fluida
+      const [res] = await Promise.all([
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } }),
+        new Promise((resolve) => setTimeout(resolve, 250))
+      ]);
+
+      if (!res.ok) throw new Error('Fetch falló con status ' + res.status);
+
+      const html = await res.text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+
+      // Intercambio completo de contenedor de catálogo (Rejilla / Estado Vacío + Paginación)
+      const currentContent = document.getElementById('catalogContent');
+      const newContent = doc.getElementById('catalogContent');
+
+      if (currentContent && newContent) {
+        currentContent.innerHTML = newContent.innerHTML;
+      }
+
+      // Actualizar cabecera de catálogo (eyebrow / contador)
+      const currentHead = catalogSection?.querySelector('.catalog-head');
+      const newHead = doc.querySelector('#catalogo .catalog-head');
+      if (currentHead && newHead) {
+        currentHead.innerHTML = newHead.innerHTML;
+      }
+
+      // Actualizar chips de categorías activas
+      const currentChips = document.querySelectorAll('.chips a.chip');
+      const newChips = doc.querySelectorAll('.chips a.chip');
+      currentChips.forEach((chip, idx) => {
+        if (newChips[idx]) {
+          chip.className = newChips[idx].className;
+        }
+      });
+
+      // Actualizar contador del botón Filtros
+      const currentFilterBtn = document.getElementById('openFilterModal');
+      const newFilterBtn = doc.getElementById('openFilterModal');
+      if (currentFilterBtn && newFilterBtn) {
+        currentFilterBtn.innerHTML = newFilterBtn.innerHTML;
+      }
+
+      console.log('[Catalog] loadCatalog success!');
+
+    } catch (err) {
+      console.error('Error cargando catálogo:', err);
+    }
+  }
+
+  // Delegación global de clicks (Chips, Paginación, Botón Filtros, Modal)
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+
+    // Abrir Modal
+    if (target.closest('#openFilterModal')) {
+      const modal = document.getElementById('filterModal');
+      if (modal) modal.classList.add('open');
+      return;
+    }
+
+    // Cerrar Modal
+    if (target.closest('#closeFilterModal') || target.id === 'filterModal') {
+      const modal = document.getElementById('filterModal');
+      if (modal) modal.classList.remove('open');
+      return;
+    }
+
+    // Click en chip de categoría
+    const chipLink = target.closest('.chips a.chip') as HTMLAnchorElement;
+    if (chipLink) {
+      e.preventDefault();
+      loadCatalog(chipLink.href);
+      return;
+    }
+
+    // Click en enlace de paginación
+    const pageLink = target.closest('.pagination a') as HTMLAnchorElement;
+    if (pageLink) {
+      e.preventDefault();
+      loadCatalog(pageLink.href);
+      return;
+    }
+
+    // Click en restablecer desde estado vacío
+    const emptyBtn = target.closest('.empty-state a') as HTMLAnchorElement;
+    if (emptyBtn) {
+      e.preventDefault();
+      loadCatalog(emptyBtn.href);
+      return;
+    }
+  });
+
+  // Delegación global de envíos de formulario
+  document.addEventListener('submit', (e) => {
+    const form = e.target as HTMLFormElement;
+
+    // Formulario principal de búsqueda
+    if (form.classList.contains('search-shell')) {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const params = new URLSearchParams(window.location.search);
+
+      const q = formData.get('q')?.toString().trim();
+      if (q) params.set('q', q);
+      else params.delete('q');
+      params.delete('pagina');
+
+      const newUrl = `/cursos?${params.toString()}#catalogo`;
+      loadCatalog(newUrl);
+      return;
+    }
+
+    // Formulario del modal de filtros
+    if (form.closest('#filterModal')) {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const params = new URLSearchParams();
+
+      const q = formData.get('q')?.toString().trim();
+      if (q) params.set('q', q);
+
+      const cat = formData.get('categoria')?.toString();
+      if (cat && cat !== 'todos') params.set('categoria', cat);
+
+      const price = formData.get('precio')?.toString();
+      if (price && price !== '100') params.set('precio', price);
+
+      const sort = formData.get('orden')?.toString();
+      if (sort && sort !== 'default') params.set('orden', sort);
+
+      const queryString = params.toString();
+      const newUrl = queryString ? `/cursos?${queryString}#catalogo` : '/cursos#catalogo';
+      loadCatalog(newUrl);
+      return;
+    }
+  });
+
+  // Listener para rango de precio
+  document.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement;
+    if (target && target.id === 'modalPriceInput') {
+      const valEl = document.getElementById('modalPriceValue');
+      if (valEl) valEl.textContent = `$${target.value}`;
+    }
+  });
+
+  // Historial del navegador (Atrás / Adelante)
+  window.addEventListener('popstate', () => {
+    loadCatalog(window.location.href, false);
+  });
+</script>
+
+<style>
+  .card-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .card h3 :global(span) {
+    color: var(--orange);
+  }
+
+  /* HERO */
+  .page-cursos .hero {
+    padding: 56px 0 34px;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+  .hero h1 {
+    font-size: clamp(3.2rem, 6vw, 6.2rem) !important;
+    letter-spacing: -0.05em !important;
+    line-height: 0.95 !important;
+    margin-bottom: 18px;
+  }
+  .hero h1 span {
+    display: block;
+    color: var(--orange);
+  }
+  .hero p {
+    font-size: 1.12rem;
+    line-height: 1.7;
+    color: #535a6a;
+    max-width: 680px;
+    margin: 24px 0 0;
+  }
+  .hero-note {
+    background: var(--lime);
+    padding: 32px;
+    border-radius: 28px;
+    box-shadow: 0 16px 40px rgba(11, 16, 32, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  .hero-note-badge {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .badge-tag {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 4px 12px;
+    border-radius: 999px;
+    color: var(--ink);
+  }
+  .hero-note strong {
+    font: 800 2.1rem / 1.08 "Manrope", sans-serif;
+    display: block;
+    letter-spacing: -0.045em;
+    color: var(--ink);
+    margin: 4px 0 0;
+  }
+  .hero-note p {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin: 0;
+    color: #2b3240;
+  }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+  }
+  .hero-stat-item {
+    background: rgba(255, 255, 255, 0.75);
+    padding: 10px 12px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .hero-stat-item strong {
+    font: 800 1.15rem / 1.1 "Manrope", sans-serif;
+    color: var(--ink);
+    margin: 0;
+  }
+  .hero-stat-item span {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #4a5160;
+    line-height: 1.2;
+  }
+
+  .search-shell {
+    margin-top: 36px;
+    background: var(--ink);
+    border-radius: 28px;
+    padding: 14px;
+    box-shadow: 0 20px 50px rgba(11, 16, 32, 0.15);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+  }
+  .search {
+    background: white;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    gap: 12px;
+  }
+  .search input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: 1rem;
+    padding: 16px 0;
+    color: var(--ink);
+  }
+  .search-icon {
+    display: flex;
+    align-items: center;
+    color: var(--muted);
+  }
+  .search-shell .btn-acid {
+    border-color: var(--lime);
+    background: var(--lime);
+    color: var(--ink);
+    padding: 14px 26px;
+    border-radius: 999px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  /* CATEGORY CHIPS */
+  .category-strip {
+    padding: 24px 0 20px;
+  }
+  .chips {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+  }
+  .chip {
+    white-space: nowrap;
+    border: 1px solid var(--line);
+    background: white;
+    border-radius: 999px;
+    padding: 12px 22px;
+    font-weight: 700;
+    font-size: 0.94rem;
+    text-decoration: none;
+    color: var(--ink);
+    transition: all 0.2s ease;
+  }
+  .chip:hover {
+    border-color: var(--ink);
+  }
+  .chip.active {
+    background: var(--ink);
+    color: white;
+    border-color: var(--ink);
+  }
+
+  /* CATALOG 3 COLUMNS */
+  .catalog {
+    padding: 24px 0 100px;
+    scroll-margin-top: 80px;
+  }
+  .results-top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  .results-top h2 {
+    font: 800 clamp(2.4rem, 4.5vw, 4.2rem) / 0.95 "Manrope", sans-serif;
+    letter-spacing: -0.05em;
+    margin: 0;
+  }
+  .results-top p {
+    color: var(--muted);
+    margin: 6px 0 0;
+    font-size: 0.96rem;
+  }
+  .toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .btn-filter {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 999px;
+    padding: 12px 22px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.15s ease;
+  }
+  .btn-filter:hover {
+    background: var(--cream);
+  }
+  .input-field {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: #ffffff;
+    outline: none;
+    box-shadow: 0 2px 6px rgba(11, 16, 32, 0.03);
+    transition: border-color 0.2s ease;
+  }
+  select.input-field {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%230B1020' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 16px center;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+  .input-field:focus {
+    border-color: var(--ink);
+  }
+  .filter-group {
+    margin-bottom: 20px;
+  }
+
+  /* GRID */
+  :global(.grid) {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .card {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 50px rgba(11, 16, 32, 0.09);
+  }
+  .media {
+    height: 230px;
+    position: relative;
+  }
+  .media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: var(--lime);
+    color: var(--ink);
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .rating-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    background: rgba(11, 16, 32, 0.85);
+    backdrop-filter: blur(10px);
+    color: #FFD13B;
+    padding: 6px 11px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  .body {
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .meta {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-weight: 800;
+    color: var(--muted);
+  }
+  .card h3 {
+    font: 800 1.35rem / 1.16 "Manrope", sans-serif;
+    letter-spacing: -0.035em;
+    margin: 10px 0 8px;
+    color: var(--ink) !important;
+  }
+  .desc {
+    color: #555c6e;
+    line-height: 1.58;
+    font-size: 0.96rem;
+    margin: 0 0 16px;
+  }
+  .creator {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 0.88rem;
+    color: #596071;
+    margin-bottom: 12px;
+  }
+  .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--orange);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    color: #fff;
+    font-size: 0.75rem;
+  }
+  .stars-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .stars {
+    color: #F4A21B;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+  }
+  .score-val {
+    font-weight: 800;
+    font-size: 0.86rem;
+    color: var(--ink);
+  }
+  .reviews-count {
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .fact {
+    background: var(--cream);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    color: #4b5262;
+    font-weight: 700;
+  }
+  .card-foot {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .price small {
+    display: block;
+    color: var(--muted);
+    font-size: 0.74rem;
+  }
+  .price strong {
+    font: 800 1.35rem "Manrope", sans-serif;
+  }
+  .link {
+    font-weight: 800;
+    color: var(--ink);
+    font-size: 0.94rem;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 64px 20px;
+    background: #fff;
+    border: 1px dashed var(--line);
+    border-radius: 28px;
+  }
+  .empty-state h3 {
+    font: 800 1.8rem "Manrope", sans-serif;
+    margin: 0 0 8px;
+  }
+  .empty-state p {
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* PAGINADOR SSR */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 56px;
+  }
+  .page-numbers {
+    display: flex;
+    gap: 8px;
+  }
+  .page-link,
+  .page-num {
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 0.92rem;
+    transition: all 0.15s ease;
+  }
+  .page-num {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+  }
+  .page-link:hover,
+  .page-num:hover {
+    border-color: var(--ink);
+  }
+  .page-num.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+  .page-link.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  /* MODAL ESTILOS */
+  .filter-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(11, 16, 32, 0.65);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+  }
+  .filter-modal-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .filter-modal {
+    background: #ffffff;
+    border-radius: 32px;
+    width: min(480px, 100%);
+    box-shadow: 0 30px 80px rgba(11, 16, 32, 0.25);
+    overflow: hidden;
+    transform: translateY(14px);
+    transition: transform 0.22s ease;
+  }
+  .filter-modal-backdrop.open .filter-modal {
+    transform: translateY(0);
+  }
+  .filter-modal-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .filter-modal-header h3 {
+    font: 800 1.3rem "Manrope", sans-serif;
+    margin: 0;
+  }
+  .modal-close {
+    border: 0;
+    background: var(--cream);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+  }
+  .filter-modal-body {
+    padding: 28px;
+  }
+  .filter-label {
+    display: block;
+    font-size: 1.05rem;
+    margin-bottom: 14px;
+    color: var(--ink);
+  }
+  .range {
+    width: 100%;
+    accent-color: var(--orange);
+  }
+  .price-bounds {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .filter-modal-footer {
+    padding: 20px 28px;
+    background: var(--paper);
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  /* CRITERIO EDITORIAL */
+  .curation {
+    padding: 96px 0;
+    background: var(--ink);
+    color: white;
+  }
+  .curation-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 54px;
+    align-items: center;
+  }
+  .curation h2 {
+    font-size: clamp(3.2rem, 6vw, 5.5rem) !important;
+    letter-spacing: -0.05em !important;
+    line-height: 0.94 !important;
+    margin-top: 12px;
+  }
+  .curation p {
+    color: #bbc0cc;
+    line-height: 1.7;
+    max-width: 610px;
+    font-size: 1.05rem;
+    margin-top: 20px;
+  }
+  .criteria {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .criterion {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 24px;
+    border-radius: 24px;
+  }
+  .criterion strong {
+    font: 800 1.15rem "Manrope", sans-serif;
+    display: block;
+    margin-bottom: 6px;
+    color: #fff;
+  }
+  .criterion p {
+    margin: 0;
+    font-size: 0.94rem;
+    line-height: 1.55;
+    color: #c6cbd4;
+  }
+
+  @media (max-width: 1024px) {
+    :global(.grid) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    .hero-grid,
+    .curation-grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    :global(.grid) {
+      grid-template-columns: 1fr;
+    }
+    .results-top {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .toolbar-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
+  /* SKELETON LOADERS (USANDO :global PARA ELEMENTOS CLIENT-SIDE DINÁMICOS) */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  :global(.skeleton-card) {
+    pointer-events: none;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    overflow: hidden;
+    height: 440px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 14px rgba(11, 16, 32, 0.04);
+  }
+  :global(.skeleton-media) {
+    height: 220px;
+    background: linear-gradient(90deg, #f0f2f5 25%, #e2e5ec 37%, #f0f2f5 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+  }
+  :global(.skeleton-body) {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+    justify-content: space-between;
+  }
+  :global(.skeleton-line) {
+    height: 14px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #f0f2f5 25%, #e2e5ec 37%, #f0f2f5 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+  }
+  :global(.skeleton-badge) {
+    width: 30%;
+    height: 22px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #f0f2f5 25%, #e2e5ec 37%, #f0f2f5 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+  }
+  :global(.skeleton-line.title) { width: 75%; height: 22px; }
+  :global(.skeleton-line.text) { width: 95%; height: 14px; }
+  :global(.skeleton-line.short) { width: 60%; height: 14px; }
+  :global(.skeleton-foot) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    margin-top: 8px;
+  }
+  :global(.skeleton-line.price) { width: 60px; height: 20px; }
+  :global(.skeleton-btn) {
+    width: 100px;
+    height: 38px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #f0f2f5 25%, #e2e5ec 37%, #f0f2f5 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+  }
+</style>
