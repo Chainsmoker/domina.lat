@@ -29,11 +29,24 @@ const relatedPosts = allPosts
 const cleanTitle = post.title.replace(/<[^>]*>/g, '');
 const pageTitle = post.seoTitle || `${cleanTitle} | Domina`;
 const pageDescription = post.seoDescription || post.dek || `Guía práctica sobre ${cleanTitle} en Domina.lat.`;
-const pageImage = post.ogImage
-  ? urlFor(post.ogImage).width(1200).url()
-  : post.heroImage
+const defaultCategoryImages: Record<string, string> = {
+  'belleza-y-unas': '/images/hero-manicure.webp',
+  'cocina-y-pasteleria': '/images/hero-pasteleria.webp',
+  'digital-e-ia': '/images/hero-digital-ia.jpg',
+  'reparacion-y-oficios': '/images/hero-reparacion-oficios.jpg',
+  'oficios-y-reparacion': '/images/hero-reparacion-oficios.jpg',
+  'creatividad-y-manualidades': '/images/categoria-creatividad.webp',
+  'emprendimiento': '/images/hero-emprendimiento.jpg',
+};
+
+const catSlug = post.category?.slug || '';
+const pageImage = post.heroImage
   ? urlFor(post.heroImage).width(1200).url()
-  : '/images/hero-manicure.webp';
+  : post.coverImage
+  ? urlFor(post.coverImage).width(1200).url()
+  : post.ogImage
+  ? urlFor(post.ogImage).width(1200).url()
+  : (defaultCategoryImages[catSlug] || '/images/hero-emprendimiento.jpg');
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -158,7 +171,8 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
                   .replace(/creatividad-y-manualidades/g, 'creatividad & manualidades');
 
                 if (!textContent.includes('<a href=') && textContent.toLowerCase().includes('selección de cursos de')) {
-                  textContent = textContent.replace(/(selección de cursos de [^ en]+)/i, '<a href="/cursos" class="post-link" target="_blank" rel="noopener">$1</a>');
+                  const catTargetUrl = post.category?.slug ? `/categoria/${post.category.slug}` : '/cursos';
+                  textContent = textContent.replace(/(selección de cursos de [^.]+?)(?=\s+en\s+Domina|\s+para|\.|$)/i, `<a href="${catTargetUrl}" class="post-link" target="_blank" rel="noopener">$1</a>`);
                 }
 
                 const cleanTextForId = (block.children?.map((c: any) => c.text).join('') || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -568,8 +582,8 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
     line-height: 1.7;
     color: #2b303c;
   }
-  .post-link,
-  .content a {
+  :global(.post-link),
+  :global(.content a) {
     color: var(--orange, #ff5722) !important;
     text-decoration: underline !important;
     font-weight: 700 !important;
