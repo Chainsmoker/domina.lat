@@ -106,6 +106,7 @@ export interface Post {
   readingTime?: string;
   publishedAt?: string;
   heroImage?: any;
+  coverImage?: any;
   heroBadge?: string;
   authorName?: string;
   authorRole?: string;

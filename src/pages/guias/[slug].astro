@@ -68,6 +68,19 @@ const jsonLd = {
     }
   }
 };
+const categoryUrl = post.category?.slug ? `/categoria/${post.category.slug}` : '/cursos';
+const escapeHtml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+const renderInline = (children: any[] = [], markDefs: any[] = []) => children.map((child: any) => {
+  const rawText = String(child.text || '');
+  let html = escapeHtml(rawText).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+  const marks = Array.isArray(child.marks) ? child.marks : [];
+  if (marks.includes('strong')) html = '<strong>' + html + '</strong>';
+  if (marks.includes('em')) html = '<em>' + html + '</em>';
+  const annotation = markDefs.find((mark: any) => marks.includes(mark._key));
+  const href = /selección de cursos|oferta.*cursos|explora nuestra/i.test(rawText) ? categoryUrl : annotation?.href;
+  if (href) html = '<a href="' + escapeHtml(href) + '" class="post-link"' + (href.startsWith('/') ? '' : ' target="_blank" rel="noopener"') + '>' + html + '</a>';
+  return html;
+}).join('');
 const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
   post.body ? post.body.filter((b: any) => b._type === 'block' && b.style === 'h2').map((b: any) => {
     const text = b.children?.map((c: any) => c.text).join('') || '';
@@ -146,34 +159,7 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
               if (block._type === 'block') {
                 const isBullet = block.listItem === 'bullet';
                 const style = block.style;
-                let textContent = block.children?.map((child: any) => {
-                  let text = child.text || '';
-                  if (child.marks && child.marks.length > 0) {
-                    const markKey = child.marks[0];
-                    const markDef = block.markDefs?.find((m: any) => m._key === markKey || m._key === 'ctaLink');
-                    const href = markDef?.href || (block.markDefs && block.markDefs[0]?.href) || 'https://www.domina.lat/cursos';
-                    return `<a href="${href}" class="post-link" target="_blank" rel="noopener">${text}</a>`;
-                  }
-                  if (child.marks && child.marks.includes('strong')) {
-                    return `<strong>${text}</strong>`;
-                  }
-                  if (child.marks && child.marks.includes('em')) {
-                    return `<em>${text}</em>`;
-                  }
-                  return text;
-                }).join('') || '';
-
-                textContent = textContent
-                  .replace(/cocina-y-pasteleria/g, 'cocina & pastelería')
-                  .replace(/belleza-y-unas/g, 'belleza & uñas')
-                  .replace(/digital-e-ia/g, 'digital & IA')
-                  .replace(/oficios-y-reparacion/g, 'oficios & reparación')
-                  .replace(/creatividad-y-manualidades/g, 'creatividad & manualidades');
-
-                if (!textContent.includes('<a href=') && textContent.toLowerCase().includes('selección de cursos de')) {
-                  const catTargetUrl = post.category?.slug ? `/categoria/${post.category.slug}` : '/cursos';
-                  textContent = textContent.replace(/(selección de cursos de [^.]+?)(?=\s+en\s+Domina|\s+para|\.|$)/i, `<a href="${catTargetUrl}" class="post-link" target="_blank" rel="noopener">$1</a>`);
-                }
+                const textContent = renderInline(block.children, block.markDefs);
 
                 const cleanTextForId = (block.children?.map((c: any) => c.text).join('') || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
@@ -181,6 +167,8 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
                 if (style === 'h3') return <h3 set:html={textContent} />;
                 if (style === 'blockquote') return <blockquote class="lead" set:html={textContent} />;
                 if (isBullet) return <ul class="post-list"><li set:html={textContent} /></ul>;
+                const markdownQuestion = (block.children?.map((child: any) => child.text || '').join('') || '').match(/^\*\*(.+)\*\*$/);
+                if (markdownQuestion) return <h3 class="faq-question">{markdownQuestion[1]}</h3>;
 
                 if (style === 'normal') {
                   const stepMatch = textContent.match(/^(\d+)[\.\-\)]\s+(.*)/);
@@ -568,6 +556,14 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
     letter-spacing: -0.02em;
     margin: 32px 0 12px;
     color: var(--ink);
+  }
+  .faq-question {
+    margin: 34px 0 10px;
+    padding: 16px 20px;
+    border-left: 4px solid var(--orange);
+    border-radius: 0 14px 14px 0;
+    background: var(--cream);
+    font-size: 1.2rem;
   }
   .content p {
     margin: 0 0 22px;
