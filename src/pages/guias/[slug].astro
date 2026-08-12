@@ -124,12 +124,33 @@ const jsonLd = {
           {post.body && post.body.length > 0 ? (
             post.body.map((block: any) => {
               if (block._type === 'block') {
-                const text = block.children?.map((child: any) => child.text).join('') || '';
-                const blockId = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                if (block.style === 'h2') return <h2 id={blockId}>{text}</h2>;
-                if (block.style === 'h3') return <h3>{text}</h3>;
-                if (block.style === 'blockquote') return <p class="lead">{text}</p>;
-                return <p>{text}</p>;
+                const isBullet = block.listItem === 'bullet';
+                const style = block.style;
+                const textContent = block.children?.map((child: any) => {
+                  let text = child.text || '';
+                  if (child.marks && child.marks.includes('strong')) {
+                    return `<strong>${text}</strong>`;
+                  }
+                  if (child.marks && child.marks.includes('em')) {
+                    return `<em>${text}</em>`;
+                  }
+                  if (child.marks && child.marks.length > 0) {
+                    const markKey = child.marks[0];
+                    const markDef = block.markDefs?.find((m: any) => m._key === markKey || m._key === 'ctaLink');
+                    if (markDef && markDef.href) {
+                      return `<a href="${markDef.href}" class="post-link" target="_blank" rel="noopener">${text}</a>`;
+                    }
+                  }
+                  return text;
+                }).join('') || '';
+
+                const cleanTextForId = (block.children?.map((c: any) => c.text).join('') || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+                if (style === 'h2') return <h2 id={cleanTextForId} set:html={textContent} />;
+                if (style === 'h3') return <h3 set:html={textContent} />;
+                if (style === 'blockquote') return <blockquote class="lead" set:html={textContent} />;
+                if (isBullet) return <ul class="post-list"><li set:html={textContent} /></ul>;
+                return <p set:html={textContent} />;
               }
               if (block._type === 'callout') {
                 return (
@@ -141,13 +162,16 @@ const jsonLd = {
               }
               if (block._type === 'checklist') {
                 return (
-                  <div class="checklist">
-                    {block.items?.map((item: any) => (
-                      <div class="check">
-                        <b>{item.bold}</b>
-                        <span>{item.text}</span>
-                      </div>
-                    ))}
+                  <div class="checklist-wrapper">
+                    {block.title && <h3 class="checklist-title">{block.title}</h3>}
+                    <div class="checklist">
+                      {block.items?.map((item: any) => (
+                        <div class="check">
+                          {item.bold && <b>{item.bold}</b>}
+                          {item.text && <span>{item.text}</span>}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 );
               }
@@ -442,6 +466,30 @@ const jsonLd = {
   }
   .content p {
     margin: 0 0 22px;
+  }
+  .post-list {
+    margin: 0 0 24px 0;
+    padding-left: 24px;
+    list-style-type: disc;
+  }
+  .post-list li {
+    margin-bottom: 10px;
+    line-height: 1.7;
+    color: #2b303c;
+  }
+  .post-link {
+    color: var(--orange);
+    text-decoration: underline;
+    font-weight: 700;
+  }
+  .checklist-wrapper {
+    margin: 32px 0;
+  }
+  .checklist-title {
+    font: 800 1.4rem / 1.25 "Manrope", sans-serif;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    color: var(--ink);
   }
   .lead {
     font-size: 1.28rem;
