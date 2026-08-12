@@ -265,9 +265,9 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
           <div class="share">
             <b>¿Te resultó útil?</b>
             <div class="share-buttons">
-              <button id="copyBtn">Copiar enlace</button>
-              <button id="fbShareBtn">Facebook</button>
-              <button id="waShareBtn">WhatsApp</button>
+              <button type="button" id="copyBtn">Copiar enlace</button>
+              <button type="button" id="fbShareBtn">Facebook</button>
+              <button type="button" id="waShareBtn">WhatsApp</button>
             </div>
           </div>
 
@@ -353,28 +353,32 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
 </Layout>
 
 <script>
-  const copyBtn = document.getElementById('copyBtn');
-  const fbBtn = document.getElementById('fbShareBtn');
-  const waBtn = document.getElementById('waShareBtn');
-
-  if (copyBtn) {
-    copyBtn.addEventListener('click', () => {
-      navigator.clipboard?.writeText(window.location.href);
-      copyBtn.textContent = 'Copiado ✓';
-      setTimeout(() => { copyBtn.textContent = 'Copiar enlace'; }, 2500);
-    });
+  function setupShareButtons() {
+    const copyBtn = document.getElementById('copyBtn');
+    const fbBtn = document.getElementById('fbShareBtn');
+    const waBtn = document.getElementById('waShareBtn');
+    if (copyBtn && !copyBtn.dataset.bound) {
+      copyBtn.dataset.bound = 'true';
+      copyBtn.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(window.location.href); }
+        catch { const input = document.createElement('textarea'); input.value = window.location.href; document.body.appendChild(input); input.select(); document.execCommand('copy'); input.remove(); }
+        copyBtn.textContent = 'Copiado ✓';
+        setTimeout(() => { copyBtn.textContent = 'Copiar enlace'; }, 2500);
+      });
+    }
+    if (fbBtn && !fbBtn.dataset.bound) {
+      fbBtn.dataset.bound = 'true';
+      fbBtn.addEventListener('click', () => window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank', 'noopener,noreferrer'));
+    }
+    if (waBtn && !waBtn.dataset.bound) {
+      waBtn.dataset.bound = 'true';
+      waBtn.addEventListener('click', () => {
+        const text = 'Te recomiendo esta guía en Domina: ' + document.title + ' - ' + window.location.href;
+        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank', 'noopener,noreferrer');
+      });
+    }
   }
-  if (fbBtn) {
-    fbBtn.addEventListener('click', () => {
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
-    });
-  }
-  if (waBtn) {
-    waBtn.addEventListener('click', () => {
-      const text = `Te recomiendo esta guía en Domina: ${document.title} - ${window.location.href}`;
-      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
-    });
-  }
+  document.addEventListener('astro:page-load', setupShareButtons);
 </script>
 
 <style>
