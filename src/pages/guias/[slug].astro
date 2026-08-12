@@ -135,18 +135,18 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
                 const style = block.style;
                 const textContent = block.children?.map((child: any) => {
                   let text = child.text || '';
+                  text = text.replace(/belleza-y-unas/g, 'belleza & uñas');
+                  if (child.marks && child.marks.length > 0) {
+                    const markKey = child.marks[0];
+                    const markDef = block.markDefs?.find((m: any) => m._key === markKey || m._key === 'ctaLink');
+                    const href = markDef?.href || (block.markDefs && block.markDefs[0]?.href) || 'https://www.domina.lat/cursos';
+                    return `<a href="${href}" class="post-link" target="_blank" rel="noopener">${text}</a>`;
+                  }
                   if (child.marks && child.marks.includes('strong')) {
                     return `<strong>${text}</strong>`;
                   }
                   if (child.marks && child.marks.includes('em')) {
                     return `<em>${text}</em>`;
-                  }
-                  if (child.marks && child.marks.length > 0) {
-                    const markKey = child.marks[0];
-                    const markDef = block.markDefs?.find((m: any) => m._key === markKey || m._key === 'ctaLink');
-                    if (markDef && markDef.href) {
-                      return `<a href="${markDef.href}" class="post-link" target="_blank" rel="noopener">${text}</a>`;
-                    }
                   }
                   return text;
                 }).join('') || '';
@@ -558,7 +558,8 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
     line-height: 1.7;
     color: #2b303c;
   }
-  .post-link {
+  .post-link,
+  .content a {
     color: var(--orange);
     text-decoration: underline;
     font-weight: 700;
