@@ -133,9 +133,8 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
               if (block._type === 'block') {
                 const isBullet = block.listItem === 'bullet';
                 const style = block.style;
-                const textContent = block.children?.map((child: any) => {
+                let textContent = block.children?.map((child: any) => {
                   let text = child.text || '';
-                  text = text.replace(/belleza-y-unas/g, 'belleza & uñas');
                   if (child.marks && child.marks.length > 0) {
                     const markKey = child.marks[0];
                     const markDef = block.markDefs?.find((m: any) => m._key === markKey || m._key === 'ctaLink');
@@ -150,6 +149,17 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
                   }
                   return text;
                 }).join('') || '';
+
+                textContent = textContent
+                  .replace(/cocina-y-pasteleria/g, 'cocina & pastelería')
+                  .replace(/belleza-y-unas/g, 'belleza & uñas')
+                  .replace(/digital-e-ia/g, 'digital & IA')
+                  .replace(/oficios-y-reparacion/g, 'oficios & reparación')
+                  .replace(/creatividad-y-manualidades/g, 'creatividad & manualidades');
+
+                if (!textContent.includes('<a href=') && textContent.toLowerCase().includes('selección de cursos de')) {
+                  textContent = textContent.replace(/(selección de cursos de [^ en]+)/i, '<a href="/cursos" class="post-link" target="_blank" rel="noopener">$1</a>');
+                }
 
                 const cleanTextForId = (block.children?.map((c: any) => c.text).join('') || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
@@ -560,9 +570,9 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
   }
   .post-link,
   .content a {
-    color: var(--orange);
-    text-decoration: underline;
-    font-weight: 700;
+    color: var(--orange, #ff5722) !important;
+    text-decoration: underline !important;
+    font-weight: 700 !important;
   }
   .checklist-wrapper {
     margin: 32px 0;
