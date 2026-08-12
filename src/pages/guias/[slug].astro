@@ -55,6 +55,13 @@ const jsonLd = {
     }
   }
 };
+const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
+  post.body ? post.body.filter((b: any) => b._type === 'block' && b.style === 'h2').map((b: any) => {
+    const text = b.children?.map((c: any) => c.text).join('') || '';
+    const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    return { id, text };
+  }) : []
+);
 ---
 
 <Layout title={pageTitle} description={pageDescription} image={pageImage} type="article" jsonLd={jsonLd}>
@@ -110,11 +117,11 @@ const jsonLd = {
     </header>
 
     <section>
-      <div class="container article-wrap">
-        {post.toc && post.toc.length > 0 && (
+      <div class={`container article-wrap ${(!autoToc || autoToc.length === 0) ? 'no-toc' : ''}`}>
+        {autoToc && autoToc.length > 0 && (
           <aside class="toc">
             <strong>En esta guía</strong>
-            {post.toc.map((item) => (
+            {autoToc.map((item: any) => (
               <a href={`#${item.id}`}>{item.text}</a>
             ))}
           </aside>
@@ -150,6 +157,27 @@ const jsonLd = {
                 if (style === 'h3') return <h3 set:html={textContent} />;
                 if (style === 'blockquote') return <blockquote class="lead" set:html={textContent} />;
                 if (isBullet) return <ul class="post-list"><li set:html={textContent} /></ul>;
+
+                if (style === 'normal') {
+                  const stepMatch = textContent.match(/^(\d+)[\.\-\)]\s+(.*)/);
+                  if (stepMatch) {
+                    return (
+                      <div class="step-item">
+                        <span class="step-num">{stepMatch[1]}</span>
+                        <div class="step-content" set:html={stepMatch[2]} />
+                      </div>
+                    );
+                  }
+                  const bulletMatch = textContent.match(/^[\-\–\—\•]\s+(.*)/);
+                  if (bulletMatch) {
+                    return (
+                      <ul class="post-list">
+                        <li set:html={bulletMatch[1]} />
+                      </ul>
+                    );
+                  }
+                }
+
                 return <p set:html={textContent} />;
               }
               if (block._type === 'callout') {
@@ -226,8 +254,8 @@ const jsonLd = {
             <b>¿Te resultó útil?</b>
             <div class="share-buttons">
               <button id="copyBtn">Copiar enlace</button>
-              <button>Facebook</button>
-              <button>WhatsApp</button>
+              <button id="fbShareBtn">Facebook</button>
+              <button id="waShareBtn">WhatsApp</button>
             </div>
           </div>
 
@@ -314,17 +342,32 @@ const jsonLd = {
 
 <script>
   const copyBtn = document.getElementById('copyBtn');
+  const fbBtn = document.getElementById('fbShareBtn');
+  const waBtn = document.getElementById('waShareBtn');
+
   if (copyBtn) {
     copyBtn.addEventListener('click', () => {
       navigator.clipboard?.writeText(window.location.href);
       copyBtn.textContent = 'Copiado ✓';
+      setTimeout(() => { copyBtn.textContent = 'Copiar enlace'; }, 2500);
+    });
+  }
+  if (fbBtn) {
+    fbBtn.addEventListener('click', () => {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
+    });
+  }
+  if (waBtn) {
+    waBtn.addEventListener('click', () => {
+      const text = `Te recomiendo esta guía en Domina: ${document.title} - ${window.location.href}`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
     });
   }
 </script>
 
 <style>
   .hero {
-    padding: 48px 0 36px;
+    padding: 20px 0 12px;
   }
   .breadcrumb {
     font-size: 0.9rem;
@@ -417,7 +460,45 @@ const jsonLd = {
     grid-template-columns: 240px 1fr;
     gap: 48px;
     align-items: start;
-    padding: 56px 0 80px;
+    padding: 20px 0 60px;
+  }
+  .step-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background: #fff;
+    border: 1px solid #eaeaea;
+    padding: 16px 20px;
+    border-radius: 16px;
+    margin: 20px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  }
+  .step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--orange, #ff5722);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.95rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-content {
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: #2b2f38;
+  }
+  .article-wrap.no-toc {
+    display: flex;
+    justify-content: center;
+  }
+  .article-wrap.no-toc .content {
+    max-width: 820px;
+    width: 100%;
   }
   .toc {
     position: sticky;
