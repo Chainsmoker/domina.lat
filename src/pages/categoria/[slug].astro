@@ -3,8 +3,33 @@ export const prerender = false;
 import CategoriaPage from '../../components/CategoryDetail.astro';
 import { getCategoryBySlug } from '../../lib/sanity/queries';
 
-const { slug } = Astro.params;
-const category = slug ? await getCategoryBySlug(slug) : null;
+let { slug } = Astro.params;
+const rawSlug = slug ? decodeURIComponent(slug) : '';
+
+function toCleanSlug(str: string): string {
+  return str.toLowerCase()
+    .replace(/&/g, 'y')
+    .replace(/ñ/g, 'n')
+    .replace(/á|ä|â|à/g, 'a')
+    .replace(/é|ë|ê|è/g, 'e')
+    .replace(/í|ï|î|ì/g, 'i')
+    .replace(/ó|ö|ô|ò/g, 'o')
+    .replace(/ú|ü|û|ù/g, 'u')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+const cleanSlug = toCleanSlug(rawSlug);
+
+let category = rawSlug ? await getCategoryBySlug(rawSlug) : null;
+if (!category && cleanSlug) {
+  category = await getCategoryBySlug(cleanSlug);
+}
+
+// Redirect messy/title-style URLs like /categoria/belleza & uñas to clean /categoria/belleza-y-unas
+if (category && category.slug && category.slug !== rawSlug) {
+  return Astro.redirect(`/categoria/${category.slug}`, 301);
+}
 
 if (!category) {
   return Astro.redirect('/404');
