@@ -14,9 +14,9 @@ export function formatTitle(title: string = ''): string {
   const keywords = ['uñas', 'pastelería', 'cocina', 'postres', 'digital', 'servicio vendible', 'curso online', 'pestañas', 'maquillaje', 'habilidad', 'oficios', 'emprender'];
   
   for (const kw of keywords) {
-    const regex = new RegExp(`\\b(${kw})\\b`, 'gi');
+    const regex = new RegExp(`\\b(${kw})(:)?\\b`, 'gi');
     if (regex.test(title)) {
-      return title.replace(regex, '<span>$1</span>');
+      return title.replace(regex, '<span>$1$2</span>');
     }
   }
 
