@@ -1,7 +1,6 @@
 ---
 import { getPosts } from '../lib/sanity/queries';
 import { urlFor } from '../lib/sanity/image';
-import { formatTitle } from '../lib/utils/formatTitle';
 
 const posts = await getPosts();
 const featuredPost = posts[0] || null;
@@ -26,7 +25,7 @@ const sidePosts = posts.slice(1, 3);
               <img src={featuredPost.heroImage ? urlFor(featuredPost.heroImage).width(900).url() : '/images/hero-manicure.webp'} alt={featuredPost.title.replace(/<[^>]*>/g, '')} />
             </a>
             <div class="story-content">
-              <h3><a href={`/guias/${featuredPost.slug}`} class="title-link" set:html={formatTitle(featuredPost.title)} /></h3>
+              <h3><a href={`/guias/${featuredPost.slug}`} class="title-link">{featuredPost.title.replace(/<[^>]*>/g, '')}</a></h3>
               <p>{featuredPost.dek}</p>
               <a class="story-link" href={`/guias/${featuredPost.slug}`}>Leer guía completa ↗</a>
             </div>
@@ -42,7 +41,7 @@ const sidePosts = posts.slice(1, 3);
                   <img src={post.heroImage ? urlFor(post.heroImage).width(600).url() : '/images/hero-pasteleria.webp'} alt={post.title.replace(/<[^>]*>/g, '')} />
                 </a>
                 <div class="story-content">
-                  <h3><a href={`/guias/${post.slug}`} class="title-link" set:html={formatTitle(post.title)} /></h3>
+                  <h3><a href={`/guias/${post.slug}`} class="title-link">{post.title.replace(/<[^>]*>/g, '')}</a></h3>
                   <a class="story-link" href={`/guias/${post.slug}`}>Leer guía ↗</a>
                 </div>
               </article>
@@ -151,10 +150,6 @@ const sidePosts = posts.slice(1, 3);
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-  }
-  .story-card h3 :global(span) {
-    color: var(--orange);
-    display: inline;
   }
   .title-link {
     color: inherit;
