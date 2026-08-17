@@ -142,9 +142,8 @@ const sidePosts = posts.slice(1, 3);
   .story-card.side .story-content {
     padding: 20px 22px;
   }
-  .story-card h3,
-  .story-card h3 :global(span) {
-    color: var(--ink) !important;
+  .story-card h3 {
+    color: var(--ink);
     font: 800 1.65rem / 1.15 "Manrope", sans-serif;
     letter-spacing: -0.04em;
     margin: 0 0 10px;
@@ -152,7 +151,10 @@ const sidePosts = posts.slice(1, 3);
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    min-height: 3.8rem;
+  }
+  .story-card h3 :global(span) {
+    color: var(--orange);
+    display: inline;
   }
   .title-link {
     color: inherit;
@@ -162,12 +164,10 @@ const sidePosts = posts.slice(1, 3);
   .title-link:hover {
     color: var(--orange);
   }
-  .story-card.side h3,
-  .story-card.side h3 :global(span) {
+  .story-card.side h3 {
     font-size: 1.25rem;
     line-height: 1.2;
     margin: 0 0 12px;
-    min-height: 3rem;
   }
   .story-content p {
     color: #4A5162;
