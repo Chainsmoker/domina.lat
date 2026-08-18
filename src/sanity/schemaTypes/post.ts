@@ -56,6 +56,37 @@ export const postType = defineType({
       validation: (Rule) => Rule.required().error('La fecha de publicación es obligatoria.'),
     }),
     defineField({
+      name: 'editorialStatus',
+      title: 'Estado Editorial',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Pendiente de Revisión', value: 'pending_review' },
+          { title: 'Recomendado', value: 'recommended' },
+          { title: 'Experimento', value: 'experiment' },
+          { title: 'Bloqueado', value: 'blocked' },
+        ],
+      },
+    }),
+    defineField({
+      name: 'trendStatus',
+      title: 'Estado de Tendencia',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Tendencia Verificada', value: 'verified_trend' },
+          { title: 'Oportunidad de Mercado', value: 'market_opportunity' },
+          { title: 'Experimento', value: 'experiment' },
+          { title: 'Sin Verificar', value: 'unverified' },
+        ],
+      },
+    }),
+    defineField({
+      name: 'priorityScore',
+      title: 'Puntaje de Prioridad',
+      type: 'number',
+    }),
+    defineField({
       name: 'heroImage',
       title: 'Imagen destacada (Hero)',
       type: 'image',
