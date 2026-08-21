@@ -158,6 +158,7 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
             post.body.map((block: any) => {
               if (block._type === 'block') {
                 const isBullet = block.listItem === 'bullet';
+                const isNumber = block.listItem === 'number';
                 const style = block.style;
                 const textContent = renderInline(block.children, block.markDefs);
 
@@ -167,6 +168,7 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
                 if (style === 'h3') return <h3 set:html={textContent} />;
                 if (style === 'blockquote') return <blockquote class="lead" set:html={textContent} />;
                 if (isBullet) return <ul class="post-list"><li set:html={textContent} /></ul>;
+                if (isNumber) return <ol class="post-list numbered"><li set:html={textContent} /></ol>;
                 const markdownQuestion = (block.children?.map((child: any) => child.text || '').join('') || '').match(/^\*\*(.+)\*\*$/);
                 if (markdownQuestion) return <h3 class="faq-question">{markdownQuestion[1]}</h3>;
 
@@ -202,17 +204,53 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
               }
               if (block._type === 'checklist') {
                 return (
-                  <div class="checklist-wrapper">
+                  <div class={`checklist-wrapper ${block.variant === 'numbered' ? 'numbered' : ''}`}>
                     {block.title && <h3 class="checklist-title">{block.title}</h3>}
                     <div class="checklist">
-                      {block.items?.map((item: any) => (
+                      {block.items?.map((item: any, index: number) => (
                         <div class="check">
+                          {block.variant === 'numbered' && <span class="check-number">{index + 1}</span>}
                           {item.bold && <b>{item.bold}</b>}
                           {item.text && <span>{item.text}</span>}
                         </div>
                       ))}
                     </div>
                   </div>
+                );
+              }
+              if (block._type === 'templateBlock') {
+                return (
+                  <section class="template-block" aria-label={block.title || 'Plantilla para completar'}>
+                    <div class="template-heading">
+                      <span class="template-kicker">Plantilla práctica</span>
+                      {block.title && <h3>{block.title}</h3>}
+                      {block.intro && <p>{block.intro}</p>}
+                    </div>
+                    <div class="template-fields">
+                      {block.fields?.map((field: any) => (
+                        <div class="template-field">
+                          <b>{field.label}</b>
+                          <span>{field.placeholder || 'Escribe aquí'}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {block.note && <p class="template-note">{block.note}</p>}
+                  </section>
+                );
+              }
+              if (block._type === 'sourcesBlock') {
+                return (
+                  <aside class="sources-block" aria-label={block.title || 'Fuentes consultadas'}>
+                    <h3>{block.title || 'Fuentes consultadas'}</h3>
+                    <ol>
+                      {block.items?.map((source: any) => (
+                        <li>
+                          <a href={source.url} target="_blank" rel="noopener noreferrer">{source.title}</a>
+                          {source.note && <span>{source.note}</span>}
+                        </li>
+                      ))}
+                    </ol>
+                  </aside>
                 );
               }
               if (block._type === 'tableBlock' && block.headers) {
@@ -628,6 +666,9 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
     overflow-wrap: break-word;
     word-break: break-word;
   }
+  .post-list.numbered {
+    list-style-type: decimal;
+  }
   :global(.post-link),
   :global(.content a) {
     color: var(--orange, #ff5722) !important;
@@ -695,6 +736,131 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
   .check b {
     display: block;
     overflow-wrap: break-word;
+  }
+  .checklist-wrapper.numbered .checklist {
+    grid-template-columns: 1fr;
+  }
+  .checklist-wrapper.numbered .check {
+    display: grid;
+    grid-template-columns: 42px 1fr;
+    column-gap: 14px;
+    align-items: start;
+  }
+  .checklist-wrapper.numbered .check > span:not(.check-number) {
+    grid-column: 2;
+  }
+  .check-number {
+    grid-row: 1 / span 2;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: var(--orange);
+    color: var(--ink);
+    font: 900 1rem "Manrope", sans-serif;
+  }
+  .template-block {
+    margin: 36px 0;
+    padding: 0;
+    border: 1px solid rgba(11, 16, 32, 0.12);
+    border-radius: 22px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 18px 48px rgba(11, 16, 32, 0.08);
+  }
+  .template-heading {
+    padding: 28px 30px;
+    background: var(--ink);
+    color: #fff;
+    border-top: 4px solid var(--orange);
+  }
+  .template-heading h3,
+  .template-heading p {
+    margin: 0;
+    color: inherit;
+  }
+  .template-heading h3 {
+    margin-top: 10px;
+    font-size: clamp(1.35rem, 2.4vw, 1.65rem);
+  }
+  .template-heading p {
+    margin-top: 10px;
+    max-width: 680px;
+    opacity: 0.78;
+    line-height: 1.6;
+  }
+  .template-kicker {
+    display: inline-flex;
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: rgba(255, 87, 34, 0.14);
+    color: #ff7350;
+    font: 800 0.76rem "Manrope", sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .template-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--line);
+  }
+  .template-field {
+    min-height: 108px;
+    padding: 22px 20px;
+    background: #fff;
+  }
+  .template-field:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+  .template-field b,
+  .template-field span {
+    display: block;
+  }
+  .template-field span {
+    margin-top: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed rgba(11, 16, 32, 0.3);
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+  .template-note {
+    margin: 0 !important;
+    padding: 18px 30px;
+    background: var(--cream);
+    border-top: 1px solid rgba(11, 16, 32, 0.08);
+    font-size: 0.92rem;
+  }
+  .sources-block {
+    margin: 36px 0;
+    padding: 24px 26px;
+    border-left: 4px solid var(--orange);
+    border-radius: 0 20px 20px 0;
+    background: var(--cream);
+  }
+  .sources-block h3 {
+    margin: 0 0 14px;
+    font-size: 1.15rem;
+  }
+  .sources-block ol {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .sources-block li + li {
+    margin-top: 12px;
+  }
+  .sources-block a {
+    color: var(--orange);
+    font-weight: 800;
+    text-decoration: underline;
+    overflow-wrap: anywhere;
+  }
+  .sources-block li span {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 0.88rem;
   }
   .affiliate {
     font-size: 0.9rem;
@@ -1026,6 +1192,22 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
     .checklist,
     .grid {
       grid-template-columns: minmax(0, 1fr);
+    }
+    .template-fields {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .template-heading,
+    .sources-block {
+      padding: 20px 18px;
+    }
+    .template-block {
+      border-radius: 18px;
+    }
+    .template-field:last-child:nth-child(odd) {
+      grid-column: auto;
+    }
+    .template-note {
+      padding: 18px;
     }
     .author-box {
       grid-template-columns: minmax(0, 1fr);

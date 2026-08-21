@@ -9,6 +9,7 @@ import NewsletterSection from '../components/NewsletterSection.astro';
 
 import { getGuideCategories, getPosts } from '../lib/sanity/queries';
 import { urlFor } from '../lib/sanity/image';
+import { getPaginationRange } from '../lib/utils/pagination';
 
 // Edge Cache: 60s browser, 5min Cloudflare CDN hit
 Astro.response.headers.set(
@@ -51,6 +52,7 @@ const paginatedPosts = filteredPosts.slice(
   currentPage * POSTS_PER_PAGE
 );
 const validPage = Math.min(currentPage, totalPages);
+const paginationRange = getPaginationRange(validPage, totalPages);
 const hasFilters = Boolean(qParam) || categoryParam !== 'todos';
 const canonical = !hasFilters && validPage > 1 ? `/guias?pagina=${validPage}` : '/guias';
 const robots = hasFilters ? 'noindex,follow' : undefined;
@@ -160,26 +162,31 @@ function buildUrl(params: { category?: string; q?: string; page?: number }) {
 
               <!-- PAGINADOR SSR -->
               {totalPages > 1 && (
-                <div class="pagination">
-                  {currentPage > 1 && (
-                    <a href={buildUrl({ page: currentPage - 1 })} class="page-btn">
+                <nav class="pagination" aria-label="Paginación de guías">
+                  {validPage > 1 && (
+                    <a href={buildUrl({ page: validPage - 1 })} class="page-btn">
                       ← Anterior
                     </a>
                   )}
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                    <a
-                      href={buildUrl({ page: p })}
-                      class={`page-num ${p === currentPage ? 'active' : ''}`}
-                    >
-                      {p}
-                    </a>
-                  ))}
-                  {currentPage < totalPages && (
-                    <a href={buildUrl({ page: currentPage + 1 })} class="page-btn">
+                  {paginationRange.map((p) =>
+                    typeof p === 'number' ? (
+                      <a
+                        href={buildUrl({ page: p })}
+                        class={`page-num ${p === validPage ? 'active' : ''}`}
+                        aria-current={p === validPage ? 'page' : undefined}
+                      >
+                        {p}
+                      </a>
+                    ) : (
+                      <span class="page-dots" aria-hidden="true">…</span>
+                    )
+                  )}
+                  {validPage < totalPages && (
+                    <a href={buildUrl({ page: validPage + 1 })} class="page-btn">
                       Siguiente →
                     </a>
                   )}
-                </div>
+                </nav>
               )}
             </>
           ) : (
@@ -633,6 +640,17 @@ function buildUrl(params: { category?: string; q?: string; page?: number }) {
     background: var(--ink);
     color: #fff;
     border-color: var(--ink);
+  }
+  .page-dots {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 4px;
+    color: var(--ink-soft, #888);
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    user-select: none;
   }
   .page-num:hover, .page-btn:hover {
     border-color: var(--ink);

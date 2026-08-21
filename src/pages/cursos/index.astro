@@ -6,6 +6,7 @@ import CourseCard from '../../components/CourseCard.astro';
 import { getCourses, getCourseCategories } from '../../lib/sanity/queries';
 import { urlFor } from '../../lib/sanity/image';
 import { formatTitle } from '../../lib/utils/formatTitle';
+import { getPaginationRange } from '../../lib/utils/pagination';
 
 // Extraer parámetros SSR desde la URL (para SEO, enlaces directos y paginación)
 const searchParams = Astro.url.searchParams;
@@ -61,6 +62,7 @@ const activeFilterCount = (categoryParam !== 'todos' ? 1 : 0) + (maxPriceParam <
 const totalCourses = filtered.length;
 const totalPages = Math.max(1, Math.ceil(totalCourses / pageSize));
 const validPage = Math.min(currentPage, totalPages);
+const paginationRange = getPaginationRange(validPage, totalPages);
 const startIndex = (validPage - 1) * pageSize;
 const paginatedCourses = filtered.slice(startIndex, startIndex + pageSize);
 const hasFilters = Boolean(qParam) || categoryParam !== 'todos' || maxPriceParam < 5000 || sortParam !== 'default';
@@ -223,14 +225,19 @@ const categories = [
               )}
 
               <div class="page-numbers">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                  <a 
-                    href={buildUrl({ pagina: p })} 
-                    class={`page-num ${p === validPage ? 'active' : ''}`}
-                  >
-                    {p}
-                  </a>
-                ))}
+                {paginationRange.map((p) =>
+                  typeof p === 'number' ? (
+                    <a 
+                      href={buildUrl({ pagina: p })} 
+                      class={`page-num ${p === validPage ? 'active' : ''}`}
+                      aria-current={p === validPage ? 'page' : undefined}
+                    >
+                      {p}
+                    </a>
+                  ) : (
+                    <span class="page-dots" aria-hidden="true">…</span>
+                  )
+                )}
               </div>
 
               {validPage < totalPages ? (
@@ -1081,6 +1088,17 @@ const categories = [
     background: var(--ink);
     color: #fff;
     border-color: var(--ink);
+  }
+  .page-dots {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 42px;
+    color: var(--ink-soft, #888);
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    user-select: none;
   }
   .page-link.disabled {
     opacity: 0.4;

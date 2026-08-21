@@ -148,7 +148,10 @@ export const postType = defineType({
             { title: 'H3', value: 'h3' },
             { title: 'Cita / Lead', value: 'blockquote' },
           ],
-          lists: [{ title: 'Viñetas', value: 'bullet' }],
+          lists: [
+            { title: 'Viñetas', value: 'bullet' },
+            { title: 'Numerada', value: 'number' },
+          ],
           marks: {
             decorators: [
               { title: 'Negrita', value: 'strong' },
@@ -230,6 +233,19 @@ export const postType = defineType({
           type: 'object',
           fields: [
             defineField({
+              name: 'variant',
+              title: 'Estilo de lista',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Tarjetas', value: 'cards' },
+                  { title: 'Pasos numerados', value: 'numbered' },
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'cards',
+            }),
+            defineField({
               name: 'title',
               title: 'Título de la checklist (opcional)',
               type: 'string',
@@ -244,6 +260,74 @@ export const postType = defineType({
                   fields: [
                     defineField({ name: 'bold', title: 'Texto resaltado (negrita)', type: 'string' }),
                     defineField({ name: 'text', title: 'Descripción', type: 'string' }),
+                  ],
+                },
+              ],
+            }),
+          ],
+        },
+
+        // CUSTOM BLOCK: COPYABLE TEMPLATE / WORKSHEET
+        {
+          name: 'templateBlock',
+          title: 'Plantilla para completar',
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'title',
+              title: 'Título',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'intro',
+              title: 'Introducción breve',
+              type: 'text',
+              rows: 2,
+            }),
+            defineField({
+              name: 'fields',
+              title: 'Campos de la plantilla',
+              type: 'array',
+              validation: (Rule) => Rule.required().min(1),
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    defineField({ name: 'label', title: 'Etiqueta', type: 'string', validation: (Rule) => Rule.required() }),
+                    defineField({ name: 'placeholder', title: 'Ayuda para completar', type: 'string' }),
+                  ],
+                },
+              ],
+            }),
+            defineField({ name: 'note', title: 'Nota final', type: 'text', rows: 2 }),
+          ],
+        },
+
+        // CUSTOM BLOCK: CLICKABLE SOURCES
+        {
+          name: 'sourcesBlock',
+          title: 'Fuentes consultadas',
+          type: 'object',
+          fields: [
+            defineField({ name: 'title', title: 'Título', type: 'string', initialValue: 'Fuentes consultadas' }),
+            defineField({
+              name: 'items',
+              title: 'Referencias',
+              type: 'array',
+              validation: (Rule) => Rule.required().min(1),
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    defineField({ name: 'title', title: 'Nombre de la fuente', type: 'string', validation: (Rule) => Rule.required() }),
+                    defineField({
+                      name: 'url',
+                      title: 'URL',
+                      type: 'url',
+                      validation: (Rule) => Rule.required().uri({ scheme: ['http', 'https'], allowRelative: false }),
+                    }),
+                    defineField({ name: 'note', title: 'Contexto (opcional)', type: 'string' }),
                   ],
                 },
               ],

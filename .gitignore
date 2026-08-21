@@ -25,3 +25,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# scratch and test output
+scratch/
+output/
