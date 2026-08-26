@@ -11,11 +11,10 @@ export function getPaginationRange(
   totalPages: number,
   siblingCount: number = 1
 ): (number | string)[] {
-  // Cantidad total de elementos cuando mostramos el bloque compacto:
-  // 1 (primera) + 1 (última) + 1 (actual) + 2*siblingCount + 2 (elipsis)
-  const totalNumbers = siblingCount * 2 + 5;
+  if (totalPages <= 1) return [1];
 
-  // Si el total de páginas es menor o igual al umbral, mostramos todas las páginas
+  // Umbral mínimo antes de compactar con puntos suspensivos
+  const totalNumbers = siblingCount * 2 + 4;
   if (totalPages <= totalNumbers) {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
   }
@@ -23,23 +22,24 @@ export function getPaginationRange(
   const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
   const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages);
 
-  // Determinar si debemos mostrar elipsis a la izquierda o derecha
   const shouldShowLeftDots = leftSiblingIndex > 2;
   const shouldShowRightDots = rightSiblingIndex < totalPages - 1;
 
+  const boundaryCount = 2 * siblingCount + 1;
+
   // Caso 1: Solo elipsis a la derecha (cerca del inicio)
   if (!shouldShowLeftDots && shouldShowRightDots) {
-    const leftItemCount = 3 + 2 * siblingCount;
-    const leftRange = Array.from({ length: leftItemCount }, (_, i) => i + 1);
+    const end = Math.max(boundaryCount, rightSiblingIndex);
+    const leftRange = Array.from({ length: end }, (_, i) => i + 1);
     return [...leftRange, '...', totalPages];
   }
 
   // Caso 2: Solo elipsis a la izquierda (cerca del final)
   if (shouldShowLeftDots && !shouldShowRightDots) {
-    const rightItemCount = 3 + 2 * siblingCount;
+    const start = Math.min(leftSiblingIndex, totalPages - boundaryCount + 1);
     const rightRange = Array.from(
-      { length: rightItemCount },
-      (_, i) => totalPages - rightItemCount + 1 + i
+      { length: totalPages - start + 1 },
+      (_, i) => start + i
     );
     return [1, '...', ...rightRange];
   }
@@ -55,3 +55,4 @@ export function getPaginationRange(
 
   return Array.from({ length: totalPages }, (_, i) => i + 1);
 }
+
