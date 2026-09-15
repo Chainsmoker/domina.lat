@@ -94,6 +94,7 @@ export interface Course {
 
 export interface Post {
   _id: string;
+  _updatedAt?: string;
   title: string;
   slug: string;
   eyebrow?: string;
@@ -392,6 +393,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     const post = await sanityFetch<Post | null>({
       query: `*[_type == "post" && slug.current == $slug][0] {
         _id,
+        _updatedAt,
         title,
         "slug": slug.current,
         eyebrow,

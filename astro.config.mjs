@@ -4,15 +4,6 @@ import cloudflare from '@astrojs/cloudflare';
 import svelte from '@astrojs/svelte';
 import sanity from '@sanity/astro';
 import react from '@astrojs/react';
-import sitemap from '@astrojs/sitemap';
-
-const sitemapExcludedPaths = new Set([
-  '/sobre-domina',
-  '/contact',
-  '/afiliados',
-  '/categoria',
-]);
-
 // https://astro.build/config
 export default defineConfig({
   site: 'https://domina.lat',
@@ -29,9 +20,6 @@ export default defineConfig({
     },
   },
   integrations: [
-    sitemap({
-      filter: (page) => !sitemapExcludedPaths.has(new URL(page).pathname),
-    }),
     svelte(),
     sanity({
       projectId: process.env.PUBLIC_SANITY_PROJECT_ID || 'ilb98xsw',

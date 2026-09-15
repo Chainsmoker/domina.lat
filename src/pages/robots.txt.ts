@@ -6,6 +6,9 @@ export const GET: APIRoute = ({ site }) => {
 
   return new Response(`User-agent: *
 Allow: /
+Disallow: /go/
+Disallow: /admin/
+Disallow: /api/
 
 # Referencia en buscadores con IA, sin autorizar el rastreador de
 # preentrenamiento de OpenAI (GPTBot).

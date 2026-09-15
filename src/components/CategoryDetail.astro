@@ -164,9 +164,52 @@ const defaultCategoryImages: Record<string, string> = {
 const heroImg = sanityCategory?.image 
   ? urlFor(sanityCategory.image).width(1300).url() 
   : defaultCategoryImages[categorySlug] || defaultCategoryImages[categoryType] || '/images/hero-emprendimiento.jpg';
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${categoryTitle} | Cursos y Guías Domina`,
+    description: categoryDesc,
+    url: `https://domina.lat/categoria/${categorySlug}`,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: displayCourses.map((course: any, idx: number) => ({
+        '@type': 'ListItem',
+        position: idx + 1,
+        name: course.title.replace(/<[^>]*>/g, ''),
+        url: `https://domina.lat/cursos/${course.slug}`,
+      })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Inicio',
+        item: 'https://domina.lat',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Categorías',
+        item: 'https://domina.lat/categorias',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: categoryTitle,
+        item: `https://domina.lat/categoria/${categorySlug}`,
+      },
+    ],
+  },
+];
 ---
 
-<Layout title={`${categoryTitle} | Cursos y Guías Domina`} description={categoryDesc}>
+<Layout title={`${categoryTitle} | Cursos y Guías Domina`} description={categoryDesc} image={heroImg} jsonLd={jsonLd}>
   <main class="page-categoria-exact">
     <div class="container crumbs">
       <a href="/">Inicio</a> / <a href="/categorias">Categorías</a> / <span>{categoryTitle}</span>

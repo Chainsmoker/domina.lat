@@ -36,7 +36,7 @@ const hasRating = ratingScore !== undefined && ratingScore !== null && ratingSco
     <div class="course-media">
       <span class="tag">{tag}</span>
       {hasRating && <span class="rating-badge">★ {ratingScore}</span>}
-      <img src={image} alt={imageAlt} />
+      <img src={image} alt={imageAlt} width="600" height="340" loading="lazy" decoding="async" />
     </div>
     <div class="course-body">
       <div class="course-meta">{meta}</div>

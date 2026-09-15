@@ -24,12 +24,17 @@ const jsonLd = {
       name: 'Domina',
       url: 'https://domina.lat/',
       inLanguage: 'es',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: 'https://domina.lat/cursos?q={search_term_string}',
+        'query-input': 'required name=search_term_string',
+      },
     },
   ],
 };
 ---
 
-<Layout title="Domina — Aprende habilidades reales" description="Cursos seleccionados para aprender habilidades prácticas, emprender y avanzar." image="/images/hero-manicure.webp" jsonLd={jsonLd}>
+<Layout title="Domina — Cursos prácticos online para aprender y emprender" description="Descubre cursos seleccionados para aprender habilidades reales, emprender desde casa y ofrecer servicios profesionales con Domina." image="/images/hero-manicure.webp" jsonLd={jsonLd}>
   <main id="top">
     <Hero />
     <Ticker />

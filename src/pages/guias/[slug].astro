@@ -48,13 +48,20 @@ const pageImage = post.heroImage
   ? urlFor(post.ogImage).width(1200).url()
   : (defaultCategoryImages[catSlug] || '/images/hero-emprendimiento.jpg');
 
-const jsonLd = {
+const categoryUrl = post.category?.slug ? `/categoria/${post.category.slug}` : '/cursos';
+
+const articleJsonLd = {
   "@context": "https://schema.org",
   "@type": "Article",
   "headline": cleanTitle,
   "description": pageDescription,
   "image": pageImage,
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": `https://domina.lat/guias/${post.slug}`
+  },
   ...(post.publishedAt ? { "datePublished": post.publishedAt } : {}),
+  ...(post._updatedAt ? { "dateModified": post._updatedAt } : (post.publishedAt ? { "dateModified": post.publishedAt } : {})),
   "author": {
     "@type": "Person",
     "name": post.authorName || "Editorial Domina"
@@ -62,13 +69,46 @@ const jsonLd = {
   "publisher": {
     "@type": "Organization",
     "name": "Domina",
+    "url": "https://domina.lat",
     "logo": {
       "@type": "ImageObject",
       "url": "https://domina.lat/apple-touch-icon.png"
     }
   }
 };
-const categoryUrl = post.category?.slug ? `/categoria/${post.category.slug}` : '/cursos';
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Inicio",
+      "item": "https://domina.lat"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Guías",
+      "item": "https://domina.lat/guias"
+    },
+    ...(post.category?.slug ? [{
+      "@type": "ListItem",
+      "position": 3,
+      "name": post.category.title || 'Categoría',
+      "item": `https://domina.lat/categoria/${post.category.slug}`
+    }] : []),
+    {
+      "@type": "ListItem",
+      "position": post.category?.slug ? 4 : 3,
+      "name": cleanTitle,
+      "item": `https://domina.lat/guias/${post.slug}`
+    }
+  ]
+};
+
+const jsonLd = [articleJsonLd, breadcrumbJsonLd];
 const escapeHtml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 const renderInline = (children: any[] = [], markDefs: any[] = []) => children.map((child: any) => {
   const rawText = String(child.text || '');
@@ -95,7 +135,7 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
     <header class="hero">
       <div class="container">
         <div class="breadcrumb">
-          <a href="/guias">Guías</a> / {post.category?.title || 'General'} / <span set:html={post.title} />
+          <a href="/">Inicio</a> / <a href="/guias">Guías</a> / {post.category?.slug ? <><a href={categoryUrl}>{post.category.title}</a> / </> : (post.category?.title ? <>{post.category.title} / </> : null)}<span set:html={post.title} />
         </div>
         <div class="hero-grid">
           <div>
@@ -202,12 +242,12 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
                   </div>
                 );
               }
-              if (block._type === 'checklist') {
+              if (block._type === 'checklist' && block.items && block.items.length > 0) {
                 return (
                   <div class={`checklist-wrapper ${block.variant === 'numbered' ? 'numbered' : ''}`}>
                     {block.title && <h3 class="checklist-title">{block.title}</h3>}
                     <div class="checklist">
-                      {block.items?.map((item: any, index: number) => (
+                      {block.items.map((item: any, index: number) => (
                         <div class="check">
                           {block.variant === 'numbered' && <span class="check-number">{index + 1}</span>}
                           {item.bold && <b>{item.bold}</b>}
@@ -266,13 +306,16 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
                       </thead>
                       {block.rows && (
                         <tbody>
-                          {block.rows.map((row: any) => (
-                            <tr>
-                              {row.cells?.map((cell: string) => (
-                                <td>{cell}</td>
-                              ))}
-                            </tr>
-                          ))}
+                          {block.rows.map((row: any) => {
+                            const cells = row.cells || (Array.isArray(row) ? row : []);
+                            return (
+                              <tr>
+                                {cells.map((cell: string) => (
+                                  <td>{cell}</td>
+                                ))}
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       )}
                     </table>

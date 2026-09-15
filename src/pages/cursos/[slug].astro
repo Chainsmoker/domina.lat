@@ -95,51 +95,103 @@ const pageImage = course.ogImage ? urlFor(course.ogImage).width(1200).url() : co
 // Preguntas frecuentes desde Sanity
 const faqs = course.faqs && course.faqs.length > 0 ? course.faqs : [];
 
-const courseJsonLd = {
+const numPrice = typeof course.price === 'number'
+  ? course.price
+  : parseFloat(String(course.price || '').replace(/[^0-9.]/g, '')) || undefined;
+
+const courseJsonLd: Record<string, any> = {
   "@context": "https://schema.org",
   "@type": "Course",
   "name": rawTitle,
   "description": pageDescription,
+  "url": `https://domina.lat/cursos/${course.slug}`,
   "provider": {
     "@type": "Organization",
     "name": "Domina",
     "sameAs": "https://domina.lat"
   },
+  ...(hasAuthor ? {
+    "instructor": {
+      "@type": "Person",
+      "name": creatorName,
+      ...(creatorRole ? { "jobTitle": creatorRole } : {})
+    }
+  } : {}),
   "image": pageImage,
-  ...(typeof course.price === 'number' ? {
+  ...(numPrice ? {
     "offers": {
       "@type": "Offer",
       "category": courseCategory,
       "priceCurrency": "USD",
-      "price": course.price
+      "price": numPrice,
+      "availability": "https://schema.org/InStock",
+      "url": `https://domina.lat/cursos/${course.slug}`
+    }
+  } : {}),
+  ...(ratingScore ? {
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": String(ratingScore),
+      "bestRating": "5",
+      "worstRating": "1",
+      "ratingCount": studentReviews.length > 0 ? studentReviews.length : 1
     }
   } : {})
 };
 
-const jsonLd = faqs.length > 0
-  ? [
-      courseJsonLd,
-      {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": faqs.map((faq: { question: string; answer: string }) => ({
-          "@type": "Question",
-          "name": faq.question,
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": faq.answer
-          }
-        }))
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Inicio",
+      "item": "https://domina.lat"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Cursos",
+      "item": "https://domina.lat/cursos"
+    },
+    ...(course.category?.slug ? [{
+      "@type": "ListItem",
+      "position": 3,
+      "name": course.category.title || courseCategory,
+      "item": `https://domina.lat/categoria/${course.category.slug}`
+    }] : []),
+    {
+      "@type": "ListItem",
+      "position": course.category?.slug ? 4 : 3,
+      "name": rawTitle,
+      "item": `https://domina.lat/cursos/${course.slug}`
+    }
+  ]
+};
+
+const jsonLd: any[] = [courseJsonLd, breadcrumbJsonLd];
+if (faqs.length > 0) {
+  jsonLd.push({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((faq: { question: string; answer: string }) => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
       }
-    ]
-  : courseJsonLd;
+    }))
+  });
+}
 ---
 
 <Layout title={pageTitle} description={pageDescription} image={pageImage} type="course" jsonLd={jsonLd}>
   <main class="page-producto">
     <!-- BREADCRUMBS -->
     <div class="container breadcrumbs">
-      <a href="/">Inicio</a> / <a href="/cursos">Cursos</a> / <span>{rawTitle}</span>
+      <a href="/">Inicio</a> / <a href="/cursos">Cursos</a> / {course.category?.slug ? <><a href={`/categoria/${course.category.slug}`}>{course.category.title || courseCategory}</a> / </> : null}<span>{rawTitle}</span>
     </div>
 
     <!-- HERO DE DETALLE DE PRODUCTO -->

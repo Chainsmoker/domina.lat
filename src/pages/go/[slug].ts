@@ -18,6 +18,7 @@ export const GET: APIRoute = async ({ params, redirect }) => {
         status: 307,
         headers: {
           'Location': course.affiliateUrl,
+          'X-Robots-Tag': 'noindex, nofollow, noarchive',
           'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
         },
       });
