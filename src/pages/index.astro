@@ -15,13 +15,17 @@ const jsonLd = {
   '@graph': [
     {
       '@type': 'Organization',
-      name: 'Domina',
+      '@id': 'https://domina.lat/#organization',
+      name: 'Domina.lat',
+      alternateName: 'Domina',
       url: 'https://domina.lat/',
       logo: 'https://domina.lat/apple-touch-icon.png',
     },
     {
       '@type': 'WebSite',
-      name: 'Domina',
+      '@id': 'https://domina.lat/#website',
+      name: 'Domina.lat',
+      publisher: { '@id': 'https://domina.lat/#organization' },
       url: 'https://domina.lat/',
       inLanguage: 'es',
       potentialAction: {
@@ -34,7 +38,7 @@ const jsonLd = {
 };
 ---
 
-<Layout title="Domina — Cursos prácticos online para aprender y emprender" description="Descubre cursos seleccionados para aprender habilidades reales, emprender desde casa y ofrecer servicios profesionales con Domina." image="/images/hero-manicure.webp" jsonLd={jsonLd}>
+<Layout title="Domina — Cursos prácticos online para aprender y emprender" description="Cursos online seleccionados de belleza, pastelería, oficios e IA, con análisis de temario, precio y para quién sirve cada uno." image="/images/hero-manicure.webp" jsonLd={jsonLd}>
   <main id="top">
     <Hero />
     <Ticker />

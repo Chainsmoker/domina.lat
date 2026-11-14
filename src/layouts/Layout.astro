@@ -15,14 +15,36 @@ interface Props {
 }
 
 const {
-  title = "Domina — Aprende habilidades reales",
-  description = "Cursos seleccionados para aprender habilidades prácticas, emprender y avanzar.",
+  title: rawTitle = "Domina.lat — Aprende habilidades reales",
+  description: rawDescription = "Cursos seleccionados para aprender habilidades prácticas, emprender y avanzar.",
   image = "/images/hero-manicure.webp",
   canonical,
   type = "website",
   jsonLd,
   robots,
 } = Astro.props;
+
+// Títulos: máx. ~60 caracteres. Si el sufijo de marca no cabe, se quita.
+const TITLE_MAX = 60;
+const BRAND_SUFFIX = /\s*[|—–-]\s*Domina(\.lat)?\s*$/i;
+function normalizeTitle(t: string): string {
+  const clean = t.replace(/\s+/g, ' ').trim();
+  if (clean.length <= TITLE_MAX) return clean;
+  return clean.replace(BRAND_SUFFIX, '');
+}
+
+// Descripciones: máx. 155 caracteres, cortadas en límite de palabra.
+const DESC_MAX = 155;
+function normalizeDescription(d: string): string {
+  const clean = d.replace(/\s+/g, ' ').trim();
+  if (clean.length <= DESC_MAX) return clean;
+  const cut = clean.slice(0, DESC_MAX - 1);
+  const lastSpace = cut.lastIndexOf(' ');
+  return cut.slice(0, lastSpace > 100 ? lastSpace : cut.length).replace(/[\s,;:.\-–—]+$/, '') + '…';
+}
+
+const title = normalizeTitle(rawTitle);
+const description = normalizeDescription(rawDescription);
 
 const siteUrl = Astro.site || new URL("https://domina.lat");
 const canonicalUrl = new URL(canonical || Astro.url.pathname, siteUrl).href;
@@ -68,15 +90,31 @@ const imageUrl = image.startsWith('http') ? image : new URL(image, siteUrl).href
   {jsonLd && (
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   )}
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q8RTZTXZL2"></script>
+  <!-- Google tag (gtag.js): la cola se crea ya; la librería se carga tras el load y en idle
+       para no bloquear el hilo principal durante la carga (INP/TBT). -->
   <script is:inline>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-Q8RTZTXZL2');
+    (function () {
+      if (window.__gtagLoaded) return;
+      window.__gtagLoaded = true;
+      function inject() {
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-Q8RTZTXZL2';
+        document.head.appendChild(s);
+      }
+      function schedule() {
+        if ('requestIdleCallback' in window) requestIdleCallback(inject, { timeout: 4000 });
+        else setTimeout(inject, 1500);
+      }
+      if (document.readyState === 'complete') schedule();
+      else window.addEventListener('load', schedule, { once: true });
+    })();
   </script>
+  <slot name="head" />
   <ClientRouter />
 </head>
 <body>

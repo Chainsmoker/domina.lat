@@ -4,7 +4,10 @@ export const GET: APIRoute = ({ site }) => {
   const baseUrl = site ?? new URL('https://domina.lat');
   const sitemapUrl = new URL('sitemap.xml', baseUrl).href;
 
+  // Content-Signal: indexar y citar en respuestas de IA sí; entrenar modelos no.
+  // Desactivar el "managed robots.txt" de Cloudflare para no duplicar el grupo User-agent: *.
   return new Response(`User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
 Allow: /
 Disallow: /go/
 Disallow: /admin/
@@ -48,6 +51,20 @@ User-agent: CCBot
 Disallow: /
 
 User-agent: meta-externalagent
+Disallow: /
+
+# Más rastreadores de entrenamiento (antes los cubría el robots.txt administrado de Cloudflare).
+User-agent: anthropic-ai
+User-agent: Claude-Web
+User-agent: Amazonbot
+User-agent: cohere-ai
+User-agent: cohere-training-data-crawler
+User-agent: Diffbot
+User-agent: MistralAI-Training
+User-agent: Google-CloudVertexBot
+User-agent: omgili
+User-agent: Cotoyogi
+User-agent: ICC-Crawler
 Disallow: /
 
 Sitemap: ${sitemapUrl}

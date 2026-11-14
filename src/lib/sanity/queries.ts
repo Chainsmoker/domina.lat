@@ -3,6 +3,7 @@ import { cachedFetch } from '../redis/client';
 
 export interface Category {
   _id: string;
+  _updatedAt?: string;
   title: string;
   slug: string;
   eyebrow?: string;
@@ -42,6 +43,7 @@ export interface ExtraButton {
 
 export interface Course {
   _id: string;
+  _updatedAt?: string;
   _createdAt?: string;
   publishedAt?: string;
   title: string;
@@ -133,6 +135,7 @@ export async function getCategories(): Promise<Category[]> {
     const categories = await sanityFetch<Category[]>({
       query: `*[_type == "category"] | order(order asc) {
         _id,
+        _updatedAt,
         title,
         "slug": slug.current,
         eyebrow,
@@ -190,6 +193,7 @@ export async function getCourses(): Promise<Course[]> {
       query: `*[_type == "course"] | order(select(defined(publishedAt) => publishedAt, _createdAt) desc) {
         _id,
         _createdAt,
+        _updatedAt,
         publishedAt,
         title,
         "slug": slug.current,
@@ -361,6 +365,7 @@ export async function getPosts(): Promise<Post[]> {
       query: `*[_type == "post"] | order(select(defined(publishedAt) => publishedAt, _createdAt) desc) {
         _id,
         _createdAt,
+        _updatedAt,
         title,
         "slug": slug.current,
         eyebrow,

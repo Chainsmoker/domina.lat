@@ -37,6 +37,21 @@ const coursePrice = formatPrice(course.price) || '$39';
 const originalPriceFormatted = course.originalPrice ? formatPrice(course.originalPrice) : null;
 const courseImage = course.heroImage ? urlFor(course.heroImage).width(1400).url() : '/images/hero-manicure.webp';
 
+// Hero (elemento LCP): srcset responsivo + dimensiones intrínsecas desde el _ref de Sanity
+// (formato image-<id>-<ancho>x<alto>-<ext>) para evitar CLS.
+const HERO_WIDTHS = [480, 800, 1200, 1400];
+const heroSizes = '(max-width: 1050px) calc(100vw - 32px), 50vw';
+const heroSrcset = course.heroImage
+  ? HERO_WIDTHS.map((w) => `${urlFor(course.heroImage).width(w).url()} ${w}w`).join(', ')
+  : undefined;
+const heroDims = (() => {
+  const m = /-(\d+)x(\d+)-[a-z]+$/.exec(course.heroImage?.asset?._ref || '');
+  if (!m) return { width: 1400, height: 1400 };
+  const w = Number(m[1]);
+  const h = Number(m[2]);
+  return { width: 1400, height: Math.round((1400 * h) / w) };
+})();
+
 // Creador / Autor opcional desde Sanity
 const creatorName = course.authorName || '';
 const creatorRole = course.authorRole || '';
@@ -50,7 +65,7 @@ const authorTextColor = course.authorTextColor || '#0B1020';
 
 // Rating opcional de Sanity
 const ratingScore = course.ratingScore;
-const ratingText = course.ratingText || 'valoración mostrada por la plataforma del curso';
+const ratingText = course.ratingText || 'valoración';
 
 // Temario opcional de Sanity
 const modules = course.modules && course.modules.length > 0 ? course.modules : [];
@@ -105,12 +120,12 @@ const courseJsonLd: Record<string, any> = {
   "name": rawTitle,
   "description": pageDescription,
   "url": `https://domina.lat/cursos/${course.slug}`,
-  "provider": {
-    "@type": "Organization",
-    "name": "Domina",
-    "sameAs": "https://domina.lat"
-  },
+  // provider = creador real del curso (Domina solo lo recomienda; no lo vende).
   ...(hasAuthor ? {
+    "provider": {
+      "@type": "Person",
+      "name": creatorName
+    },
     "instructor": {
       "@type": "Person",
       "name": creatorName,
@@ -127,16 +142,9 @@ const courseJsonLd: Record<string, any> = {
       "availability": "https://schema.org/InStock",
       "url": `https://domina.lat/cursos/${course.slug}`
     }
-  } : {}),
-  ...(ratingScore ? {
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": String(ratingScore),
-      "bestRating": "5",
-      "worstRating": "1",
-      "ratingCount": studentReviews.length > 0 ? studentReviews.length : 1
-    }
   } : {})
+  // Sin aggregateRating: las valoraciones vienen de la plataforma del vendedor,
+  // no de compradores verificados por Domina (política de review snippets de Google).
 };
 
 const breadcrumbJsonLd = {
@@ -188,6 +196,9 @@ if (faqs.length > 0) {
 ---
 
 <Layout title={pageTitle} description={pageDescription} image={pageImage} type="course" jsonLd={jsonLd}>
+  {heroSrcset
+    ? <link slot="head" rel="preload" as="image" imagesrcset={heroSrcset} imagesizes={heroSizes} fetchpriority="high" />
+    : <link slot="head" rel="preload" as="image" href={courseImage} fetchpriority="high" />}
   <main class="page-producto">
     <!-- BREADCRUMBS -->
     <div class="container breadcrumbs">
@@ -200,7 +211,16 @@ if (faqs.length > 0) {
         <!-- VISUAL IZQUIERDA -->
         <div class="visual">
           <span class="stamp">{course.resourceType || course.eyebrow || 'Video curso'}</span>
-          <img src={courseImage} alt={rawTitle} />
+          <img
+            src={courseImage}
+            srcset={heroSrcset}
+            sizes={heroSrcset ? heroSizes : undefined}
+            width={heroDims.width}
+            height={heroDims.height}
+            alt={course.heroImage?.alt || rawTitle}
+            fetchpriority="high"
+            decoding="async"
+          />
           {(course.visualTitle || course.visualSubtitle) && (
             <div class="visual-copy">
               {course.visualTitle && <strong>{course.visualTitle}</strong>}
@@ -233,7 +253,7 @@ if (faqs.length > 0) {
           <!-- RATING (SOLO SI TIENE RATING EN SANITY) -->
           {typeof ratingScore === 'number' && (
             <div class="rating" style="color:var(--ink)">
-              <span>★★★★★</span> {ratingScore} <small style="color:var(--muted);font-weight:500">· {ratingText}</small>
+              <span>★</span> {ratingScore} <small style="color:var(--muted);font-weight:500">· {ratingText} en la plataforma del vendedor</small>
             </div>
           )}
 
@@ -256,6 +276,7 @@ if (faqs.length > 0) {
             <a class="btn btn-acid" href={`/go/${course.slug}`} target="_blank" rel="sponsored nofollow">
               Ver oferta oficial ↗
             </a>
+            <a class="affiliate-note" href="/aviso-afiliados">Enlace de afiliado: si compras, Domina.lat puede recibir una comisión sin costo extra para ti.</a>
             {extraButtons.length > 0 && (
               <div class="extra-buttons-list">
                 {extraButtons.map((btn: any) => (
@@ -408,7 +429,7 @@ if (faqs.length > 0) {
               <span class="eyebrow">Opiniones y reseñas</span>
               <h2 class="display">Lo que dicen quienes ya lo hicieron.</h2>
             </div>
-            <p>Experiencias y testimonios reales de estudiantes sobre esta formación.</p>
+            <p>Opiniones publicadas por compradores en la plataforma del vendedor. Domina las reproduce sin editarlas y no verifica la compra.</p>
           </div>
           <div class="reviews-grid">
             {studentReviews.map((rev) => {
@@ -446,8 +467,8 @@ if (faqs.length > 0) {
       </section>
     )}
 
-    <!-- SECCIÓN AUTOR (SOLO SI TIENE AUTOR EN SANITY) -->
-    {hasAuthor && (
+    <!-- SECCIÓN AUTOR (SOLO SI TIENE AUTOR Y BIO EN SANITY) -->
+    {hasAuthor && course.authorBio && (
       <section class="author">
         <div class="container">
           <div class="author-card" style={`background: ${authorBgColor}; color: ${authorTextColor};`}>
@@ -697,6 +718,7 @@ if (faqs.length > 0) {
     <div class="sticky-cta" id="stickyCta">
       <strong>{rawTitle} · {coursePrice}</strong>
       <a class="btn btn-acid" href={`/go/${course.slug}`} target="_blank" rel="sponsored nofollow">Ver oferta ↗</a>
+      <a class="affiliate-tag" href="/aviso-afiliados">Enlace de afiliado</a>
       <button class="close" aria-label="Cerrar">×</button>
     </div>
   </main>
@@ -987,6 +1009,23 @@ if (faqs.length > 0) {
     align-items: center;
     justify-content: center;
     text-decoration: none;
+  }
+  .affiliate-note {
+    display: block;
+    margin-top: 10px;
+    color: #B8BFCE;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    text-align: center;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .affiliate-tag {
+    color: #B8BFCE;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
   .extra-buttons-list {
     display: flex;
@@ -2292,6 +2331,9 @@ if (faqs.length > 0) {
       font-size: 0.82rem;
       white-space: nowrap;
       flex: none;
+    }
+    .sticky-cta .affiliate-tag {
+      font-size: 0.66rem;
     }
   }
 </style>

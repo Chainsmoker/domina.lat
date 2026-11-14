@@ -72,7 +72,26 @@ const pageTitle = validPage > 1 && !hasFilters
   ? `Cursos – Página ${validPage} | Domina`
   : qParam
     ? `Cursos de "${qParam}" | Domina`
-    : 'Cursos | Domina habilidades reales';
+    : 'Cursos online prácticos para aprender y emprender | Domina.lat';
+
+// ItemList de la página actual del catálogo (solo en la vista indexable, sin filtros).
+const catalogJsonLd = hasFilters ? undefined : {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Cursos online prácticos',
+  url: `https://domina.lat${canonical}`,
+  isPartOf: { '@id': 'https://domina.lat/#website' },
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: totalCourses,
+    itemListElement: paginatedCourses.map((c, i) => ({
+      '@type': 'ListItem',
+      position: startIndex + i + 1,
+      url: `https://domina.lat/cursos/${c.slug}`,
+      name: c.title.replace(/<[^>]*>/g, ''),
+    })),
+  },
+};
 
 // Helper de URLs dinámicas para filtros y paginación SEO con ancla #catalogo
 function buildUrl(overrides: Record<string, string | number | null>) {
@@ -102,6 +121,7 @@ const categories = [
   description="Explora cursos seleccionados de belleza, pastelería, oficios, tecnología y emprendimiento."
   canonical={canonical}
   robots={robots}
+  jsonLd={catalogJsonLd}
 >
   <main class="page-cursos" id="top">
     <!-- HERO -->
@@ -110,7 +130,7 @@ const categories = [
         <div class="hero-grid">
           <div>
             <span class="eyebrow">Catálogo seleccionado</span>
-            <h1 class="display">Encuentra algo que puedas <span>dominar.</span></h1>
+            <h1 class="display">Cursos online que puedas <span>dominar.</span></h1>
             <p>No necesitas otro catálogo infinito. Explora formaciones organizadas por habilidad, categoría y objetivo para tomar una mejor decisión.</p>
           </div>
           <aside class="hero-note">
@@ -200,7 +220,6 @@ const categories = [
                   description={c.dek || ''}
                   href={`/cursos/${c.slug}`}
                   priceText={c.price}
-                  ratingScore={c.ratingScore}
                 />
               ))}
             </div>
@@ -307,9 +326,9 @@ const categories = [
 
             <!-- Rango de precio -->
             <div class="filter-group">
-              <span class="filter-label">
+              <label class="filter-label" for="modalPriceInput">
                 Precio máximo: <strong id="modalPriceValue">${maxPriceParam}</strong>
-              </span>
+              </label>
               <input type="range" name="precio" min="10" max="5000" step="50" value={maxPriceParam} class="range-slider" id="modalPriceInput" />
               <div class="range-labels">
                 <span>$10</span>
@@ -917,20 +936,6 @@ const categories = [
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
-  .rating-badge {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    z-index: 2;
-    background: rgba(11, 16, 32, 0.85);
-    backdrop-filter: blur(10px);
-    color: #FFD13B;
-    padding: 6px 11px;
-    border-radius: 999px;
-    font-size: 0.78rem;
-    font-weight: 800;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-  }
   .body {
     padding: 26px;
     display: flex;
@@ -974,26 +979,6 @@ const categories = [
     font-weight: 800;
     color: #fff;
     font-size: 0.75rem;
-  }
-  .stars-line {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 14px;
-  }
-  .stars {
-    color: #F4A21B;
-    font-size: 0.9rem;
-    letter-spacing: 1px;
-  }
-  .score-val {
-    font-weight: 800;
-    font-size: 0.86rem;
-    color: var(--ink);
-  }
-  .reviews-count {
-    color: var(--muted);
-    font-size: 0.78rem;
   }
   .facts {
     display: flex;

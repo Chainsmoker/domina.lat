@@ -1,7 +1,8 @@
 ---
 export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
-import { getPosts, getPostBySlug } from '../../lib/sanity/queries';
+import { getPosts, getPostBySlug, getCourses } from '../../lib/sanity/queries';
+import { relatedByTopic, bestCourseFor } from '../../lib/utils/related';
 import { urlFor } from '../../lib/sanity/image';
 
 // Edge Cache: 60s browser, 5min Cloudflare CDN
@@ -22,10 +23,22 @@ if (!post) {
 }
 import { formatTitle } from '../../lib/utils/formatTitle';
 
-const allPosts = await getPosts();
-const relatedPosts = allPosts
-  .filter((p) => p.slug !== post.slug)
-  .slice(0, 3);
+const [allPosts, allCourses] = await Promise.all([getPosts(), getCourses()]);
+// Relacionadas por tema (título, entradilla, categoría), no las 3 más recientes.
+const relatedPosts = relatedByTopic(post, allPosts, 3);
+
+// Curso recomendado: el elegido a mano en Sanity; si no hay, el más afín por tema (o ninguno).
+const autoCourse = post.relatedCourse?.link ? null : bestCourseFor(post, allCourses);
+const courseCta = post.relatedCourse?.link
+  ? post.relatedCourse
+  : autoCourse
+  ? {
+      title: autoCourse.title.replace(/<[^>]*>/g, ''),
+      desc: autoCourse.dek || '',
+      image: autoCourse.ogImage || autoCourse.heroImage,
+      link: `/cursos/${autoCourse.slug}`,
+    }
+  : null;
 const cleanTitle = post.title.replace(/<[^>]*>/g, '');
 const pageTitle = post.seoTitle || `${cleanTitle} | Domina`;
 const pageDescription = post.seoDescription || post.dek || `Guía práctica sobre ${cleanTitle} en Domina.lat.`;
@@ -50,6 +63,8 @@ const pageImage = post.heroImage
 
 const categoryUrl = post.category?.slug ? `/categoria/${post.category.slug}` : '/cursos';
 
+const isPersonAuthor = !!post.authorName && !/^(equipo|editorial)\b/i.test(post.authorName.trim());
+
 const articleJsonLd = {
   "@context": "https://schema.org",
   "@type": "Article",
@@ -62,13 +77,14 @@ const articleJsonLd = {
   },
   ...(post.publishedAt ? { "datePublished": post.publishedAt } : {}),
   ...(post._updatedAt ? { "dateModified": post._updatedAt } : (post.publishedAt ? { "dateModified": post.publishedAt } : {})),
-  "author": {
-    "@type": "Person",
-    "name": post.authorName || "Editorial Domina"
-  },
+  // Person solo si la firma es una persona real; "Equipo …"/"Editorial …" es la organización.
+  "author": isPersonAuthor
+    ? { "@type": "Person", "name": post.authorName }
+    : { "@type": "Organization", "@id": "https://domina.lat/#organization", "name": "Domina.lat" },
   "publisher": {
     "@type": "Organization",
-    "name": "Domina",
+    "@id": "https://domina.lat/#organization",
+    "name": "Domina.lat",
     "url": "https://domina.lat",
     "logo": {
       "@type": "ImageObject",
@@ -369,7 +385,7 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
     </section>
 
     <!-- CURSO RELACIONADO FULL WIDTH CON RING DECORATIVO -->
-    {post.relatedCourse && (
+    {courseCta && (
       <section class="related-course-section">
         <div class="container">
           <div class="course-cta-box">
@@ -383,16 +399,16 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
             <div class="cta-grid">
               <div class="cta-content">
                 <span class="eyebrow-badge">✦ Curso Recomendado</span>
-                <h2 class="cta-title">{post.relatedCourse.title}</h2>
-                <p class="cta-desc">{post.relatedCourse.desc}</p>
+                <h2 class="cta-title">{courseCta.title}</h2>
+                <p class="cta-desc">{courseCta.desc}</p>
                 <div class="cta-action">
-                  <a class="btn btn-acid" href={post.relatedCourse.link || '/cursos'}>
+                  <a class="btn btn-acid" href={courseCta.link || '/cursos'}>
                     Ver análisis del curso ↗
                   </a>
                 </div>
               </div>
               <div class="cta-media">
-                <img src={post.relatedCourse.image ? urlFor(post.relatedCourse.image).width(700).url() : '/images/hero-manicure.webp'} alt={post.relatedCourse.title} />
+                <img src={courseCta.image ? urlFor(courseCta.image).width(700).url() : '/images/hero-manicure.webp'} alt={courseCta.title} loading="lazy" />
                 <span class="media-pill">Evaluación editorial ✦</span>
               </div>
             </div>

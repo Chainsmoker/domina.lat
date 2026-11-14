@@ -8,6 +8,9 @@ import react from '@astrojs/react';
 export default defineConfig({
   site: 'https://domina.lat',
   trailingSlash: 'never',
+  // Prerender como /sobre.html (no /sobre/index.html): Workers Assets sirve /sobre con 200
+  // en vez de redirigir 307 a /sobre/, coherente con canonical y sitemap.
+  build: { format: 'file' },
   compressHTML: true,
   output: 'server',
   prefetch: true,

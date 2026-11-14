@@ -26,6 +26,9 @@ importers:
       '@sanity/astro':
         specifier: ^3.5.0
         version: 3.5.0(95109a2a711d609be410af798fd0308f)
+      '@sanity/client':
+        specifier: ^7.26.2
+        version: 7.26.2
       '@sanity/image-url':
         specifier: ^2.1.1
         version: 2.1.1

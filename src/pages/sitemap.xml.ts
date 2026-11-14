@@ -1,41 +1,25 @@
 import type { APIRoute } from 'astro';
 import { getCategories, getCourses, getPosts } from '../lib/sanity/queries';
 
+// Sin changefreq ni priority: Google los ignora. lastmod solo cuando hay una fecha real.
 interface SitemapItem {
   url: string;
-  priority: string;
-  changefreq: string;
   lastmod?: string;
 }
+
+const toIso = (d?: string) => (d ? new Date(d).toISOString() : undefined);
+const newest = (...dates: (string | undefined)[]) =>
+  dates.filter(Boolean).sort().at(-1);
 
 export const GET: APIRoute = async () => {
   const siteUrl = 'https://domina.lat';
 
-  // 1. Páginas estáticas principales
-  const staticPages: SitemapItem[] = [
-    { url: '/', priority: '1.0', changefreq: 'daily' },
-    { url: '/cursos', priority: '0.9', changefreq: 'daily' },
-    { url: '/categorias', priority: '0.9', changefreq: 'weekly' },
-    { url: '/guias', priority: '0.8', changefreq: 'daily' },
-    { url: '/emprender', priority: '0.8', changefreq: 'weekly' },
-    { url: '/sobre', priority: '0.5', changefreq: 'monthly' },
-    { url: '/contacto', priority: '0.5', changefreq: 'monthly' },
-    { url: '/privacidad', priority: '0.3', changefreq: 'monthly' },
-    { url: '/terminos', priority: '0.3', changefreq: 'monthly' },
-    { url: '/aviso-afiliados', priority: '0.3', changefreq: 'monthly' },
-  ];
-
-  // 2. Cargar datos dinámicos desde Sanity
   let categories: any[] = [];
   let courses: any[] = [];
   let posts: any[] = [];
 
   try {
-    const results = await Promise.all([
-      getCategories(),
-      getCourses(),
-      getPosts(),
-    ]);
+    const results = await Promise.all([getCategories(), getCourses(), getPosts()]);
     categories = results[0] || [];
     courses = results[1] || [];
     posts = results[2] || [];
@@ -43,47 +27,59 @@ export const GET: APIRoute = async () => {
     console.error('Error fetching data for sitemap.xml:', error);
   }
 
-  const categoryUrls = categories.map((cat) => ({
-    url: `/categoria/${cat.slug}`,
-    priority: '0.8',
-    changefreq: 'weekly',
-    lastmod: undefined,
-  }));
-
-  const courseUrls = courses.map((course) => ({
+  const courseUrls: SitemapItem[] = courses.map((course) => ({
     url: `/cursos/${course.slug}`,
-    priority: '0.9',
-    changefreq: 'weekly',
-    lastmod: course._updatedAt ? new Date(course._updatedAt).toISOString() : undefined,
+    lastmod: toIso(newest(course._updatedAt, course.publishedAt, course._createdAt)),
   }));
 
-  const postUrls = posts.map((post) => ({
+  // Fecha de modificación real del documento (no la de publicación).
+  const postUrls: SitemapItem[] = posts.map((post) => ({
     url: `/guias/${post.slug}`,
-    priority: '0.8',
-    changefreq: 'weekly',
-    lastmod: post.publishedAt 
-      ? new Date(post.publishedAt).toISOString() 
-      : (post._updatedAt ? new Date(post._updatedAt).toISOString() : undefined),
+    lastmod: toIso(newest(post._updatedAt, post.publishedAt, post._createdAt)),
   }));
+
+  // Una categoría cambia cuando cambia ella o alguno de sus cursos/guías.
+  const categoryUrls: SitemapItem[] = categories.map((cat) => {
+    const related = [...courses, ...posts]
+      .filter((doc) => doc.category?.slug === cat.slug)
+      .map((doc) => doc._updatedAt);
+    return {
+      url: `/categoria/${cat.slug}`,
+      lastmod: toIso(newest(cat._updatedAt, ...related)),
+    };
+  });
+
+  const latestCourse = newest(...courseUrls.map((u) => u.lastmod));
+  const latestPost = newest(...postUrls.map((u) => u.lastmod));
+
+  // Listados SSR: cambian con su contenido. Las páginas prerenderizadas (/, /categorias,
+  // /emprender, legales) solo cambian al hacer build, así que no llevan lastmod.
+  const staticPages: SitemapItem[] = [
+    { url: '/' },
+    { url: '/cursos', lastmod: latestCourse },
+    { url: '/categorias' },
+    { url: '/guias', lastmod: latestPost },
+    { url: '/emprender' },
+    { url: '/sobre' },
+    { url: '/contacto' },
+    { url: '/privacidad' },
+    { url: '/terminos' },
+    { url: '/aviso-afiliados' },
+  ];
 
   const allUrls = [...staticPages, ...categoryUrls, ...courseUrls, ...postUrls];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  ${allUrls
-    .map(
-      (item) => `
-  <url>
-    <loc>${siteUrl}${item.url}</loc>
-    ${item.lastmod ? `<lastmod>${item.lastmod}</lastmod>` : ''}
-    <changefreq>${item.changefreq}</changefreq>
-    <priority>${item.priority}</priority>
-  </url>`
-    )
-    .join('')}
+${allUrls
+  .map(
+    (item) =>
+      `  <url>\n    <loc>${siteUrl}${item.url}</loc>${item.lastmod ? `\n    <lastmod>${item.lastmod}</lastmod>` : ''}\n  </url>`
+  )
+  .join('\n')}
 </urlset>`;
 
-  return new Response(xml.trim(), {
+  return new Response(xml, {
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
       'Cache-Control': 'public, max-age=3600, s-maxage=14400',

@@ -1,0 +1,256 @@
+{
+  "version": "2.2.5",
+  "site": "https://domina.lat",
+  "seed_keyword": "emprender desde casa con un curso",
+  "created_at": "2026-11-14T00:00:00Z",
+  "methodology_notes": {
+    "serp_source": "WebSearch, Spanish queries, US-located index (no LatAm geo-targeting available). Tool returns ~15-20 mixed results, not a clean top-10; overlap = exact shared URLs (canonicalised: query params / ?p= variants of same slug collapsed) across full returned list.",
+    "volume": "No keyword-volume tool available; volume fields are null. Pillar choice based on SERP breadth and business fit, not measured volume.",
+    "thresholds": "7-10 same post | 4-6 same cluster | 2-3 interlink | 0-1 separate",
+    "accepted_deviation": "Most spoke pairs score 0-1. Hubs are justified by site taxonomy and funnel (learn -> price -> sell), not by SERP co-ranking. Low overlap confirms each spoke is a distinct ranking target with no cannibalization risk."
+  },
+  "serp_matrix": {
+    "keywords": {
+      "K1": "emprender desde casa con un curso",
+      "K2": "cursos para emprender desde casa",
+      "K3": "ideas de negocio desde casa con poca inversion",
+      "K4": "que curso estudiar para emprender un negocio",
+      "K5": "negocios desde casa para mujeres",
+      "K6": "oficios rentables para aprender rapido",
+      "K7": "como empezar a vender por internet desde casa",
+      "K8": "como usar whatsapp business para vender",
+      "K9": "ganar dinero con inteligencia artificial desde casa",
+      "K10": "cursos de oficios para trabajar desde casa",
+      "K11": "cuanto cobrar por pintar una casa por metro cuadrado",
+      "P1": "pasteleria para vender desde casa",
+      "P2": "postres para vender desde casa",
+      "P3": "reposteria para emprender",
+      "P4": "curso de reposteria online",
+      "P5": "como calcular el precio de un pastel para vender",
+      "P6": "permisos para vender comida desde casa",
+      "P7": "helados artesanales para vender desde casa",
+      "U1": "unas profesionales desde casa curso",
+      "U2": "curso de unas online con certificado",
+      "U3": "como poner un negocio de unas en casa",
+      "U4": "emprendimiento de unas acrilicas desde casa",
+      "U5": "cuanto cobrar por unas acrilicas",
+      "U6": "materiales para unas acrilicas para principiantes",
+      "U7": "unas acrilicas o polygel cual es mejor",
+      "U8": "press on nails para vender emprendimiento"
+    },
+    "pairs": [
+      {"a": "K1", "b": "K2", "shared": 7, "verdict": "same post (merge into /emprender)"},
+      {"a": "K1", "b": "K3", "shared": 1, "verdict": "separate"},
+      {"a": "K1", "b": "K10", "shared": 1, "verdict": "separate"},
+      {"a": "K2", "b": "K3", "shared": 1, "verdict": "separate"},
+      {"a": "K1", "b": "K4", "shared": 0, "verdict": "separate (university-career SERP, drop)"},
+      {"a": "K3", "b": "K5", "shared": 0, "verdict": "separate (domain overlap only: emprendedor.com, asest.es)"},
+      {"a": "K3", "b": "K6", "shared": 0, "verdict": "separate"},
+      {"a": "K3", "b": "K9", "shared": 0, "verdict": "separate"},
+      {"a": "K7", "b": "K8", "shared": 0, "verdict": "separate (domain overlap only: hubspot)"},
+      {"a": "K6", "b": "K11", "shared": 0, "verdict": "separate"},
+      {"a": "K2", "b": "K10", "shared": 0, "verdict": "separate"},
+      {"a": "P1", "b": "P2", "shared": 4, "verdict": "same cluster"},
+      {"a": "P2", "b": "P3", "shared": 3, "verdict": "interlink"},
+      {"a": "P1", "b": "P3", "shared": 2, "verdict": "interlink; P3 folded into P1 as secondary (semantic near-duplicate)"},
+      {"a": "P3", "b": "P4", "shared": 1, "verdict": "separate"},
+      {"a": "P1", "b": "P4", "shared": 0, "verdict": "separate (P4 = course-listing SERP)"},
+      {"a": "P1", "b": "P5", "shared": 0, "verdict": "separate"},
+      {"a": "P1", "b": "P6", "shared": 0, "verdict": "separate"},
+      {"a": "P1", "b": "P7", "shared": 0, "verdict": "separate"},
+      {"a": "P2", "b": "P7", "shared": 0, "verdict": "separate"},
+      {"a": "U1", "b": "U2", "shared": 9, "verdict": "same post (category page)"},
+      {"a": "U3", "b": "U4", "shared": 5, "verdict": "same cluster + near-duplicate -> merge into hub pillar"},
+      {"a": "U1", "b": "U4", "shared": 2, "verdict": "interlink"},
+      {"a": "U1", "b": "U3", "shared": 0, "verdict": "separate"},
+      {"a": "U4", "b": "U6", "shared": 1, "verdict": "separate"},
+      {"a": "U5", "b": "U7", "shared": 1, "verdict": "separate"},
+      {"a": "U3", "b": "U5", "shared": 0, "verdict": "separate"},
+      {"a": "U6", "b": "U7", "shared": 0, "verdict": "separate"},
+      {"a": "U1", "b": "U8", "shared": 1, "verdict": "separate; U8 dropped (product-store SERP)"}
+    ]
+  },
+  "hubs": [
+    {
+      "id": "A",
+      "pillar": {
+        "title": "Emprender desde casa con un curso: como elegir, aprender y vender un oficio",
+        "keyword": "cursos para emprender desde casa",
+        "secondary_keywords": ["emprender desde casa con un curso", "cursos de oficios para trabajar desde casa"],
+        "intent": "commercial-informational",
+        "volume": null,
+        "template": "ultimate-guide",
+        "wordCount": 3000,
+        "url": "/emprender",
+        "status": "planned (rewrite of existing page)",
+        "notes": "Seed SERP is split: ~60% 'cursos para emprendedores' (BBVA, IEBS, Alison, edX), ~40% 'crea y vende tu propio curso' (escuelanomadadigital, emprendedor.com). Lead with learn-a-skill-to-sell angle; add one H2 on teaching your skill later. Add sections linking to Hub B and Hub C pillars and to all 5 categories."
+      },
+      "clusters": [
+        {
+          "name": "A1 Elegir que emprender",
+          "posts": [
+            {"id": "A1", "title": "Ideas de negocio desde casa con poca inversion (y que curso te prepara para cada una)", "keyword": "ideas de negocio desde casa con poca inversion", "intent": "informational-list", "volume": null, "template": "listicle", "wordCount": 1800, "url": "/guias/ideas-de-negocio-desde-casa-poca-inversion", "status": "planned"},
+            {"id": "A2", "title": "Negocios desde casa para mujeres en LatAm: opciones con formacion corta", "keyword": "negocios desde casa para mujeres", "intent": "informational-list", "volume": null, "template": "listicle", "wordCount": 1500, "url": "/guias/negocios-desde-casa-para-mujeres", "status": "planned"},
+            {"id": "A3", "title": "Oficios rentables para aprender rapido y trabajar por tu cuenta", "keyword": "oficios rentables para aprender rapido", "intent": "informational-list", "volume": null, "template": "listicle", "wordCount": 1500, "url": "/guias/oficios-rentables-aprender-rapido", "status": "planned"},
+            {"id": "A4", "title": "Cuanto cobrar por pintar por metro cuadrado: como cotizar (para pintores)", "keyword": "cuanto cobrar por pintar por metro cuadrado", "intent": "informational-how", "volume": null, "template": "how-to", "wordCount": 1500, "url": "/guias/cotizar-pintura-por-metro-cuadrado-estructura", "status": "written (retarget title/H1; add MX/CO/AR/CL/PE rate table)"}
+          ]
+        },
+        {
+          "name": "A2 Vender lo que aprendes",
+          "posts": [
+            {"id": "A5", "title": "Como empezar a vender por internet desde casa: criterios y pasos", "keyword": "como empezar a vender por internet desde casa", "intent": "informational-how", "volume": null, "template": "how-to", "wordCount": 1600, "url": "/guias/ventas-por-internet-criterios-y-pasos", "status": "written (retarget)"},
+            {"id": "A6", "title": "WhatsApp Business vs Instagram Direct para ventas y consultas", "keyword": "whatsapp business vs instagram para vender", "secondary_keywords": ["como usar whatsapp business para vender"], "intent": "commercial-compare", "volume": null, "template": "comparison", "wordCount": 1500, "url": "/guias/whatsapp-business-vs-instagram-direct-ventas-consultas", "status": "written (add WhatsApp setup how-to section)"},
+            {"id": "A7", "title": "Como ganar dinero con inteligencia artificial desde casa (servicios reales, no promesas)", "keyword": "ganar dinero con inteligencia artificial desde casa", "intent": "informational-list", "volume": null, "template": "listicle", "wordCount": 1500, "url": "/guias/ganar-dinero-con-ia-desde-casa", "status": "planned"}
+          ]
+        }
+      ],
+      "dropped": [
+        {"keyword": "que curso estudiar para emprender un negocio", "reason": "SERP = university careers (UNIR, Mextudia); wrong audience"}
+      ]
+    },
+    {
+      "id": "B",
+      "pillar": {
+        "title": "Pasteleria para vender desde casa: guia completa para empezar",
+        "keyword": "pasteleria para vender desde casa",
+        "secondary_keywords": ["reposteria para emprender"],
+        "intent": "informational-broad (mixed with commercial: ~half of SERP is Hotmart course pages)",
+        "volume": null,
+        "template": "ultimate-guide",
+        "wordCount": 3000,
+        "url": "/guias/pasteleria-para-vender-desde-casa",
+        "status": "planned"
+      },
+      "clusters": [
+        {
+          "name": "B1 Que producir y donde aprender",
+          "posts": [
+            {"id": "B1", "title": "Postres para vender desde casa: los mas rentables y faciles", "keyword": "postres para vender desde casa", "intent": "informational-list", "volume": null, "template": "listicle", "wordCount": 1500, "url": "/guias/postres-para-vender-desde-casa", "status": "planned"},
+            {"id": "B2", "title": "Helados artesanales para vender desde casa (con o sin maquina)", "keyword": "helados artesanales para vender desde casa", "intent": "informational-how", "volume": null, "template": "how-to", "wordCount": 1400, "url": "/guias/helados-artesanales-para-vender-desde-casa", "status": "planned"},
+            {"id": "B3", "title": "Cursos de reposteria online para emprender", "keyword": "curso de reposteria online", "intent": "transactional", "volume": null, "template": "landing-page (curated best-of grid)", "wordCount": 800, "url": "/categoria/cocina-y-pasteleria", "status": "written (add 600-900 word editorial block + FAQ)"}
+          ]
+        },
+        {
+          "name": "B2 Precios y requisitos",
+          "posts": [
+            {"id": "B4", "title": "Como calcular el precio de un pastel para vender (con plantilla)", "keyword": "como calcular el precio de un pastel para vender", "intent": "informational-how", "volume": null, "template": "how-to", "wordCount": 1500, "url": "/guias/como-calcular-precio-de-un-pastel", "status": "planned"},
+            {"id": "B5", "title": "Permisos para vender comida desde casa en Mexico, Colombia, Argentina, Chile y Peru", "keyword": "permisos para vender comida desde casa", "intent": "informational-concept", "volume": null, "template": "explainer", "wordCount": 1800, "url": "/guias/permisos-para-vender-comida-desde-casa", "status": "planned"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C",
+      "pillar": {
+        "title": "Como empezar un negocio de unas desde casa",
+        "keyword": "negocio de unas desde casa",
+        "secondary_keywords": ["como poner un negocio de unas en casa", "emprendimiento de unas acrilicas desde casa"],
+        "intent": "informational-broad",
+        "volume": null,
+        "template": "ultimate-guide",
+        "wordCount": 2800,
+        "url": "/guias/negocio-de-unas-desde-casa",
+        "status": "planned"
+      },
+      "clusters": [
+        {
+          "name": "C1 Formacion y equipo",
+          "posts": [
+            {"id": "C1", "title": "Curso de unas online con certificado: unas profesionales desde casa", "keyword": "curso de unas online con certificado", "secondary_keywords": ["unas profesionales desde casa curso"], "intent": "transactional", "volume": null, "template": "landing-page (curated best-of grid)", "wordCount": 800, "url": "/categoria/belleza-y-unas", "status": "written (add editorial block, certificate FAQ)"},
+            {"id": "C2", "title": "Materiales para unas acrilicas para principiantes: lista y presupuesto", "keyword": "materiales para unas acrilicas para principiantes", "intent": "informational-list", "volume": null, "template": "listicle", "wordCount": 1400, "url": "/guias/materiales-unas-acrilicas-principiantes", "status": "planned"}
+          ]
+        },
+        {
+          "name": "C2 Tecnica y precios",
+          "posts": [
+            {"id": "C3", "title": "Acrilico, gel o polygel: cual aprender primero si quieres cobrar", "keyword": "unas acrilicas o polygel cual es mejor", "intent": "commercial-compare", "volume": null, "template": "comparison", "wordCount": 1400, "url": "/guias/acrilico-gel-o-polygel-cual-aprender", "status": "planned"},
+            {"id": "C4", "title": "Cuanto cobrar por unas acrilicas: precios por pais y como calcular el tuyo", "keyword": "cuanto cobrar por unas acrilicas", "intent": "informational-how", "volume": null, "template": "how-to", "wordCount": 1500, "url": "/guias/cuanto-cobrar-por-unas-acrilicas", "status": "planned"}
+          ]
+        }
+      ],
+      "dropped": [
+        {"keyword": "press on nails para vender", "reason": "SERP = product stores/marketplaces (transactional retail), no informational opportunity"}
+      ]
+    }
+  ],
+  "links": [
+    {"from": "A0", "to": "A1..A7", "type": "mandatory", "anchor": "spoke keyword variants"},
+    {"from": "A1..A7", "to": "A0", "type": "mandatory", "anchor": "cursos para emprender desde casa / emprender con un curso / aprender un oficio desde casa"},
+    {"from": "A1", "to": "A2", "type": "recommended", "bidirectional": true},
+    {"from": "A1", "to": "A3", "type": "recommended", "bidirectional": true},
+    {"from": "A2", "to": "A3", "type": "recommended", "bidirectional": true},
+    {"from": "A3", "to": "A4", "type": "recommended", "bidirectional": true},
+    {"from": "A5", "to": "A6", "type": "recommended", "bidirectional": true},
+    {"from": "A5", "to": "A7", "type": "recommended", "bidirectional": true},
+    {"from": "A6", "to": "A7", "type": "recommended", "bidirectional": true},
+    {"from": "A0", "to": "B0", "type": "mandatory-hub", "bidirectional": true, "anchor": "pasteleria para vender desde casa"},
+    {"from": "A0", "to": "C0", "type": "mandatory-hub", "bidirectional": true, "anchor": "negocio de unas desde casa"},
+    {"from": "A1", "to": "B0", "type": "optional"},
+    {"from": "A2", "to": "C0", "type": "optional"},
+    {"from": "A3", "to": "/categoria/oficios-y-reparacion", "type": "optional"},
+    {"from": "A4", "to": "/categoria/oficios-y-reparacion", "type": "optional", "bidirectional": true},
+    {"from": "A7", "to": "/categoria/digital-e-ia", "type": "optional", "bidirectional": true},
+    {"from": "B0", "to": "B1..B5", "type": "mandatory"},
+    {"from": "B1..B5", "to": "B0", "type": "mandatory", "anchor": "pasteleria para vender desde casa / reposteria para emprender"},
+    {"from": "B1", "to": "B2", "type": "recommended", "bidirectional": true},
+    {"from": "B1", "to": "B3", "type": "recommended", "bidirectional": true},
+    {"from": "B2", "to": "B3", "type": "recommended", "bidirectional": true},
+    {"from": "B4", "to": "B5", "type": "recommended", "bidirectional": true},
+    {"from": "B1", "to": "B4", "type": "recommended", "bidirectional": true},
+    {"from": "B2", "to": "B5", "type": "recommended"},
+    {"from": "B3", "to": "B4", "type": "recommended", "note": "via reposteria-rentable-plantilla-costos course card"},
+    {"from": "B0", "to": "A5", "type": "optional"},
+    {"from": "B0", "to": "A6", "type": "optional"},
+    {"from": "C0", "to": "C1..C4", "type": "mandatory"},
+    {"from": "C1..C4", "to": "C0", "type": "mandatory", "anchor": "negocio de unas desde casa / emprender con unas acrilicas"},
+    {"from": "C1", "to": "C2", "type": "recommended", "bidirectional": true},
+    {"from": "C1", "to": "C3", "type": "recommended", "bidirectional": true},
+    {"from": "C2", "to": "C3", "type": "recommended", "bidirectional": true},
+    {"from": "C3", "to": "C4", "type": "recommended", "bidirectional": true},
+    {"from": "C2", "to": "C4", "type": "recommended", "bidirectional": true},
+    {"from": "C0", "to": "A6", "type": "optional"},
+    {"from": "C4", "to": "B4", "type": "optional", "note": "shared pricing method"}
+  ],
+  "incoming_link_check": {
+    "A1": 4, "A2": 4, "A3": 4, "A4": 3, "A5": 4, "A6": 6, "A7": 4,
+    "B1": 4, "B2": 4, "B3": 4, "B4": 5, "B5": 4,
+    "C1": 3, "C2": 4, "C3": 4, "C4": 4
+  },
+  "cannibalization": {
+    "merges": [
+      "K1 + K2 -> /emprender (7 shared)",
+      "U1 + U2 -> /categoria/belleza-y-unas (9 shared)",
+      "U3 + U4 -> /guias/negocio-de-unas-desde-casa (5 shared + near-duplicate wording)",
+      "P3 folded into B0 as secondary (near-duplicate meaning; 2 shared)"
+    ],
+    "risk_watch": [
+      "B0 vs /categoria/cocina-y-pasteleria: keep category on 'curso de reposteria online' (transactional), pillar on 'pasteleria para vender' (informational)",
+      "C0 vs /categoria/belleza-y-unas: same split",
+      "A6 must keep comparison as H1 intent; WhatsApp how-to stays a section, not a new URL"
+    ],
+    "duplicates_remaining": 0
+  },
+  "content_gaps": [
+    "Permisos para vender comida: SERP is US/Spain-heavy; no consolidated LatAm multi-country explainer",
+    "Precios de unas acrilicas: SERP is US/Spain/Chile; no MX/CO/AR/PE comparative table",
+    "Cotizar pintura por m2: SERP is consumer price-lookups (Habitissimo, Cronoshare); no pro-side quoting method in LatAm"
+  ],
+  "scorecard": {
+    "coverage": 0.92,
+    "linkDensity": 2.9,
+    "orphanPages": 0,
+    "cannibalization": 0,
+    "contentGaps": 3
+  },
+  "validation": {
+    "unique_primary_keywords": true,
+    "min_3_incoming_per_spoke": true,
+    "spoke_to_pillar_mandatory": true,
+    "pillar_to_spoke_mandatory": true,
+    "orphans": 0,
+    "template_matches_intent": true,
+    "word_counts_in_spec": "pillars 2800-3000 OK; guide spokes 1400-1800 OK; category pages 800 (exception: listing pages, editorial block only)",
+    "cluster_size": "each hub 2 clusters x 2-4 posts OK",
+    "serp_overlap_supports_groupings": "PARTIAL: only P1-P2 (4) and U3-U4 (5) reach cluster threshold; other groupings are taxonomy/funnel-based"
+  }
+}
