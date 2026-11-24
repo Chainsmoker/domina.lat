@@ -165,11 +165,22 @@ const heroImg = sanityCategory?.image
   ? urlFor(sanityCategory.image).width(1300).url() 
   : defaultCategoryImages[categorySlug] || defaultCategoryImages[categoryType] || '/images/hero-emprendimiento.jpg';
 
+// Título SEO por categoría: refleja cómo se busca ("cursos de …"), no el nombre interno.
+const categorySeoTitles: Record<string, string> = {
+  'belleza-y-unas': 'Cursos de uñas, pestañas y belleza online',
+  'cocina-y-pasteleria': 'Cursos de pastelería y repostería online',
+  'digital-e-ia': 'Cursos de IA y marketing digital en español',
+  'oficios-y-reparacion': 'Cursos de oficios y reparación online',
+  'creatividad-y-manualidades': 'Cursos de manualidades y creatividad online',
+  'emprendimiento': 'Cursos de emprendimiento online',
+};
+const seoTitle = `${categorySeoTitles[categorySlug] || `${categoryTitle}: cursos y guías`} | Domina.lat`;
+
 const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: `${categoryTitle} | Cursos y Guías Domina`,
+    name: seoTitle,
     description: categoryDesc,
     url: `https://domina.lat/categoria/${categorySlug}`,
     mainEntity: {
@@ -209,7 +220,7 @@ const jsonLd = [
 ];
 ---
 
-<Layout title={`${categoryTitle} | Cursos y Guías Domina`} description={categoryDesc} image={heroImg} jsonLd={jsonLd}>
+<Layout title={seoTitle} description={categoryDesc} image={heroImg} jsonLd={jsonLd}>
   <main class="page-categoria-exact">
     <div class="container crumbs">
       <a href="/">Inicio</a> / <a href="/categorias">Categorías</a> / <span>{categoryTitle}</span>

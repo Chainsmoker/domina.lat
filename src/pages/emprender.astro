@@ -50,6 +50,9 @@ const criteria = [
   { num: '04', title: 'Para quién no es', desc: 'Cada análisis dice también quién debería evitarlo. Si no encontramos límites claros, no lo recomendamos.' },
 ];
 
+const pageTitle = `Cursos para emprender desde casa: ${roundup.length} comparados (${updatedAt.getFullYear()})`;
+const pageDescription = `Comparamos ${roundup.length} cursos de emprendimiento online${minPrice ? ` desde ${minPrice}` : ''}: precio, formato, para quién sirve y para quién no. Actualizado el ${updatedLabel}.`;
+
 const roundupJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
@@ -126,7 +129,7 @@ const steps = [
 ];
 ---
 
-<Layout title="Cursos para emprender desde casa: comparativa | Domina.lat" description="Comparamos los cursos para emprender desde casa del catálogo: precio, formato, para quién sirve y para quién no, y cómo los elegimos." jsonLd={roundupJsonLd}>
+<Layout title={pageTitle} description={pageDescription} jsonLd={roundupJsonLd}>
   <main class="page-emprender">
     <section class="hero">
       <div class="container">

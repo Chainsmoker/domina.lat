@@ -34,16 +34,24 @@ const checklist = [
   'No ocultamos cuando existe una relación comercial.',
   'No sustituimos el criterio personal ni la investigación propia.'
 ];
+const aboutJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: 'Qué es Domina.lat',
+  url: 'https://domina.lat/sobre',
+  isPartOf: { '@id': 'https://domina.lat/#website' },
+  about: { '@id': 'https://domina.lat/#organization' },
+};
 ---
 
-<Layout title="Sobre Domina | Cómo seleccionamos cursos" description="Conoce la misión de Domina, cómo seleccionamos cursos y cómo mantenemos la transparencia en nuestras recomendaciones.">
+<Layout title="Qué es Domina.lat: cómo seleccionamos cursos" description="Domina.lat es un sitio en español que compara cursos online. Así los seleccionamos, qué revisamos y cómo mantenemos la transparencia." jsonLd={aboutJsonLd}>
   <main class="page-sobre">
     <header class="hero">
       <div class="container hero-grid">
         <div>
           <span class="eyebrow">Sobre Domina</span>
           <h1 class="display">Elegir bien también <span>es aprender.</span></h1>
-          <p>Domina nació para ayudar a personas reales a encontrar cursos y recursos prácticos sin perderse entre promesas exageradas, catálogos interminables o información poco clara.</p>
+          <p><strong>Domina.lat es un sitio en español que compara y recomienda cursos online.</strong> Nació para ayudar a personas reales a encontrar cursos y recursos prácticos sin perderse entre promesas exageradas, catálogos interminables o información poco clara.</p>
           <div class="hero-actions">
             <a class="btn btn-dark" href="/cursos">Explorar cursos ↗</a>
             <a class="btn" href="#criterios">Cómo seleccionamos</a>
