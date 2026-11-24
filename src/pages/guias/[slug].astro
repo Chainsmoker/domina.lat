@@ -1,5 +1,6 @@
 ---
 export const prerender = false;
+import { NOINDEX_GUIDES } from '../../lib/noindex';
 import Layout from '../../layouts/Layout.astro';
 import { getPosts, getPostBySlug, getCourses } from '../../lib/sanity/queries';
 import { relatedByTopic, bestCourseFor } from '../../lib/utils/related';
@@ -146,7 +147,7 @@ const autoToc = post.toc && post.toc.length > 0 ? post.toc : (
 );
 ---
 
-<Layout title={pageTitle} description={pageDescription} image={pageImage} type="article" jsonLd={jsonLd}>
+<Layout title={pageTitle} description={pageDescription} image={pageImage} type="article" jsonLd={jsonLd} robots={NOINDEX_GUIDES.has(slug) ? 'noindex,follow' : undefined}>
   <main class="page-post">
     <header class="hero">
       <div class="container">

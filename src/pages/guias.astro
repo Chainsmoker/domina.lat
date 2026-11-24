@@ -25,7 +25,8 @@ const searchParams = Astro.url.searchParams;
 const qParam = searchParams.get('q')?.trim() || '';
 const categoryParam = searchParams.get('categoria')?.trim() || 'todos';
 const currentPage = Math.max(1, parseInt(searchParams.get('pagina') || '1') || 1);
-const POSTS_PER_PAGE = 6;
+// 24 por página: con 6 había 24 páginas y las guías más antiguas quedaban a 24 clics de /guias.
+const POSTS_PER_PAGE = 24;
 
 // Filtrar publicaciones por categoría y término de búsqueda
 let filteredPosts = allPosts;

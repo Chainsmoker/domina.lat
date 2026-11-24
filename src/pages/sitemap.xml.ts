@@ -1,3 +1,4 @@
+import { NOINDEX_GUIDES } from '../lib/noindex';
 import type { APIRoute } from 'astro';
 import { getCategories, getCourses, getPosts } from '../lib/sanity/queries';
 
@@ -33,7 +34,7 @@ export const GET: APIRoute = async () => {
   }));
 
   // Fecha de modificación real del documento (no la de publicación).
-  const postUrls: SitemapItem[] = posts.map((post) => ({
+  const postUrls: SitemapItem[] = posts.filter((post) => !NOINDEX_GUIDES.has(post.slug)).map((post) => ({
     url: `/guias/${post.slug}`,
     lastmod: toIso(newest(post._updatedAt, post.publishedAt, post._createdAt)),
   }));
