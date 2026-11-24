@@ -2,6 +2,13 @@ import { Redis } from '@upstash/redis';
 
 let redisInstance: Redis | null = null;
 
+/**
+ * Versión del caché. Las claves se guardan sin TTL, así que los cambios hechos en Sanity
+ * no se ven hasta que se borra la clave. Subir este valor y desplegar invalida todo el caché
+ * de golpe (las claves viejas quedan huérfanas y no se leen). Úsalo tras editar contenido en masa.
+ */
+export const CACHE_VERSION = 'v2-2026-11-24';
+
 export function getRedisClient(): Redis | null {
   // Desactivar caché automáticamente en entorno de desarrollo (astro dev)
   if (import.meta.env.DEV) {
@@ -45,6 +52,7 @@ export async function cachedFetch<T>(
   ttlSeconds?: number
 ): Promise<T> {
   const redis = getRedisClient();
+  key = `${CACHE_VERSION}:${key}`;
 
   if (redis) {
     try {
@@ -81,6 +89,7 @@ export async function cachedFetch<T>(
 export async function invalidateCache(key: string): Promise<boolean> {
   const redis = getRedisClient();
   if (!redis) return false;
+  key = `${CACHE_VERSION}:${key}`;
 
   try {
     await redis.del(key);
