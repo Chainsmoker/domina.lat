@@ -47,7 +47,10 @@ const title = normalizeTitle(rawTitle);
 const description = normalizeDescription(rawDescription);
 
 const siteUrl = Astro.site || new URL("https://domina.lat");
-const canonicalUrl = new URL(canonical || Astro.url.pathname, siteUrl).href;
+// Con build.format 'file' las páginas prerenderizadas llegan como /sobre.html o /index.html;
+// la canonical debe ser la URL limpia (igual que el sitemap y el redirect 307 de Cloudflare).
+const cleanPath = Astro.url.pathname.replace(/(\/index)?\.html$/, '') || '/';
+const canonicalUrl = new URL(canonical || cleanPath, siteUrl).href;
 const imageUrl = image.startsWith('http') ? image : new URL(image, siteUrl).href;
 ---
 

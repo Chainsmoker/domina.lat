@@ -17,13 +17,13 @@ Astro.response.headers.set(
 
 const { slug } = Astro.params;
 if (!slug) {
-  return Astro.redirect('/404');
+  return Astro.rewrite('/404');
 }
 
 const course = await getCourseBySlug(slug);
 
 if (!course) {
-  return Astro.redirect('/404');
+  return Astro.rewrite('/404');
 }
 
 const allCourses = await getCourses();

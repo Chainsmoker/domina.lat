@@ -1,3 +1,4 @@
+import { REDIRECTS } from '../redirects';
 import { sanityFetch } from './client';
 import { cachedFetch } from '../redis/client';
 
@@ -360,7 +361,7 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
  * Obtiene todos los posts desde Sanity con resolución de categoría
  */
 export async function getPosts(): Promise<Post[]> {
-  return cachedFetch('sanity:posts:all', async () => {
+  const all = await cachedFetch<Post[]>('sanity:posts:all', async () => {
     const posts = await sanityFetch<Post[]>({
       query: `*[_type == "post"] | order(select(defined(publishedAt) => publishedAt, _createdAt) desc) {
         _id,
@@ -388,6 +389,8 @@ export async function getPosts(): Promise<Post[]> {
     });
     return posts || [];
   });
+  // Las guías con 301 (src/lib/redirects.ts) no deben aparecer en sitemap, listados ni relacionadas.
+  return all.filter((p) => !REDIRECTS[`/guias/${p.slug}`]);
 }
 
 /**
