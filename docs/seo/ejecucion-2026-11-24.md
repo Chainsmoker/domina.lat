@@ -35,7 +35,11 @@ Lectura: Google indexó muchas guías y luego las sacó. No es un fallo técnico
   - `conservar-masas-galletas-refrigeracion`: FDA, CDC y USDA (4 °C y −18 °C, regla de 24 horas con huevo crudo, regla de 2 horas, descongelado y recongelado).
   - `esterilizacion-herramientas-manicura-guia-basica`: OSHA 3542 y reglamentos de Connecticut y Georgia (10 a 30 minutos de remojo, alcohol, autoclave de referencia, cajas UV).
   - `organizar-taller-costura-casa`: DGUV 203-023, BG ETEM e Institute for Work & Health (alturas, 500 y 750 a 1000 lux, ángulo del cuello).
-  En esas 4 guías se actualizaron `body`, `toc`, `dek`, `seoDescription` y `readingTime`.
+  - Segunda tanda (2026-11-25):
+    - `materiales-para-empezar-a-crochet-checklist`: tabla del Craft Yarn Council (grosor de lana, gancho en mm y talla de EE. UU., puntos por 10 cm). Se corrigió la recomendación de un gancho de 5 mm para lana worsted: el rango publicado es 5,5 a 6,5 mm.
+    - `ficha-tecnica-cliente-pestanas-cejas`: FDA (adhesivos de pestañas como cosméticos, látex en el 1 % a 6 % de la población, productos profesionales sin lista de ingredientes, reporte de reacciones) y Academia Americana de Oftalmología (riesgos, caducidad, prueba en la muñeca).
+    - `calcular-precio-minuto-corte-confeccion`: ejemplo numérico completo (costo 520, 5.040 minutos reales, 0,1032 por minuto, prenda de 45 minutos a 4,64 sin tela). Incluye el pago propio, que la guía omitía.
+  En esas guías se actualizaron `body`, `toc`, `dek`, `seoDescription` y `readingTime`.
 - Las cifras de esas guías son de normas de EE. UU. o Alemania y están marcadas como referencia, no como la norma local.
 
 ## Pendiente (requiere a una persona)
@@ -43,7 +47,7 @@ Lectura: Google indexó muchas guías y luego las sacó. No es un fallo técnico
 1. **Autor y propietario reales** (auditoría #5): nombre de quien firma, experiencia, país, redes y entidad legal. Sin esto no se puede reforzar `/sobre`, las páginas de autor ni la firma de las guías.
 2. **Reenviar el sitemap en Search Console.** El token de Google es de solo lectura.
 3. **Cloudflare:** "Always Use HTTPS".
-4. **Mejorar más guías.** Las 4 de arriba son la primera tanda. Siguientes por impresiones perdidas: `costos-negocio-reposteria-inversion-inicial` (plegar en el pilar `negocio-de-reposteria-desde-casa`), `ficha-tecnica-cliente-pestanas-cejas`, `herramientas-fontaneria-hogar-guia-basica`, `materiales-para-empezar-a-crochet-checklist`, `rendimiento-ingredientes-reposteria-venta`, `calcular-precio-minuto-corte-confeccion`. El patrón que funcionó: sustituir "consulta la autoridad de tu país" por la cifra oficial con su fuente, y añadir un ejemplo con números.
+4. **Mejorar más guías.** Hechas 7 de las que más impresiones perdieron. Quedan `costos-negocio-reposteria-inversion-inicial` (plegar en el pilar `negocio-de-reposteria-desde-casa`; decisión estructural) y `herramientas-fontaneria-hogar-guia-basica` (sin una fuente oficial clara para cifras). `rendimiento-ingredientes-reposteria-venta` ya tiene un ejemplo numérico completo y no se tocó. El patrón que funcionó: sustituir "consulta la autoridad de tu país" por la cifra oficial con su fuente, y añadir un ejemplo con números.
 5. **Cursos no indexados (6 de 13).** Las páginas son copia del vendedor con poco valor propio. Añadir pruebas reales: capturas, una muestra, fecha de prueba y nombre de quien revisó.
 6. **Rotar tokens** de Sanity y Upstash (se pegaron en un chat).
 
